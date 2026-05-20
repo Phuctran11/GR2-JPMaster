@@ -30,6 +30,9 @@ function LoginForm() {
     setLoading(true);
     try {
       const response = await authAPI.login(formData as any);
+      if (!response.token) {
+        throw new Error('Login response did not include an authentication token');
+      }
       login(response.data, response.token);
       addToast('Sign in successful!', 'success');
       navigate('/');

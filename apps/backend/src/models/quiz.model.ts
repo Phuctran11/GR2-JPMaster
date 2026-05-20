@@ -247,13 +247,11 @@ export class QuizModel {
 
   async getFinalQuiz(courseId: number, userId: number): Promise<QuizDetail | null> {
     const query = `
-      SELECT COALESCE((to_jsonb(c)->>'final_quiz_id')::int, q.quiz_id) AS quiz_id
-      FROM "Course" c
-      LEFT JOIN "Quiz" q
-        ON q.course_id = c.course_id
-        AND q.quiz_type = 'final_test'
-      WHERE c.course_id = $1
-      ORDER BY q.quiz_id DESC NULLS LAST
+      SELECT quiz_id
+      FROM "Quiz"
+      WHERE course_id = $1
+        AND quiz_type = 'final_test'
+      ORDER BY quiz_id DESC
       LIMIT 1;
     `;
     const result = await databaseService.executeQuery(query, [courseId]);

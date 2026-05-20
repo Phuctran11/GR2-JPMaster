@@ -35,7 +35,12 @@ export function ToastContainer() {
   };
 
   return (
-    <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none space-y-3 max-w-md w-full px-4">
+    <div
+      className="fixed top-24 left-1/2 z-[120] w-full max-w-md -translate-x-1/2 space-y-3 px-4 pointer-events-none"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       {toasts.map((toast) => {
         const styles = getToastStyles(toast.type as any);
         return (

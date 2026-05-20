@@ -18,6 +18,7 @@ export interface LessonNote {
   lesson_title?: string | null;
   course_id?: number | null;
   course_title?: string | null;
+  quiz_type?: string | null;
   question_text?: string | null;
 }
 
@@ -183,13 +184,26 @@ export class LessonNoteModel {
         ln.created_at,
         ln.updated_at,
         l.title AS lesson_title,
-        l.course_id,
-        c.title AS course_title,
+        COALESCE(l.course_id, note_quiz.course_id) AS course_id,
+        COALESCE(c.title, qc.title) AS course_title,
+        note_quiz.quiz_type,
         q.question_text
       FROM "LessonNote" ln
       LEFT JOIN "Lesson" l ON l.lesson_id = ln.lesson_id
       LEFT JOIN "Course" c ON c.course_id = l.course_id
       LEFT JOIN "Question" q ON q.question_id = ln.question_id
+      LEFT JOIN LATERAL (
+        SELECT COALESCE(qz.course_id, ql.course_id) AS course_id, qz.quiz_type
+        FROM "QuizQuestion" qq
+        JOIN "Quiz" qz ON qz.quiz_id = qq.quiz_id
+        LEFT JOIN "Lesson" ql ON ql.lesson_id = qz.lesson_id
+        WHERE qq.question_id = ln.question_id
+        ORDER BY
+          CASE WHEN qz.quiz_type = 'final_test' THEN 0 ELSE 1 END,
+          qz.quiz_id DESC
+        LIMIT 1
+      ) note_quiz ON TRUE
+      LEFT JOIN "Course" qc ON qc.course_id = note_quiz.course_id
       WHERE ${where.join(" AND ")}
       ORDER BY ln.is_pinned DESC, ln.created_at DESC
       LIMIT $${values.length - 1} OFFSET $${values.length};

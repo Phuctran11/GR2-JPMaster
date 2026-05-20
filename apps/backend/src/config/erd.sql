@@ -16,7 +16,6 @@ CREATE TABLE "Course" (
     duration INT,
     price NUMERIC(10, 2) DEFAULT 0 NOT NULL,
     created_by INT NOT NULL REFERENCES "User"(user_id),
-    final_quiz_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -35,16 +34,35 @@ CREATE TABLE "Lesson" (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "Flashcard" (
-    flashcard_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES "User"(user_id),
-    lesson_id INT NOT NULL REFERENCES "Lesson"(lesson_id),
-    word VARCHAR(100) NOT NULL,
-    meaning TEXT NOT NULL,
-    example_sentence TEXT,
+CREATE TABLE "FlashcardCollection" (
+    collection_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    visibility VARCHAR(20) CHECK (visibility IN ('private', 'public')) DEFAULT 'private',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE "Flashcard" (
+    flashcard_id SERIAL PRIMARY KEY,
+    collection_id INT NOT NULL REFERENCES "FlashcardCollection"(collection_id) ON DELETE CASCADE,
+    lesson_id INT REFERENCES "Lesson"(lesson_id) ON DELETE SET NULL,
+    front_text TEXT NOT NULL,
+    back_text TEXT NOT NULL,
+    reading TEXT,
+    example_sentence TEXT,
+    image_url TEXT,
+    audio_url TEXT,
+    tags TEXT[],
+    order_index INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_flashcard_collection_user ON "FlashcardCollection"(user_id);
+CREATE INDEX idx_flashcard_collection ON "Flashcard"(collection_id);
+CREATE INDEX idx_flashcard_lesson ON "Flashcard"(lesson_id);
 
 CREATE TABLE "Quiz" (
     quiz_id SERIAL PRIMARY KEY,
@@ -191,6 +209,21 @@ CREATE TABLE "CourseEnrollment" (
     status VARCHAR(20) CHECK (status IN ('active', 'completed', 'dropped')),
     UNIQUE (user_id, course_id)
 );
+
+CREATE TABLE "Certificate" (
+    certificate_id SERIAL PRIMARY KEY,
+    certificate_code VARCHAR(80) UNIQUE NOT NULL,
+    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
+    course_id INT NOT NULL REFERENCES "Course"(course_id) ON DELETE CASCADE,
+    enrollment_id INT REFERENCES "CourseEnrollment"(enrollment_id) ON DELETE SET NULL,
+    issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, course_id)
+);
+
+CREATE INDEX idx_certificate_user ON "Certificate"(user_id);
+CREATE INDEX idx_certificate_course ON "Certificate"(course_id);
 
 CREATE TABLE "CourseRating" (
     rating_id SERIAL PRIMARY KEY,

@@ -164,13 +164,9 @@ export class UserController {
 
       const passwordHash = await passwordService.hashPassword(password);
       const user = await userModel.createUser(username, email, passwordHash, role as UserRole);
-      const token = tokenService.generateToken({
-        user_id: user.user_id,
-        email: user.email,
-        role: user.role,
-      });
+      const { password_hash, ...userWithoutPassword } = user;
 
-      return res.status(201).json({ message: "User created successfully", data: user, token });
+      return res.status(201).json({ message: "User created successfully", data: userWithoutPassword });
     } catch (error) {
       next(error);
     }

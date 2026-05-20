@@ -1,33 +1,47 @@
 import { Router } from "express";
 import flashcardController from "../controllers/flashcard.controller.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// Tạo flashcard cá nhân
-router.post("/", flashcardController.createFlashcard.bind(flashcardController));
+router.use(authMiddleware);
 
-// Lấy tất cả flashcards
-router.get("/", flashcardController.getAllFlashcards.bind(flashcardController));
+router.get("/collections", (req, res, next) =>
+  flashcardController.getMyCollections(req, res, next)
+);
+router.get("/collections/public", (req, res, next) =>
+  flashcardController.getPublicCollections(req, res, next)
+);
+router.post("/collections", (req, res, next) =>
+  flashcardController.createCollection(req, res, next)
+);
+router.get("/collections/:collectionId", (req, res, next) =>
+  flashcardController.getCollection(req, res, next)
+);
+router.put("/collections/:collectionId", (req, res, next) =>
+  flashcardController.updateCollection(req, res, next)
+);
+router.delete("/collections/:collectionId", (req, res, next) =>
+  flashcardController.deleteCollection(req, res, next)
+);
+router.get("/collections/:collectionId/cards", (req, res, next) =>
+  flashcardController.getFlashcardsByCollection(req, res, next)
+);
+router.get("/lessons/:lessonId", (req, res, next) =>
+  flashcardController.getFlashcardsByLesson(req, res, next)
+);
 
-// Lấy flashcard theo ID
-router.get("/:id", flashcardController.getFlashcard.bind(flashcardController));
-
-// Lấy tất cả flashcards cá nhân của người dùng
-router.get("/personal/:userId", flashcardController.getPersonalFlashcards.bind(flashcardController));
-
-// Lấy flashcards của bài học (từ lesson)
-router.get("/lesson/:lessonId", flashcardController.getFlashcardsByLesson.bind(flashcardController));
-
-// Lấy flashcards cá nhân của người dùng từ bài học cụ thể
-router.get("/personal/:userId/lesson/:lessonId", flashcardController.getPersonalFlashcardsByLesson.bind(flashcardController));
-
-// Sao chép flashcard từ lesson vào bộ cá nhân
-router.post("/:flashcardId/copy", flashcardController.copyFlashcardToPersonal.bind(flashcardController));
-
-// Cập nhật flashcard
-router.put("/:id", flashcardController.updateFlashcard.bind(flashcardController));
-
-// Xóa flashcard
-router.delete("/:id", flashcardController.deleteFlashcard.bind(flashcardController));
+router.post("/", (req, res, next) =>
+  flashcardController.createFlashcard(req, res, next)
+);
+router.get("/:id", (req, res, next) =>
+  flashcardController.getFlashcard(req, res, next)
+);
+router.put("/:id", (req, res, next) =>
+  flashcardController.updateFlashcard(req, res, next)
+);
+router.delete("/:id", (req, res, next) =>
+  flashcardController.deleteFlashcard(req, res, next)
+);
 
 export default router;

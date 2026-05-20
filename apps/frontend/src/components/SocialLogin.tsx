@@ -47,6 +47,9 @@ export function SocialLogin({ loading, setLoading }: SocialLoginProps) {
             if (response.credential) {
               try {
                 const res = await authAPI.googleLogin({ token: response.credential });
+                if (!res.token) {
+                  throw new Error('Google login response did not include an authentication token');
+                }
                 login(res.data, res.token);
                 addToast('Google login successful!', 'success');
                 navigate('/');

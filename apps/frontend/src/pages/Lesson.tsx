@@ -11,6 +11,7 @@ import {
   type LessonItem,
 } from '../components/lesson';
 import { NoteComposer } from '../components/notes';
+import { AIAssistantPanel } from '../components/ai/AIAssistantPanel';
 import { enrollmentAPI, lessonNoteAPI, quizAPI, type Lesson as LessonData, type LessonNote, type Quiz } from '../services/api';
 
 export default function Lesson() {
@@ -26,6 +27,8 @@ export default function Lesson() {
   const [quizLoading, setQuizLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [highlightText, setHighlightText] = useState<string | null>(null);
+  const [aiSelectedText, setAiSelectedText] = useState<string | null>(null);
+  const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
   const [videoNoteDraft, setVideoNoteDraft] = useState<{ timestamp: number | null; note: LessonNote | null } | null>(null);
   const [lessonNotes, setLessonNotes] = useState<LessonNote[]>([]);
 
@@ -177,6 +180,21 @@ export default function Lesson() {
     setLessonNotes((previous) => previous.filter((note) => note.note_id !== noteId));
   }, []);
 
+  const handleSaveAiSummaryNote = useCallback(
+    async (answer: string) => {
+      if (!currentLesson) return;
+
+      const savedNote = await lessonNoteAPI.createNote({
+        lesson_id: currentLesson.lesson_id,
+        note_type: 'ai_summary',
+        note_content: answer,
+        selected_text: aiSelectedText,
+      });
+      handleNoteSaved(savedNote.data);
+    },
+    [aiSelectedText, currentLesson, handleNoteSaved]
+  );
+
   const handleAddVideoNote = useCallback(
     (timestamp: number | null) => {
       const normalizedTimestamp = Math.max(0, Math.floor(timestamp ?? 0));
@@ -185,6 +203,11 @@ export default function Lesson() {
     },
     [videoNotes]
   );
+
+  const handleAskAIAboutSelection = useCallback((selectedText: string) => {
+    setAiSelectedText(selectedText);
+    setIsAiAssistantOpen(true);
+  }, []);
 
   useEffect(() => {
     if (!courseId || !currentLesson) {
@@ -417,6 +440,7 @@ export default function Lesson() {
                   isStudyMode={isStudyMode}
                   articleRef={lessonContentRef}
                   onAddHighlightNote={setHighlightText}
+                  onAskAIAboutSelection={handleAskAIAboutSelection}
                   highlightNotes={highlightNotes}
                 />
 
@@ -533,6 +557,52 @@ export default function Lesson() {
           </Container>
         </main>
       </div>
+
+      <button
+        type="button"
+        onClick={() => setIsAiAssistantOpen(true)}
+        className="fixed bottom-6 right-6 z-[80] inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-xl shadow-primary/25 transition hover:scale-105 hover:shadow-2xl"
+        title="Open AI assistant"
+        aria-label="Open AI assistant"
+      >
+        <span className="material-symbols-outlined text-[28px]">auto_awesome</span>
+      </button>
+
+      {isAiAssistantOpen && (
+        <div className="fixed inset-0 z-[100] flex justify-end bg-black/45 p-3 sm:p-5" role="dialog" aria-modal="true">
+          <div className="flex h-full w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">
+              <div className="min-w-0">
+                <p className="text-label-md font-bold uppercase tracking-wide text-primary">Lesson AI</p>
+                <h2 className="truncate text-title-lg font-bold text-on-surface">{currentLesson.title}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAiAssistantOpen(false)}
+                className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container"
+                aria-label="Close AI assistant"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto bg-surface-container-low p-4 sm:p-5">
+              <AIAssistantPanel
+                title="Ask AI about this lesson"
+                description="Ask for explanations, grammar notes, summaries, or clarification about selected lesson text."
+                className="shadow-none"
+                onSaveAnswer={handleSaveAiSummaryNote}
+                saveAnswerLabel="Save AI Note"
+                context={{
+                  type: 'lesson',
+                  lessonTitle: currentLesson.title,
+                  lessonContent: currentLesson.content_text,
+                  selectedText: aiSelectedText,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

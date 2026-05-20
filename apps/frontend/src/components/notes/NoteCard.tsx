@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { lessonNoteAPI, type LessonNote } from '../../services/api';
 import { useToastMessages } from '../../hooks/useToastMessages';
@@ -73,13 +74,17 @@ const formatTimestamp = (seconds: number) => {
 
 export function NoteCard({ note, onChanged, onDeleted }: NoteCardProps) {
   const toast = useToastMessages();
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const lessonHref = note.course_id && note.lesson_id ? `/courses/${note.course_id}/lessons/${note.lesson_id}` : undefined;
+  const courseHref = note.course_id ? `/courses/${note.course_id}` : undefined;
+  const finalTestHref = note.course_id && !note.lesson_id && note.quiz_type === 'final_test' ? `/courses/${note.course_id}` : undefined;
   const isHighlightNote = note.note_type === 'highlight';
   const typeStyle = noteTypeStyles[note.note_type];
   const highlightedText = isHighlightNote ? note.selected_text?.trim() || note.note_content : note.selected_text;
   const shouldShowNoteContent = !isHighlightNote || note.note_content.trim() !== highlightedText?.trim();
 
-  const handlePin = async () => {
+  const handlePin = async (event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.stopPropagation();
     try {
       const result = await lessonNoteAPI.setPinned(note.note_id, !note.is_pinned);
       onChanged?.({ ...note, ...result.data });
@@ -89,7 +94,8 @@ export function NoteCard({ note, onChanged, onDeleted }: NoteCardProps) {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.stopPropagation();
     try {
       await lessonNoteAPI.deleteNote(note.note_id);
       onDeleted?.(note.note_id);
@@ -99,8 +105,24 @@ export function NoteCard({ note, onChanged, onDeleted }: NoteCardProps) {
     }
   };
 
+  const stopOpeningDetail = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+  };
+
   return (
-    <article className={`relative overflow-hidden rounded-xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${note.is_pinned ? 'border-primary/40 ring-2 ring-primary/10' : 'border-outline-variant'}`}>
+    <>
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={() => setIsDetailOpen(true)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          setIsDetailOpen(true);
+        }
+      }}
+      className={`relative cursor-pointer overflow-hidden rounded-xl border bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${note.is_pinned ? 'border-primary/40 ring-2 ring-primary/10' : 'border-outline-variant'}`}
+    >
       <div className={`absolute inset-y-0 left-0 w-1.5 ${typeStyle.accent}`} />
 
       <div className="flex flex-col gap-3 pl-1 sm:flex-row sm:items-start sm:justify-between">
@@ -180,9 +202,19 @@ export function NoteCard({ note, onChanged, onDeleted }: NoteCardProps) {
 
       <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-outline-variant pt-4 text-body-sm text-on-surface-variant">
         {lessonHref ? (
-          <Link to={lessonHref} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+          <Link to={lessonHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
             <span className="material-symbols-outlined text-[18px]">school</span>
             {note.lesson_title || `Lesson ${note.lesson_id}`}
+          </Link>
+        ) : finalTestHref ? (
+          <Link to={finalTestHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+            <span className="material-symbols-outlined text-[18px]">assignment</span>
+            Final test question
+          </Link>
+        ) : courseHref && !note.lesson_id ? (
+          <Link to={courseHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+            <span className="material-symbols-outlined text-[18px]">school</span>
+            Course question
           </Link>
         ) : note.lesson_id ? (
           <span>Lesson {note.lesson_id}</span>
@@ -192,5 +224,76 @@ export function NoteCard({ note, onChanged, onDeleted }: NoteCardProps) {
         {note.course_title && <span>{note.course_title}</span>}
       </div>
     </article>
+
+    {isDetailOpen && (
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4"
+        role="dialog"
+        aria-modal="true"
+        onClick={() => setIsDetailOpen(false)}
+      >
+        <section
+          className="max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-2xl"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <header className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-label-sm font-bold ${typeStyle.badge}`}>
+                  <span className="material-symbols-outlined text-[16px]">{typeStyle.icon}</span>
+                  {noteTypeLabels[note.note_type]}
+                </span>
+                {note.is_pinned && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary-fixed px-3 py-1 text-label-sm font-bold text-on-primary-fixed">
+                    <span className="material-symbols-outlined text-[16px]">push_pin</span>
+                    Pinned
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-body-sm text-on-surface-variant">Created {formatDateTime(note.created_at)}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsDetailOpen(false)}
+              className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container"
+              aria-label="Close note detail"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </header>
+
+          <div className="max-h-[calc(88vh-92px)] overflow-y-auto px-5 py-5">
+            {highlightedText && (
+              <div className={`mb-4 rounded-lg border px-4 py-3 text-body-md leading-7 ${typeStyle.soft}`}>
+                <span className={`mb-2 block text-label-sm font-bold uppercase tracking-wide ${typeStyle.title}`}>
+                  {isHighlightNote ? 'Highlighted text' : 'Selected text'}
+                </span>
+                <div className="whitespace-pre-line">{highlightedText}</div>
+              </div>
+            )}
+
+            {note.question_text && (
+              <div className="mb-4 rounded-lg border border-violet-100 bg-violet-50 px-4 py-3 text-body-sm text-violet-900">
+                <span className="mb-1 block text-label-sm font-bold uppercase tracking-wide text-violet-800">Question</span>
+                {note.question_text}
+              </div>
+            )}
+
+            {shouldShowNoteContent ? (
+              <div className="whitespace-pre-line text-body-md leading-7 text-on-surface">{note.note_content}</div>
+            ) : (
+              <p className="text-body-md text-on-surface-variant">No additional note content.</p>
+            )}
+
+            <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-outline-variant pt-4 text-body-sm text-on-surface-variant">
+              {note.lesson_title && <span>{note.lesson_title}</span>}
+              {note.course_title && <span>{note.course_title}</span>}
+              {note.video_timestamp_seconds != null && <span>Timestamp {formatTimestamp(note.video_timestamp_seconds)}</span>}
+            </div>
+          </div>
+        </section>
+      </div>
+    )}
+    </>
   );
 }
