@@ -1,16 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header, Footer, Button, Card, Container, Breadcrumbs } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
-import { enrollmentAPI, type Course } from '../services/api';
+import { certificateAPI, type Certificate } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { getCourseLessonCount } from '../utils/course';
-
-type CertificateCourse = Course & {
-  enrollment_status?: string;
-  enrollment_date?: string;
-};
 
 const formatDisplayDate = (value?: string) => {
   const date = value ? new Date(value) : new Date();
@@ -190,9 +184,8 @@ export default function Certification() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { addToast } = useToast();
-  const [course, setCourse] = useState<CertificateCourse | null>(null);
+  const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -211,12 +204,8 @@ export default function Certification() {
     const fetchCertificateCourse = async () => {
       try {
         setLoading(true);
-        const result = await enrollmentAPI.getEnrolledCourseDetail(parseInt(courseId));
-        const nextCourse = result.data;
-        const completed = nextCourse.enrollment_status === 'completed';
-
-        setCourse(nextCourse);
-        setIsCompleted(completed);
+        const result = await certificateAPI.getCourseCertificate(parseInt(courseId));
+        setCertificate(result.data);
       } catch (error) {
         addToast(error instanceof Error ? error.message : 'Failed to load certificate', 'error');
         navigate('/courses');
@@ -228,25 +217,20 @@ export default function Certification() {
     fetchCertificateCourse();
   }, [addToast, authLoading, courseId, navigate, user]);
 
-  const certificateId = useMemo(() => {
-    if (!course || !user) return '';
-    return `JPM-${user.user_id}-${course.course_id}-${new Date().getFullYear()}`;
-  }, [course, user]);
-
   const handleDownloadPdf = () => {
-    if (!course || !user) return;
+    if (!certificate) return;
 
     const pdf = createCertificatePdf({
-      learnerName: user.username,
-      courseTitle: course.title,
-      issuedDate: formatDisplayDate(),
-      courseWork: `${getCourseLessonCount(course)} lessons - ${formatCourseDuration(course.duration)}`,
-      certificateId,
+      learnerName: certificate.username,
+      courseTitle: certificate.course_title,
+      issuedDate: formatDisplayDate(certificate.issued_at),
+      courseWork: `${certificate.lesson_count} lessons - ${formatCourseDuration(certificate.course_duration)}`,
+      certificateId: certificate.certificate_code,
     });
     const url = URL.createObjectURL(pdf);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${sanitizeFileName(course.title)}-certificate.pdf`;
+    link.download = `${sanitizeFileName(certificate.course_title)}-certificate.pdf`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -271,7 +255,7 @@ export default function Certification() {
     );
   }
 
-  if (!course || !isCompleted) {
+  if (!certificate) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
@@ -357,7 +341,7 @@ export default function Certification() {
                 </Text>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Button onClick={() => navigate(`/courses/${course.course_id}`)} variant="secondary">
+                <Button onClick={() => navigate(`/courses/${certificate.course_id}`)} variant="secondary">
                   Back to Course
                 </Button>
                 <Button onClick={handleDownloadPdf}>
@@ -389,30 +373,30 @@ export default function Certification() {
                     This certifies that
                   </p>
                   <h3 className="font-display-lg text-[clamp(2.5rem,6vw,5.5rem)] font-bold leading-tight text-primary">
-                    {user?.username}
+                    {certificate.username}
                   </h3>
                   <p className="mx-auto mt-6 max-w-3xl text-title-lg leading-relaxed text-on-surface-variant">
                     has successfully completed the course
                   </p>
                   <h4 className="mt-4 text-[clamp(1.75rem,4vw,3.5rem)] font-bold leading-tight text-on-surface">
-                    {course.title}
+                    {certificate.course_title}
                   </h4>
                 </div>
 
                 <div className="grid w-full max-w-4xl grid-cols-1 gap-4 text-left md:grid-cols-3">
                   <div className="rounded-2xl border border-outline-variant bg-primary-fixed/20 p-5">
                     <p className="text-label-sm font-black uppercase tracking-wide text-on-surface-variant">Issued on</p>
-                    <p className="mt-2 text-title-md font-bold text-primary">{formatDisplayDate()}</p>
+                    <p className="mt-2 text-title-md font-bold text-primary">{formatDisplayDate(certificate.issued_at)}</p>
                   </div>
                   <div className="rounded-2xl border border-outline-variant bg-secondary-container/30 p-5">
                     <p className="text-label-sm font-black uppercase tracking-wide text-on-surface-variant">Course work</p>
                     <p className="mt-2 text-title-md font-bold text-primary">
-                      {getCourseLessonCount(course)} lessons · {formatCourseDuration(course.duration)}
+                      {certificate.lesson_count} lessons · {formatCourseDuration(certificate.course_duration)}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-outline-variant bg-surface-container-low p-5">
                     <p className="text-label-sm font-black uppercase tracking-wide text-on-surface-variant">Certificate ID</p>
-                    <p className="mt-2 text-title-md font-bold text-primary">{certificateId}</p>
+                    <p className="mt-2 text-title-md font-bold text-primary">{certificate.certificate_code}</p>
                   </div>
                 </div>
 

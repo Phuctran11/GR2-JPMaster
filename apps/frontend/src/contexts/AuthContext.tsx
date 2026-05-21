@@ -10,7 +10,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (user: User, token?: string) => void;
+  login: (user: User, token: string) => void;
   updateUser: (user: User) => void;
   logout: () => void;
   isAuthenticated: boolean;
@@ -50,13 +50,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = (userData: User, token?: string) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-    if (token) {
-      setToken(token);
-      localStorage.setItem('token', token);
+  const login = (userData: User, tokenValue: string) => {
+    if (!tokenValue) {
+      throw new Error('Authentication token is required');
     }
+
+    setUser(userData);
+    setToken(tokenValue);
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', tokenValue);
   };
 
   const logout = () => {

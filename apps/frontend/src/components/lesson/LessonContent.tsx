@@ -7,6 +7,7 @@ interface LessonContentProps {
   isStudyMode: boolean;
   articleRef: RefObject<HTMLElement | null>;
   onAddHighlightNote?: (selectedText: string) => void;
+  onAskAIAboutSelection?: (selectedText: string) => void;
   highlightNotes?: LessonNote[];
 }
 
@@ -140,6 +141,7 @@ export function LessonContent({
   isStudyMode,
   articleRef,
   onAddHighlightNote,
+  onAskAIAboutSelection,
   highlightNotes = [],
 }: LessonContentProps) {
   const contentText = normalizeLessonContent(lesson.content_text);
@@ -158,7 +160,14 @@ export function LessonContent({
       return;
     }
 
-    window.alert(`${selectedText}\n\n${action === 'translate' ? 'Dictionary lookup is not connected yet.' : action === 'flashcard' ? 'Flashcard save flow is not connected yet.' : 'Grammar explain is not connected yet.'}`);
+    if (action === 'grammar' || action === 'translate') {
+      onAskAIAboutSelection?.(selectedText);
+      window.getSelection()?.removeAllRanges();
+      setSelectionMenu(null);
+      return;
+    }
+
+    window.alert(`${selectedText}\n\nFlashcard save flow is not connected yet.`);
     setSelectionMenu(null);
   };
 

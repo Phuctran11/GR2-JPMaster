@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 import quizModel from "../models/quiz.model.js";
 import enrollmentModel from "../models/enrollment.model.js";
 import courseModel from "../models/course.model.js";
+import certificateModel from "../models/certificate.model.js";
 
 export class QuizController {
   async startQuiz(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -116,7 +117,10 @@ export class QuizController {
         const progressSummary = await courseModel.getCourseProgressSummary(req.user.user_id, quizCourseId);
         const allLessonsCompleted = progressSummary.totalLessons > 0 && progressSummary.completedLessons === progressSummary.totalLessons;
         if (allLessonsCompleted) {
-          await enrollmentModel.updateEnrollmentStatusByUserAndCourse(req.user.user_id, quizCourseId, "completed");
+          const enrollment = await enrollmentModel.updateEnrollmentStatusByUserAndCourse(req.user.user_id, quizCourseId, "completed");
+          if (enrollment) {
+            await certificateModel.getOrCreateCertificate(req.user.user_id, quizCourseId, enrollment.enrollment_id);
+          }
         }
       }
 

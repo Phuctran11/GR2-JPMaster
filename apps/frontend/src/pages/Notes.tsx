@@ -22,6 +22,7 @@ const noteTypeMeta: Record<LessonNoteType, { label: string; icon: string; classN
 
 export default function Notes() {
   const [notes, setNotes] = useState<LessonNote[]>([]);
+  const [countSourceNotes, setCountSourceNotes] = useState<LessonNote[]>([]);
   const [noteType, setNoteType] = useState<LessonNoteType | 'all'>('all');
   const [pinned, setPinned] = useState<'all' | 'true' | 'false'>('all');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
@@ -40,6 +41,16 @@ export default function Notes() {
     [noteType, pinned, search]
   );
 
+  const countFilters = useMemo(
+    () => ({
+      note_type: 'all' as const,
+      pinned: pinned === 'all' ? 'all' as const : pinned === 'true',
+      search,
+      limit: 100,
+    }),
+    [pinned, search]
+  );
+
   useEffect(() => {
     let active = true;
 
@@ -47,7 +58,10 @@ export default function Notes() {
       try {
         setLoading(true);
         setError(null);
-        const result = await lessonNoteAPI.getMyNotes(filters);
+        const [result, countResult] = await Promise.all([
+          lessonNoteAPI.getMyNotes(filters),
+          lessonNoteAPI.getMyNotes(countFilters),
+        ]);
         if (active) {
           setNotes(
             [...result.data].sort((a, b) => {
@@ -56,6 +70,7 @@ export default function Notes() {
               return sortOrder === 'newest' ? bTime - aTime : aTime - bTime;
             })
           );
+          setCountSourceNotes(countResult.data);
         }
       } catch (loadError) {
         if (active) setError(loadError instanceof Error ? loadError.message : 'Failed to load notes');
@@ -69,10 +84,11 @@ export default function Notes() {
       active = false;
       window.clearTimeout(timeoutId);
     };
-  }, [filters, sortOrder]);
+  }, [filters, countFilters, sortOrder]);
 
   const pinnedCount = notes.filter((note) => note.is_pinned).length;
-  const countsByType = notes.reduce<Record<LessonNoteType, number>>(
+  const totalPinnedCount = countSourceNotes.filter((note) => note.is_pinned).length;
+  const countsByType = countSourceNotes.reduce<Record<LessonNoteType, number>>(
     (counts, note) => {
       counts[note.note_type] += 1;
       return counts;
@@ -116,7 +132,7 @@ export default function Notes() {
                 </div>
                 <div className="rounded-xl border border-primary/20 bg-primary-fixed px-4 py-3 text-on-primary-fixed">
                   <p className="text-label-sm font-bold uppercase tracking-wide">Pinned</p>
-                  <p className="mt-1 text-headline-sm font-bold">{pinnedCount}</p>
+                  <p className="mt-1 text-headline-sm font-bold">{totalPinnedCount}</p>
                 </div>
               </div>
             </div>
@@ -288,7 +304,7 @@ export default function Notes() {
 
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-body-sm text-on-surface-variant">
             <span>{loading ? 'Loading notes...' : `${notes.length} notes found`}</span>
-            <span>{pinnedCount} pinned</span>
+            <span>{pinnedCount} pinned in results</span>
           </div>
 
           {error && <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-red-700">{error}</p>}

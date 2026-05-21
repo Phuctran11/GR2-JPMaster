@@ -84,6 +84,17 @@ const formatCourseWithLessons = (courseRow: any, lessons: Lesson[] = []): Course
   lessons,
 });
 
+const finalQuizIdSelect = `
+  (
+    SELECT q.quiz_id
+    FROM "Quiz" q
+    WHERE q.course_id = c.course_id
+      AND q.quiz_type = 'final_test'
+    ORDER BY q.quiz_id DESC
+    LIMIT 1
+  ) AS final_quiz_id
+`;
+
 export class CourseModel {
   async createCourse(
     title: string,
@@ -92,9 +103,16 @@ export class CourseModel {
     createdBy: number
   ): Promise<Course> {
     const query = `
-      INSERT INTO "Course" (title, description, price, level, created_by, created_at, updated_at)
-      VALUES ($1, $2, $3, NULL, $4, NOW(), NOW())
-      RETURNING course_id, title, description, price, level, duration, created_by, final_quiz_id, created_at, updated_at;
+      WITH created AS (
+        INSERT INTO "Course" (title, description, price, level, created_by, created_at, updated_at)
+        VALUES ($1, $2, $3, NULL, $4, NOW(), NOW())
+        RETURNING course_id, title, description, price, level, duration, created_by, created_at, updated_at
+      )
+      SELECT
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        ${finalQuizIdSelect},
+        c.created_at, c.updated_at
+      FROM created c;
     `;
     const result = await databaseService.executeQuery(query, [title, description, price, createdBy]);
     return formatCourse(result.rows[0]);
@@ -103,7 +121,8 @@ export class CourseModel {
   async getCourseById(courseId: number): Promise<Course | null> {
     const query = `
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by, c.final_quiz_id,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        ${finalQuizIdSelect},
         u.username AS creator_username,
         c.created_at, c.updated_at
       FROM "Course" c
@@ -117,7 +136,8 @@ export class CourseModel {
   async getCourseByIdWithLessons(courseId: number): Promise<CourseWithLessons | null> {
     const query = `
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by, c.final_quiz_id,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        ${finalQuizIdSelect},
         u.username AS creator_username,
         c.created_at, c.updated_at
       FROM "Course" c
@@ -269,7 +289,8 @@ export class CourseModel {
   async getAllCourses(limit: number = 10, offset: number = 0): Promise<Course[]> {
     const query = `
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by, c.final_quiz_id,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        ${finalQuizIdSelect},
         u.username AS creator_username,
         c.created_at, c.updated_at,
         AVG(cr.rating) AS average_rating,
@@ -290,7 +311,8 @@ export class CourseModel {
   async getPopularCourses(limit: number = 4): Promise<Course[]> {
     const query = `
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by, c.final_quiz_id,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        ${finalQuizIdSelect},
         u.username AS creator_username,
         c.created_at, c.updated_at,
         COUNT(DISTINCT e.enrollment_id) AS enroll_count,
@@ -318,7 +340,7 @@ export class CourseModel {
         c.level,
         c.duration,
         c.created_by,
-        c.final_quiz_id,
+        ${finalQuizIdSelect},
         c.created_at,
         c.updated_at
       FROM "Course" c
@@ -337,10 +359,17 @@ export class CourseModel {
     price: number
   ): Promise<Course | null> {
     const query = `
-      UPDATE "Course"
-      SET title = $1, description = $2, price = $3, updated_at = NOW()
-      WHERE course_id = $4
-      RETURNING course_id, title, description, price, level, duration, created_by, final_quiz_id, created_at, updated_at;
+      WITH updated AS (
+        UPDATE "Course"
+        SET title = $1, description = $2, price = $3, updated_at = NOW()
+        WHERE course_id = $4
+        RETURNING course_id, title, description, price, level, duration, created_by, created_at, updated_at
+      )
+      SELECT
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        ${finalQuizIdSelect},
+        c.created_at, c.updated_at
+      FROM updated c;
     `;
     const result = await databaseService.executeQuery(query, [title, description, price, courseId]);
     return result.rows[0] ? formatCourse(result.rows[0]) : null;

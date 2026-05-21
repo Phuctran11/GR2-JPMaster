@@ -259,6 +259,21 @@ export interface QuizSubmitResult {
   }>;
 }
 
+export interface Certificate {
+  certificate_id: number;
+  certificate_code: string;
+  user_id: number;
+  username: string;
+  course_id: number;
+  course_title: string;
+  course_duration: number | null;
+  lesson_count: number;
+  enrollment_id: number | null;
+  issued_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type LessonNoteType = 'text_note' | 'video_note' | 'highlight' | 'question_note' | 'ai_summary';
 
 export interface LessonNote {
@@ -277,6 +292,7 @@ export interface LessonNote {
   lesson_title?: string | null;
   course_id?: number | null;
   course_title?: string | null;
+  quiz_type?: 'lesson_quiz' | 'practice_test' | 'final_test' | 'jlpt_mock' | null;
   question_text?: string | null;
 }
 
@@ -299,6 +315,88 @@ export interface LessonNoteFilters {
   limit?: number;
   offset?: number;
 }
+
+export type FlashcardVisibility = 'private' | 'public';
+
+export interface FlashcardCollection {
+  collection_id: number;
+  user_id: number;
+  owner_username?: string;
+  title: string;
+  description: string | null;
+  visibility: FlashcardVisibility;
+  card_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Flashcard {
+  flashcard_id: number;
+  collection_id: number;
+  lesson_id: number | null;
+  front_text: string;
+  back_text: string;
+  reading: string | null;
+  example_sentence: string | null;
+  image_url: string | null;
+  audio_url: string | null;
+  tags: string[] | null;
+  order_index: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateFlashcardPayload {
+  collection_id: number;
+  lesson_id?: number | null;
+  front_text: string;
+  back_text: string;
+  reading?: string | null;
+  example_sentence?: string | null;
+  image_url?: string | null;
+  audio_url?: string | null;
+  tags?: string[] | null;
+  order_index?: number | null;
+}
+
+export type FlashcardAiMode = 'paragraph' | 'dialogue' | 'explain' | 'ask';
+export type LessonAiMode = 'explain' | 'grammar' | 'summary' | 'ask';
+
+export interface FlashcardAiPayload {
+  mode: FlashcardAiMode;
+  word: string;
+  meaning?: string | null;
+  reading?: string | null;
+  exampleSentence?: string | null;
+  selectedWords?: string[] | null;
+  question?: string | null;
+}
+
+export interface LessonAiPayload {
+  mode: LessonAiMode;
+  lessonTitle: string;
+  lessonContent?: string | null;
+  selectedText?: string | null;
+  question?: string | null;
+}
+
+export interface AiResponse {
+  text: string;
+  model: string;
+}
+
+const getApiErrorMessage = async (response: Response, fallback: string) => {
+  try {
+    const error = await response.json();
+    if (typeof error.error === 'string') return error.error;
+    if (typeof error.error?.message === 'string') return error.error.message;
+    if (typeof error.message === 'string') return error.message;
+  } catch {
+    // Keep the fallback when the server does not return JSON.
+  }
+
+  return fallback;
+};
 
 /**
  * Enrolled course with enrollment details
@@ -481,6 +579,24 @@ export const quizAPI = {
   },
 };
 
+export const certificateAPI = {
+  async getCourseCertificate(courseId: number): Promise<{ data: Certificate }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/certificates/courses/${courseId}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Unauthorized - Please login first');
+      }
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch certificate');
+    }
+
+    return response.json();
+  },
+};
+
 export const lessonNoteAPI = {
   async getMyNotes(filters: LessonNoteFilters = {}): Promise<{ data: LessonNote[]; count: number }> {
     const params = new URLSearchParams();
@@ -569,6 +685,181 @@ export const lessonNoteAPI = {
       }
       const error = await response.json();
       throw new Error(error.error || 'Failed to delete note');
+    }
+
+    return response.json();
+  },
+};
+
+export const flashcardAPI = {
+  async getCollections(limit = 20, offset = 0): Promise<{ data: FlashcardCollection[]; count: number }> {
+    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections?${params}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch flashcard collections');
+    }
+
+    return response.json();
+  },
+
+  async getPublicCollections(limit = 20, offset = 0): Promise<{ data: FlashcardCollection[]; count: number }> {
+    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections/public?${params}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch public flashcard collections');
+    }
+
+    return response.json();
+  },
+
+  async getCollection(collectionId: number): Promise<{ data: FlashcardCollection }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections/${collectionId}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch flashcard collection');
+    }
+
+    return response.json();
+  },
+
+  async createCollection(payload: {
+    title: string;
+    description?: string | null;
+    visibility?: FlashcardVisibility;
+  }): Promise<{ message: string; data: FlashcardCollection }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create flashcard collection');
+    }
+
+    return response.json();
+  },
+
+  async updateCollection(
+    collectionId: number,
+    payload: {
+      title: string;
+      description?: string | null;
+      visibility?: FlashcardVisibility;
+    }
+  ): Promise<{ message: string; data: FlashcardCollection }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections/${collectionId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update flashcard collection');
+    }
+
+    return response.json();
+  },
+
+  async deleteCollection(collectionId: number): Promise<{ message: string }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections/${collectionId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete flashcard collection');
+    }
+
+    return response.json();
+  },
+
+  async getCollectionCards(collectionId: number, limit = 50, offset = 0): Promise<{ data: Flashcard[]; count: number }> {
+    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections/${collectionId}/cards?${params}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch flashcards');
+    }
+
+    return response.json();
+  },
+
+  async createCard(payload: CreateFlashcardPayload): Promise<{ message: string; data: Flashcard }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create flashcard');
+    }
+
+    return response.json();
+  },
+
+  async deleteCard(flashcardId: number): Promise<{ message: string }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/${flashcardId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete flashcard');
+    }
+
+    return response.json();
+  },
+};
+
+export const aiAPI = {
+  async askFlashcard(payload: FlashcardAiPayload): Promise<{ data: AiResponse }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/ai/flashcard`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      throw new Error(await getApiErrorMessage(response, 'Failed to ask AI about flashcard'));
+    }
+
+    return response.json();
+  },
+
+  async askLesson(payload: LessonAiPayload): Promise<{ data: AiResponse }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/ai/lesson`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      throw new Error(await getApiErrorMessage(response, 'Failed to ask AI about lesson'));
     }
 
     return response.json();

@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Input, Button, GlassCard, Icon, PasswordInput, Breadcrumbs, Header, Footer } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
 import { authAPI } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useForm } from '../hooks/useForm';
 import { validators } from '../utils/validators';
 
 function SignupForm() {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -35,14 +33,13 @@ function SignupForm() {
 
     setLoading(true);
     try {
-      const response = await authAPI.signup({
+      await authAPI.signup({
         username: formData.name,
         email: formData.email,
         password: formData.password,
       });
-      login(response.data);
-      addToast('Account created successfully!', 'success');
-      navigate('/');
+      addToast('Account created successfully. Please log in.', 'success');
+      navigate('/login', { replace: true });
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Sign up failed', 'error');
     } finally {
