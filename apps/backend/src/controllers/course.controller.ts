@@ -160,7 +160,7 @@ export class CourseController {
         return res.status(404).json({ error: "Course not found" });
       }
 
-      return res.status(200).json({ message: "Course deleted successfully" });
+      return res.status(200).json({ message: "Course hidden successfully" });
     } catch (error) {
       next(error);
     }

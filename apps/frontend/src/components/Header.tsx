@@ -24,6 +24,7 @@ export function Header() {
     { path: '/notes', label: 'Notes' },
     { path: '/tests', label: 'Tests' },
     { path: '/blog', label: 'Blog' },
+    ...(user?.role === 'admin' ? [{ path: '/admin', label: 'Admin' }] : []),
   ];
 
   return (

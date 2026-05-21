@@ -1,111 +1,113 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header, Footer, Container, Card } from '../components';
 import { Text } from '../components/ui/Typography';
-import { TestCard, TestimonialCard } from '../components/cards';
+import { TestCard } from '../components/cards';
+import { jlptExamAPI, type JlptExamSummary, type JlptSectionType } from '../services/api';
+
+const levels = ['All', 'N1', 'N2', 'N3', 'N4', 'N5'];
+const sections: Array<{ value: 'all' | JlptSectionType; label: string }> = [
+  { value: 'all', label: 'All Sections' },
+  { value: 'vocabulary', label: 'Vocabulary' },
+  { value: 'grammar', label: 'Grammar' },
+  { value: 'reading', label: 'Reading' },
+  { value: 'listening', label: 'Listening' },
+];
+
+const sectionLabels: Record<JlptSectionType, string> = {
+  vocabulary: 'Vocabulary',
+  grammar: 'Grammar',
+  reading: 'Reading',
+  listening: 'Listening',
+};
+
+const testImages = [
+  'https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=900&q=80',
+];
+
+const guidelines = [
+  {
+    number: '1',
+    title: 'Time Management',
+    description: 'Each test uses the duration configured by admins. Practice completing all selected sections within that time.',
+  },
+  {
+    number: '2',
+    title: 'Section Coverage',
+    description: 'Mock exams may include one section or multiple JLPT sections depending on how the test was created.',
+  },
+  {
+    number: '3',
+    title: 'Academic Integrity',
+    description: 'For accurate practice results, avoid dictionaries and translation tools while taking the test.',
+  },
+];
+
+const scoringTable = [
+  { level: 'N1', passmark: 'Practice pass: 60%', maxpoints: 'By exam' },
+  { level: 'N2', passmark: 'Practice pass: 60%', maxpoints: 'By exam' },
+  { level: 'N3', passmark: 'Practice pass: 60%', maxpoints: 'By exam' },
+  { level: 'N4 / N5', passmark: 'Practice pass: 60%', maxpoints: 'By exam' },
+];
+
+const getExamType = (exam: JlptExamSummary) => {
+  if (!exam.section_types.length) return 'JLPT Mock';
+  if (exam.section_types.length === 1) return sectionLabels[exam.section_types[0]];
+  return `${exam.section_types.length} Sections`;
+};
 
 export default function TestList() {
+  const navigate = useNavigate();
   const [selectedLevel, setSelectedLevel] = useState('All');
-  const [selectedSection, setSelectedSection] = useState('All Sections');
+  const [selectedSection, setSelectedSection] = useState<'all' | JlptSectionType>('all');
+  const [tests, setTests] = useState<JlptExamSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const levels = ['All', 'N1', 'N2', 'N3', 'N4', 'N5'];
-  const sections = ['All Sections', 'Vocabulary (文字・語彙)', 'Reading (読解)', 'Listening (聴解)'];
+  useEffect(() => {
+    let active = true;
 
-  const tests = [
-    {
-      title: 'Advanced Kanji Mastery: Business Context',
-      level: 'JLPT N2',
-      levelColor: 'bg-primary',
-      type: 'Vocabulary',
-      duration: '45 Min',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDdqarhq_SWopESG-jCNkzTUPkNb24J-4yxPf4ifNDmwMeMRj1ES3GnPTgRcyRdtl19quTj-viYsdumOCqALtcziy1AsuE-WR6_hAoeYz8iFX_gXEkpk-2vYoQ1jmrEs_shJy7iHvjQdSTowhzky1QEY76AXP8H1KQFd12e-op8F2rafCsQAMLPaOWl6_uVc3pFem1EwsxQ_ICXGma9mqPLsSplvyf4nKpGCisJ2VvhkW4Z5EECIVS4NAvLrtVMIg_WO3yJcSMCv_XL',
-    },
-    {
-      title: 'Everyday Conversation & Greetings',
-      level: 'JLPT N5',
-      levelColor: 'bg-secondary',
-      type: 'Listening',
-      duration: '25 Min',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDi1FIqNajdgtknBfyHudR09doEeVDWiqXmfpWzLFzQm2oiZyqt4DR5i5l-lMDNGo5xvSa0j_PTM7T_9_80gfc8Jqj-LvLfDRSBXXrbOM2EXrw_y6AVW0xFiQ_1LnIHC99WmSdqbRx-z9LNF_xn0nxgSiCTAam59GjQvZHBrr4n0zQ9spTCv1DMSgua9fLY4VCCaOe3PKDRbmHm-IAwjrVBZylPI62ByfqxaTMab-UlMYLbE-g_f8CUHtTVtH1MCVPRDFChSwYd2nCs',
-    },
-    {
-      title: 'Short Form Essay Analysis',
-      level: 'JLPT N3',
-      levelColor: 'bg-primary',
-      type: 'Reading',
-      duration: '60 Min',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAZfBxwqTC-Xwj5wTLIt4ztZKDCW36AWRdJCqSto9lWsLFTAGLFaj9gxLl_8P7QSA19Oi6_wmHtg7ARCe7JJklJha13Z7Hy1gU15d4bm_hQIAdwzMfjKyyXi7GSrykUFjr21So_94Zh2r_F-jHMpbFMEzmJ7Yp2iZFnJgUq9owc7Tft1lSodwsLyZGaslEx9ILqzk7fx8dpbqg7gXfj6VI5IBxHCkaOCt8Xx0bpYm8GWchzxnzB1q4HeBOaB3l3u7MyDRMSQE3BU9zr',
-    },
-  ];
+    const loadTests = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const result = await jlptExamAPI.getExams({ level: selectedLevel, section_type: selectedSection });
+        if (active) setTests(result.data);
+      } catch (loadError) {
+        if (active) setError(loadError instanceof Error ? loadError.message : 'Failed to load JLPT tests');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
 
-  const testimonials = [
-    {
-      name: 'Sarah Chen',
-      role: 'Passed N2 in 12 months',
-      quote: 'The structured approach at JPMaster is unlike any other app. It feels like a real university course but fits perfectly into my digital lifestyle.',
-      initials: 'SC',
-    },
-    {
-      name: 'Marcus Knight',
-      role: 'Business Professional',
-      quote: 'The Keigo course changed how I communicate with our Tokyo office. The prestige and attention to detail in the teaching is world-class.',
-      initials: 'MK',
-    },
-    {
-      name: 'Aki Liu',
-      role: 'University Student',
-      quote: 'Visual learners will love the 3D frames and Enso-inspired designs. It makes the discipline of kanji study feel much more engaging.',
-      initials: 'AL',
-    },
-  ];
+    void loadTests();
+    return () => {
+      active = false;
+    };
+  }, [selectedLevel, selectedSection]);
 
-  const guidelines = [
-    {
-      number: '1',
-      title: 'Time Management',
-      description: 'Each test has a strictly enforced timer. Once started, the timer cannot be paused. Practice managing your time per question.',
-    },
-    {
-      number: '2',
-      title: 'Standard Scoring',
-      description:
-        'We use the official JLPT weighted scoring system. You need to pass both the overall score and individual section minimums.',
-    },
-    {
-      number: '3',
-      title: 'Academic Integrity',
-      description:
-        'To get the best results, do not use external dictionaries or translation tools during the duration of the test.',
-    },
-  ];
-
-  const scoringTable = [
-    { level: 'N1 (Expert)', passmark: '100 / 180', maxpoints: '180' },
-    { level: 'N2 (Business)', passmark: '90 / 180', maxpoints: '180' },
-    { level: 'N3 (Daily)', passmark: '95 / 180', maxpoints: '180' },
-    { level: 'N4/N5 (Basic)', passmark: '90 / 180', maxpoints: '180' },
-  ];
+  const totalQuestions = useMemo(() => tests.reduce((sum, test) => sum + Number(test.question_count || 0), 0), [tests]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1">
-        {/* Hero Section */}
         <section className="seigaiha-pattern py-section-gap border-b border-outline-variant">
           <div className="max-w-[1280px] mx-auto px-margin-desktop">
             <div className="max-w-2xl">
               <span className="inline-block px-3 py-1 bg-primary-fixed text-on-primary-fixed text-label-md rounded mb-stack-sm">
-                ACADEMIC EXCELLENCE
+                JLPT MOCK TESTS
               </span>
               <h1 className="font-display-lg text-display-lg text-primary mb-stack-md">JLPT Tests</h1>
               <Text variant="body-lg" color="on-surface-variant" className="leading-relaxed">
-                Select a level and section to practice your Japanese skills. Our tests are modeled after official examination standards
-                to ensure your success in the Japanese Language Proficiency Test.
+                Choose a JLPT level and section, then take a mock test generated from the exams managed by admins.
               </Text>
             </div>
           </div>
         </section>
 
-        {/* Filter Section */}
         <section className="bg-surface-container-low border-b border-outline-variant sticky top-16 z-40">
           <div className="max-w-[1280px] mx-auto px-margin-desktop py-stack-md flex flex-col md:flex-row justify-between items-center gap-stack-md">
             <div className="flex flex-wrap gap-stack-sm items-center">
@@ -129,12 +131,12 @@ export default function TestList() {
               <span className="text-label-md text-on-surface-variant mr-stack-sm">Section:</span>
               <select
                 value={selectedSection}
-                onChange={(e) => setSelectedSection(e.target.value)}
+                onChange={(event) => setSelectedSection(event.target.value as 'all' | JlptSectionType)}
                 className="bg-surface border border-outline-variant text-label-md rounded-lg px-4 py-1.5 focus:border-primary focus:ring-0"
               >
                 {sections.map((section) => (
-                  <option key={section} value={section}>
-                    {section}
+                  <option key={section.value} value={section.value}>
+                    {section.label}
                   </option>
                 ))}
               </select>
@@ -142,36 +144,47 @@ export default function TestList() {
           </div>
         </section>
 
-        {/* Test List Grid */}
         <section className="py-section-gap max-w-[1280px] mx-auto px-margin-desktop">
           <div className="flex items-center justify-between mb-section-gap">
             <div>
               <h2 className="font-headline-lg text-headline-lg text-on-surface">Available Tests</h2>
               <div className="w-16 h-1 bg-secondary mt-2"></div>
             </div>
-            <span className="text-label-md text-on-surface-variant">Showing 24 Practice Exams</span>
+            <span className="text-label-md text-on-surface-variant">
+              {loading ? 'Loading tests...' : `${tests.length} tests, ${totalQuestions} questions`}
+            </span>
           </div>
+
+          {error && <p className="mb-stack-md rounded-lg bg-red-50 px-4 py-3 text-red-700">{error}</p>}
+
+          {!loading && !error && tests.length === 0 && (
+            <Card className="border border-outline-variant bg-surface p-stack-lg text-center">
+              <h3 className="font-headline-sm text-headline-sm text-on-surface">No JLPT tests available</h3>
+              <p className="mt-2 text-body-md text-on-surface-variant">Try another level or section, or ask an admin to publish questions for this test type.</p>
+            </Card>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-            {tests.map((test) => (
-              <TestCard key={test.title} {...test} />
+            {tests.map((test, index) => (
+              <TestCard
+                key={test.exam_id}
+                title={test.title}
+                level={test.jlpt_level}
+                type={getExamType(test)}
+                duration={test.duration_minutes ? `${test.duration_minutes} min` : `${test.question_count} questions`}
+                image={testImages[index % testImages.length]}
+                onStart={() => navigate(`/tests/${test.exam_id}`)}
+              />
             ))}
-          </div>
-
-          <div className="mt-section-gap flex justify-center">
-            <button className="px-8 py-3 border-2 border-primary text-primary font-bold text-label-md rounded hover:bg-primary hover:text-white transition-all">
-              Load More Tests
-            </button>
           </div>
         </section>
 
-        {/* Instructions Section */}
         <section className="bg-surface-container py-section-gap overflow-hidden">
           <div className="max-w-[1280px] mx-auto px-margin-desktop grid grid-cols-1 lg:grid-cols-2 gap-section-gap items-center">
-            <div className="relative">
+            <div>
               <h2 className="font-display-lg text-headline-lg text-primary mb-stack-lg">Test Taking Protocol</h2>
               <Text variant="body-lg" color="on-surface-variant" className="mb-stack-lg">
-                Follow these guidelines to ensure your practice results accurately reflect your proficiency level.
+                Follow these guidelines to make your mock test results useful for study planning.
               </Text>
               <div className="space-y-stack-md">
                 {guidelines.map((guideline) => (
@@ -190,12 +203,8 @@ export default function TestList() {
               </div>
             </div>
 
-            {/* Scoring Table */}
             <Card className="bg-white p-stack-lg border border-outline-variant shadow-sm relative">
-              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <span className="text-[120px] font-bold text-primary">試験</span>
-              </div>
-              <h3 className="font-headline-sm text-headline-sm mb-stack-md text-primary">Scoring Table</h3>
+              <h3 className="font-headline-sm text-headline-sm mb-stack-md text-primary">Practice Scoring</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
@@ -216,23 +225,15 @@ export default function TestList() {
                   </tbody>
                 </table>
               </div>
-              <div className="mt-stack-lg p-stack-md bg-secondary-container/10 border-l-4 border-secondary rounded">
-                <p className="text-label-md text-on-secondary-container">
-                  Note: Section passing marks (19/60) also apply for all levels.
-                </p>
-              </div>
             </Card>
           </div>
         </section>
 
-        {/* Testimonials */}
         <section className="py-section-gap">
           <Container>
-            <h2 className="font-headline-lg text-headline-lg text-center mb-stack-lg">Student Feedback</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-              {testimonials.map((testimonial) => (
-                <TestimonialCard key={testimonial.name} {...testimonial} />
-              ))}
+            <div className="rounded-lg border border-outline-variant bg-surface p-stack-lg text-center">
+              <h2 className="font-headline-lg text-headline-lg text-on-surface">Ready for the next mock?</h2>
+              <p className="mt-2 text-body-md text-on-surface-variant">Admins can add more JLPT exams and sections from the dashboard.</p>
             </div>
           </Container>
         </section>

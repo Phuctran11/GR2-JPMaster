@@ -80,10 +80,12 @@ export class CourseEnrollmentModel {
   async checkUserCourseAccess(userId: number, courseId: number): Promise<boolean> {
     const query = `
       SELECT 1
-      FROM "CourseEnrollment"
-      WHERE user_id = $1
-        AND course_id = $2
-        AND status IN ('active', 'completed')
+      FROM "CourseEnrollment" ce
+      JOIN "Course" c ON c.course_id = ce.course_id
+      WHERE ce.user_id = $1
+        AND ce.course_id = $2
+        AND ce.status IN ('active', 'completed')
+        AND c.deleted_at IS NULL
       LIMIT 1;
     `;
 
@@ -114,7 +116,10 @@ export class CourseEnrollmentModel {
   ): Promise<CourseEnrollment> {
     const query = `
       INSERT INTO "CourseEnrollment" (user_id, course_id, enrollment_date, status)
-      VALUES ($1, $2, NOW(), $3)
+      SELECT $1, c.course_id, NOW(), $3
+      FROM "Course" c
+      WHERE c.course_id = $2
+        AND c.deleted_at IS NULL
       ON CONFLICT (user_id, course_id)
       DO UPDATE SET
         enrollment_date = NOW(),
@@ -323,7 +328,12 @@ export class CourseEnrollmentModel {
         last_updated,
         status
       )
-      VALUES ($1, $2, NOW(), NOW(), 100, TRUE, NOW(), 'completed')
+      SELECT $1, l.lesson_id, NOW(), NOW(), 100, TRUE, NOW(), 'completed'
+      FROM "Lesson" l
+      JOIN "Course" c ON c.course_id = l.course_id
+      WHERE l.lesson_id = $2
+        AND l.deleted_at IS NULL
+        AND c.deleted_at IS NULL
       ON CONFLICT (user_id, lesson_id)
       DO UPDATE SET
         completed = TRUE,

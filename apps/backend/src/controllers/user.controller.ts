@@ -61,6 +61,10 @@ export class UserController {
         user = await userModel.createUser(username, email, passwordHash, 'learner');
       }
 
+      if (user.status !== "active") {
+        return res.status(403).json({ error: "User account is not active" });
+      }
+
       const { password_hash, ...userWithoutPassword } = user;
       const token = tokenService.generateToken({
         user_id: user.user_id,
@@ -127,6 +131,10 @@ export class UserController {
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
+      if (user.status !== "active") {
+        return res.status(403).json({ error: "User account is not active" });
+      }
+
       const isPasswordValid = await passwordService.comparePassword(password, user.password_hash);
       if (!isPasswordValid) {
         return res.status(401).json({ error: "Invalid email or password" });
@@ -157,7 +165,7 @@ export class UserController {
         return res.status(400).json({ error: `Invalid role. Must be one of: ${VALID_ROLES.join(", ")}` });
       }
 
-      const existingUser = await userModel.getUserByEmail(email);
+      const existingUser = await userModel.getUserByEmailIncludingDeleted(email);
       if (existingUser) {
         return res.status(409).json({ error: "Email already exists" });
       }
@@ -215,7 +223,7 @@ export class UserController {
         return res.status(400).json({ error: "username and email are required" });
       }
 
-      const existingEmailUser = await userModel.getUserByEmail(nextEmail);
+      const existingEmailUser = await userModel.getUserByEmailIncludingDeleted(nextEmail);
       if (existingEmailUser && existingEmailUser.user_id !== req.user.user_id) {
         return res.status(409).json({ error: "Email already exists" });
       }
