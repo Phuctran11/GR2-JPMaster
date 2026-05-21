@@ -7,6 +7,7 @@ interface LessonContentProps {
   isStudyMode: boolean;
   articleRef: RefObject<HTMLElement | null>;
   onAddHighlightNote?: (selectedText: string) => void;
+  onSaveFlashcard?: (selectedText: string) => Promise<void> | void;
   onAskAIAboutSelection?: (selectedText: string) => void;
   highlightNotes?: LessonNote[];
 }
@@ -141,34 +142,45 @@ export function LessonContent({
   isStudyMode,
   articleRef,
   onAddHighlightNote,
+  onSaveFlashcard,
   onAskAIAboutSelection,
   highlightNotes = [],
 }: LessonContentProps) {
   const contentText = normalizeLessonContent(lesson.content_text);
   const contentBlocks = contentText ? parseLessonContent(contentText) : [];
   const [selectionMenu, setSelectionMenu] = useState<{ text: string; x: number; y: number } | null>(null);
+  const [savingFlashcard, setSavingFlashcard] = useState(false);
   const highlightedTexts = highlightNotes.map((note) => note.selected_text ?? '').filter(Boolean);
 
-  const handleTextAction = (action: 'translate' | 'note' | 'flashcard' | 'grammar') => {
+  const clearSelection = () => {
+    window.getSelection()?.removeAllRanges();
+    setSelectionMenu(null);
+  };
+
+  const handleTextAction = async (action: 'note' | 'flashcard' | 'ai') => {
     const selectedText = selectionMenu?.text || window.getSelection()?.toString().trim();
     if (!selectedText) return;
 
     if (action === 'note') {
       onAddHighlightNote?.(selectedText);
-      window.getSelection()?.removeAllRanges();
-      setSelectionMenu(null);
+      clearSelection();
       return;
     }
 
-    if (action === 'grammar' || action === 'translate') {
+    if (action === 'ai') {
       onAskAIAboutSelection?.(selectedText);
-      window.getSelection()?.removeAllRanges();
-      setSelectionMenu(null);
+      clearSelection();
       return;
     }
 
-    window.alert(`${selectedText}\n\nFlashcard save flow is not connected yet.`);
-    setSelectionMenu(null);
+    if (!onSaveFlashcard || savingFlashcard) return;
+    try {
+      setSavingFlashcard(true);
+      await onSaveFlashcard(selectedText);
+      clearSelection();
+    } finally {
+      setSavingFlashcard(false);
+    }
   };
 
   const handleSelection = () => {
@@ -211,7 +223,7 @@ export function LessonContent({
               {lesson.title}
             </Heading>
             <Text variant="body-md" color="on-surface-variant" className="mt-2 max-w-[680px]">
-              {lesson.content_type === 'video'
+              {lesson.video_url?.trim()
                 ? 'Watch the lesson first, then use the notes below to lock in the main ideas.'
                 : 'Read carefully through the lesson notes and mark the lesson complete when you are ready.'}
             </Text>
@@ -229,6 +241,14 @@ export function LessonContent({
             <p className="text-body-md font-body-md text-on-surface-variant">Read at your own pace.</p>
           </div>
         </div>
+
+        {lesson.audio_url && (
+          <div className="mb-6">
+            <audio controls src={lesson.audio_url} className="w-full">
+              <track kind="captions" />
+            </audio>
+          </div>
+        )}
 
         <div className="space-y-5 text-on-surface">
           {contentBlocks.length > 0 ? (
@@ -276,20 +296,25 @@ export function LessonContent({
 
         {selectionMenu && (
           <div
-            className="fixed z-[95] flex -translate-x-1/2 -translate-y-full flex-wrap gap-2 rounded-xl border border-outline-variant bg-white p-2 shadow-xl"
+            className="fixed z-[95] flex -translate-x-1/2 -translate-y-full gap-1 rounded-xl border border-outline-variant bg-white p-1.5 shadow-xl"
             style={{ left: selectionMenu.x, top: selectionMenu.y }}
           >
-            <button type="button" onClick={() => handleTextAction('translate')} className="rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container">
-              Translate
-            </button>
-            <button type="button" onClick={() => handleTextAction('note')} className="rounded-lg bg-primary px-3 py-2 text-label-md font-bold text-on-primary">
+            <button type="button" onClick={() => void handleTextAction('note')} className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-label-md font-bold text-on-primary">
+              <span className="material-symbols-outlined text-[18px]">add_notes</span>
               Add Note
             </button>
-            <button type="button" onClick={() => handleTextAction('flashcard')} className="rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container">
-              Save Flashcard
+            <button
+              type="button"
+              onClick={() => void handleTextAction('flashcard')}
+              disabled={savingFlashcard}
+              className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container disabled:opacity-60"
+            >
+              <span className="material-symbols-outlined text-[18px]">style</span>
+              {savingFlashcard ? 'Saving...' : 'Save Flashcard'}
             </button>
-            <button type="button" onClick={() => handleTextAction('grammar')} className="rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container">
-              Grammar Explain
+            <button type="button" onClick={() => void handleTextAction('ai')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container">
+              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+              Ask AI
             </button>
           </div>
         )}

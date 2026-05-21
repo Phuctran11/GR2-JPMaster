@@ -12,6 +12,9 @@ import quizRoutes from "./routes/quiz.routes.js";
 import lessonNoteRoutes from "./routes/lessonNote.routes.js";
 import certificateRoutes from "./routes/certificate.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import jlptExamRoutes from "./routes/jlptExam.routes.js";
+import assetRoutes from "./routes/asset.routes.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 
 dotenv.config();
@@ -35,13 +38,16 @@ app.use("/api/quizzes", quizRoutes);
 app.use("/api/lesson-notes", lessonNoteRoutes);
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/assets", assetRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/jlpt-exams", jlptExamRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
 
   try {
@@ -51,3 +57,6 @@ app.listen(PORT, async () => {
     console.error("Database connection failed:", error instanceof Error ? error.message : "Unknown error");
   }
 });
+
+server.requestTimeout = 10 * 60 * 1000;
+server.headersTimeout = 10 * 60 * 1000 + 5000;

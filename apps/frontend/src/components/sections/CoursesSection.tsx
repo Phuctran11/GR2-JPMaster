@@ -4,7 +4,6 @@ import { Container, Section, SectionHeader } from '../ui';
 import { CourseGridCard, FeaturedCourseCard } from '../cards';
 // import { Heading, Text } from '../ui/Typography';
 import { courseAPI, type Course } from '../../services/api';
-import courseImage from '../../assets/course.png';
 import { getCourseLessonCount } from '../../utils/course';
 
 
@@ -74,7 +73,7 @@ export function FeaturedCoursesSection() {
             title={featured.title}
             description={featured.description ?? ''}
             price={String(featured.price)}
-            image={courseImage}
+            image={featured.image_url}
             isFree={Number(featured.price) === 0}
             courseId={featured.course_id}
             onEnroll={handleCourseClick}
@@ -93,7 +92,7 @@ export function FeaturedCoursesSection() {
                 title={course.title}
                 description={course.description || ''}
                 price={String(course.price)}
-                image={courseImage}
+                image={course.image_url}
                 isFree={Number(course.price) === 0}
                 courseId={course.course_id}
                 onEnroll={handleCourseClick}

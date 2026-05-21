@@ -122,7 +122,7 @@ export function LessonMedia({ lesson, onAddVideoNote, videoNotes = [], onEditVid
           <p className="truncate text-label-md font-label-md text-on-surface">Lesson media</p>
         </div>
         <span className="rounded-lg bg-surface px-2.5 py-1 text-label-sm text-on-surface-variant">
-          {lesson.content_type}
+          Video
         </span>
       </div>
       <div className="relative w-full aspect-video bg-inverse-surface overflow-hidden">

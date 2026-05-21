@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header, Footer, Button, Card, Container, Icon, Breadcrumbs } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
-import { flashcardAPI, type Flashcard, type FlashcardCollection } from '../services/api';
+import { assetAPI, flashcardAPI, type Flashcard, type FlashcardCollection } from '../services/api';
 import { useToastMessages } from '../hooks/useToastMessages';
 import { useAuth } from '../contexts/AuthContext';
 import { AIAssistantPanel } from '../components/ai/AIAssistantPanel';
@@ -73,6 +73,19 @@ export default function FlashcardDetail() {
   const [backText, setBackText] = useState('');
   const [reading, setReading] = useState('');
   const [exampleSentence, setExampleSentence] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [audioUrl, setAudioUrl] = useState('');
+  const [uploadingMedia, setUploadingMedia] = useState<'image' | 'audio' | null>(null);
+  const [editingCard, setEditingCard] = useState<Flashcard | null>(null);
+  const [editForm, setEditForm] = useState({
+    frontText: '',
+    backText: '',
+    reading: '',
+    exampleSentence: '',
+    imageUrl: '',
+    audioUrl: '',
+    tags: '',
+  });
   const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
   const [selectedCardIds, setSelectedCardIds] = useState<number[]>([]);
 
@@ -151,6 +164,8 @@ export default function FlashcardDetail() {
         back_text: backText.trim(),
         reading: reading.trim() || null,
         example_sentence: exampleSentence.trim() || null,
+        image_url: imageUrl.trim() || null,
+        audio_url: audioUrl.trim() || null,
       });
       setCards((previous) => [result.data, ...previous]);
       setCurrentIndex(0);
@@ -159,9 +174,91 @@ export default function FlashcardDetail() {
       setBackText('');
       setReading('');
       setExampleSentence('');
+      setImageUrl('');
+      setAudioUrl('');
       toast.success('Flashcard created.');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create flashcard');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const uploadCardMedia = async (file: File, mediaKind: 'image' | 'audio') => {
+    try {
+      setUploadingMedia(mediaKind);
+      const result = await assetAPI.upload({
+        file,
+        media_kind: mediaKind,
+        scope: 'flashcards',
+      });
+      if (mediaKind === 'image') setImageUrl(result.data.secure_url);
+      else setAudioUrl(result.data.secure_url);
+      toast.success(`${mediaKind === 'image' ? 'Image' : 'Audio'} uploaded.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : `Failed to upload ${mediaKind}`);
+    } finally {
+      setUploadingMedia(null);
+    }
+  };
+
+  const openEditCard = (card: Flashcard) => {
+    setEditingCard(card);
+    setEditForm({
+      frontText: card.front_text,
+      backText: card.back_text,
+      reading: card.reading ?? '',
+      exampleSentence: card.example_sentence ?? '',
+      imageUrl: card.image_url ?? '',
+      audioUrl: card.audio_url ?? '',
+      tags: card.tags?.join(', ') ?? '',
+    });
+  };
+
+  const uploadEditCardMedia = async (file: File, mediaKind: 'image' | 'audio') => {
+    try {
+      setUploadingMedia(mediaKind);
+      const result = await assetAPI.upload({
+        file,
+        media_kind: mediaKind,
+        scope: 'flashcards',
+      });
+      setEditForm((previous) => mediaKind === 'image'
+        ? { ...previous, imageUrl: result.data.secure_url }
+        : { ...previous, audioUrl: result.data.secure_url }
+      );
+      toast.success(`${mediaKind === 'image' ? 'Image' : 'Audio'} uploaded.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : `Failed to upload ${mediaKind}`);
+    } finally {
+      setUploadingMedia(null);
+    }
+  };
+
+  const handleUpdateCard = async () => {
+    if (!editingCard || saving) return;
+    if (!editForm.frontText.trim() || !editForm.backText.trim()) {
+      toast.error('Front and back text are required.');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const result = await flashcardAPI.updateCard(editingCard.flashcard_id, {
+        front_text: editForm.frontText.trim(),
+        back_text: editForm.backText.trim(),
+        reading: editForm.reading.trim() || null,
+        example_sentence: editForm.exampleSentence.trim() || null,
+        image_url: editForm.imageUrl.trim() || null,
+        audio_url: editForm.audioUrl.trim() || null,
+        tags: editForm.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+      });
+
+      setCards((previous) => previous.map((card) => card.flashcard_id === result.data.flashcard_id ? result.data : card));
+      setEditingCard(null);
+      toast.success('Flashcard updated.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update flashcard');
     } finally {
       setSaving(false);
     }
@@ -237,7 +334,52 @@ export default function FlashcardDetail() {
                       value={exampleSentence}
                       onChange={(event) => setExampleSentence(event.target.value)}
                     />
+                    <div className="rounded-lg border border-outline-variant p-3">
+                      <input
+                        className="w-full outline-none"
+                        placeholder="Image URL"
+                        value={imageUrl}
+                        onChange={(event) => setImageUrl(event.target.value)}
+                      />
+                      <input
+                        className="mt-2 block w-full text-label-md text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:text-label-md file:font-bold file:text-on-primary"
+                        type="file"
+                        accept="image/*"
+                        disabled={uploadingMedia !== null}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void uploadCardMedia(file, 'image');
+                          event.currentTarget.value = '';
+                        }}
+                      />
+                      {imageUrl && <img src={imageUrl} alt="Flashcard preview" className="mt-3 max-h-32 w-full rounded-lg object-contain" />}
+                    </div>
+                    <div className="rounded-lg border border-outline-variant p-3">
+                      <input
+                        className="w-full outline-none"
+                        placeholder="Audio URL"
+                        value={audioUrl}
+                        onChange={(event) => setAudioUrl(event.target.value)}
+                      />
+                      <input
+                        className="mt-2 block w-full text-label-md text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:text-label-md file:font-bold file:text-on-primary"
+                        type="file"
+                        accept="audio/*"
+                        disabled={uploadingMedia !== null}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void uploadCardMedia(file, 'audio');
+                          event.currentTarget.value = '';
+                        }}
+                      />
+                      {audioUrl && (
+                        <audio controls src={audioUrl} className="mt-3 w-full">
+                          <track kind="captions" />
+                        </audio>
+                      )}
+                    </div>
                   </div>
+                  {uploadingMedia && <p className="mt-3 text-label-md font-bold text-primary">Uploading {uploadingMedia}...</p>}
                   <div className="mt-stack-md flex justify-end">
                     <Button onClick={handleCreateCard} disabled={!frontText.trim() || !backText.trim() || saving}>
                       {saving ? 'Adding...' : 'Add Card'}
@@ -280,7 +422,14 @@ export default function FlashcardDetail() {
                     className="relative w-full max-w-[800px] min-h-[500px] group mb-stack-lg text-left"
                   >
                     <Card className="absolute inset-0 rounded-xl flex flex-col items-center justify-center p-stack-lg border border-outline-variant overflow-hidden z-10 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl">
-                      <div className="relative text-center">
+                      <div className="relative flex max-h-full w-full flex-col items-center gap-4 overflow-y-auto text-center">
+                        {currentCard.image_url && (
+                          <img
+                            src={currentCard.image_url}
+                            alt={currentCard.front_text}
+                            className="max-h-56 w-full max-w-md rounded-xl border border-outline-variant object-contain"
+                          />
+                        )}
                         <span className="text-[clamp(3rem,10vw,7rem)] font-headline-lg text-primary tracking-wide leading-none">
                           {showBack ? currentCard.back_text : currentCard.front_text}
                         </span>
@@ -288,6 +437,11 @@ export default function FlashcardDetail() {
                           <div className="mt-4 text-on-surface-variant font-headline-sm opacity-70">
                             {currentCard.reading}
                           </div>
+                        )}
+                        {currentCard.audio_url && (
+                          <audio controls src={currentCard.audio_url} className="mt-2 w-full max-w-md" onClick={(event) => event.stopPropagation()}>
+                            <track kind="captions" />
+                          </audio>
                         )}
                       </div>
                       <Text variant="body-lg" color="on-surface-variant" className="mt-12 italic">
@@ -316,9 +470,19 @@ export default function FlashcardDetail() {
                       </Text>
                     </InfoBentoCard>
                     <InfoBentoCard icon="image" title="Media">
-                      <Text variant="body-md" color="on-surface-variant">
-                        {currentCard.audio_url || currentCard.image_url ? 'Media links are attached to this card.' : 'No media attached.'}
-                      </Text>
+                      <div className="space-y-3">
+                        {currentCard.image_url && (
+                          <img src={currentCard.image_url} alt={currentCard.front_text} className="max-h-40 w-full rounded-lg border border-outline-variant object-contain" />
+                        )}
+                        {currentCard.audio_url && (
+                          <audio controls src={currentCard.audio_url} className="w-full">
+                            <track kind="captions" />
+                          </audio>
+                        )}
+                        {!currentCard.audio_url && !currentCard.image_url && (
+                          <Text variant="body-md" color="on-surface-variant">No media attached.</Text>
+                        )}
+                      </div>
                     </InfoBentoCard>
                   </div>
 
@@ -377,17 +541,32 @@ export default function FlashcardDetail() {
                             <p className="text-title-md font-bold text-primary">{card.front_text}</p>
                             <p className="mt-1 text-body-md text-on-surface">{card.back_text}</p>
                             {card.reading && <p className="mt-1 text-body-md text-on-surface-variant">{card.reading}</p>}
+                            {(card.image_url || card.audio_url) && (
+                              <p className="mt-1 text-label-md text-on-surface-variant">
+                                {[card.image_url ? 'Image' : null, card.audio_url ? 'Audio' : null].filter(Boolean).join(' + ')}
+                              </p>
+                            )}
                             </div>
                           </div>
                           {isOwner && (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteCard(card.flashcard_id)}
-                              className="rounded-lg p-2 text-red-700 hover:bg-red-50"
-                              title="Delete card"
-                            >
-                              <Icon name="delete" />
-                            </button>
+                            <div className="flex shrink-0 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => openEditCard(card)}
+                                className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container hover:text-primary"
+                                title="Edit card"
+                              >
+                                <Icon name="edit" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteCard(card.flashcard_id)}
+                                className="rounded-lg p-2 text-red-700 hover:bg-red-50"
+                                title="Delete card"
+                              >
+                                <Icon name="delete" />
+                              </button>
+                            </div>
                           )}
                         </div>
                       </Card>
@@ -409,6 +588,148 @@ export default function FlashcardDetail() {
         >
           <span className="material-symbols-outlined text-[28px]">auto_awesome</span>
         </button>
+      )}
+
+      {editingCard && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true">
+          <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">
+              <div className="min-w-0">
+                <p className="text-label-md font-bold uppercase tracking-wide text-primary">Edit Flashcard</p>
+                <h2 className="truncate text-title-lg font-bold text-on-surface">{editingCard.front_text}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingCard(null)}
+                className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container"
+                aria-label="Close edit dialog"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="flex-1 space-y-4 overflow-y-auto p-5">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1 block text-label-md font-bold text-on-surface">Front <span className="text-error">Required</span></span>
+                  <textarea
+                    className="min-h-28 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                    value={editForm.frontText}
+                    onChange={(event) => setEditForm({ ...editForm, frontText: event.target.value })}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-label-md font-bold text-on-surface">Back <span className="text-error">Required</span></span>
+                  <textarea
+                    className="min-h-28 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                    value={editForm.backText}
+                    onChange={(event) => setEditForm({ ...editForm, backText: event.target.value })}
+                  />
+                </label>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1 block text-label-md font-bold text-on-surface">Reading <span className="font-normal text-on-surface-variant">Optional</span></span>
+                  <input
+                    className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                    value={editForm.reading}
+                    onChange={(event) => setEditForm({ ...editForm, reading: event.target.value })}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-label-md font-bold text-on-surface">Tags <span className="font-normal text-on-surface-variant">Optional</span></span>
+                  <input
+                    className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                    value={editForm.tags}
+                    onChange={(event) => setEditForm({ ...editForm, tags: event.target.value })}
+                    placeholder="Comma separated tags"
+                  />
+                </label>
+              </div>
+
+              <label className="block">
+                <span className="mb-1 block text-label-md font-bold text-on-surface">Example sentence <span className="font-normal text-on-surface-variant">Optional</span></span>
+                <textarea
+                  className="min-h-24 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                  value={editForm.exampleSentence}
+                  onChange={(event) => setEditForm({ ...editForm, exampleSentence: event.target.value })}
+                />
+              </label>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block">
+                  <span className="mb-1 block text-label-md font-bold text-on-surface">Image <span className="font-normal text-on-surface-variant">Optional</span></span>
+                  <input
+                    className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                    value={editForm.imageUrl}
+                    onChange={(event) => setEditForm({ ...editForm, imageUrl: event.target.value })}
+                    placeholder="https://..."
+                  />
+                  <input
+                    className="mt-2 block w-full text-label-md text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:text-label-md file:font-bold file:text-on-primary"
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingMedia !== null}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void uploadEditCardMedia(file, 'image');
+                      event.currentTarget.value = '';
+                    }}
+                  />
+                  {editForm.imageUrl && <img src={editForm.imageUrl} alt="Flashcard edit preview" className="mt-3 max-h-40 w-full rounded-lg border border-outline-variant object-contain" />}
+                </label>
+
+                <label className="block">
+                  <span className="mb-1 block text-label-md font-bold text-on-surface">Audio <span className="font-normal text-on-surface-variant">Optional</span></span>
+                  <input
+                    className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                    value={editForm.audioUrl}
+                    onChange={(event) => setEditForm({ ...editForm, audioUrl: event.target.value })}
+                    placeholder="https://..."
+                  />
+                  <input
+                    className="mt-2 block w-full text-label-md text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-2 file:text-label-md file:font-bold file:text-on-primary"
+                    type="file"
+                    accept="audio/*"
+                    disabled={uploadingMedia !== null}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void uploadEditCardMedia(file, 'audio');
+                      event.currentTarget.value = '';
+                    }}
+                  />
+                  {editForm.audioUrl && (
+                    <audio controls src={editForm.audioUrl} className="mt-3 w-full">
+                      <track kind="captions" />
+                    </audio>
+                  )}
+                </label>
+              </div>
+              {uploadingMedia && <p className="rounded-lg bg-primary/10 px-3 py-2 text-label-md font-bold text-primary">Uploading {uploadingMedia}...</p>}
+            </div>
+
+            <div className="flex flex-col-reverse gap-2 border-t border-outline-variant px-5 py-4 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setEditingCard(null)}
+                disabled={saving}
+                className="inline-flex items-center justify-center rounded-lg border border-outline-variant px-4 py-2 font-bold text-on-surface hover:bg-surface-container disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleUpdateCard()}
+                disabled={saving || uploadingMedia !== null}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary hover:bg-primary/90 disabled:opacity-60"
+              >
+                <span className="material-symbols-outlined text-[18px]">{saving ? 'hourglass_empty' : 'save'}</span>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {currentCard && isAiAssistantOpen && (

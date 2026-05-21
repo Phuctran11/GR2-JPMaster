@@ -22,11 +22,8 @@ export function TestCard({
   return (
     <Card className="bg-surface border border-outline-variant hover:shadow-lg transition-all duration-300 flex flex-col group">
       <div className="p-stack-lg flex-grow flex flex-col">
-        <div className="flex justify-between items-start mb-stack-md">
+        <div className="flex items-start mb-stack-md">
           <LevelBadge level={level} variant="solid" />
-          <span className="material-symbols-outlined text-outline group-hover:text-secondary transition-colors">
-            bookmark
-          </span>
         </div>
         <Heading level="h3" size="headline-sm" className="text-on-surface mb-stack-sm leading-tight">
           {title}
@@ -41,8 +38,13 @@ export function TestCard({
             {duration}
           </span>
         </div>
-        <div className="group">
-          <ImageCard src={image} alt={title} rounded="md" className="h-40 mb-stack-md opacity-90 group-hover:opacity-100 transition-opacity" />
+        <div className="group -mx-1">
+          <ImageCard
+            src={image}
+            alt={title}
+            rounded="md"
+            className="mb-stack-md h-44 w-full opacity-90 transition-opacity group-hover:opacity-100 [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+          />
         </div>
       </div>
       <div className="px-stack-lg pb-stack-lg">

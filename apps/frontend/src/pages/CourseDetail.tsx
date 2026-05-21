@@ -7,7 +7,6 @@ import { courseAPI, enrollmentAPI, quizAPI, ratingAPI, type Course, type Lesson,
 import { RatingForm } from '../components/cards/RatingForm';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import courseImage from '../assets/course.png';
 import { getCourseLessonCount } from '../utils/course';
 
 interface CourseModule {
@@ -67,8 +66,8 @@ function ModuleItem({
             {lesson && (
               <>
                 <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px]">{lesson.content_type === 'video' ? 'play_circle' : 'description'}</span>
-                  {lesson.content_type}
+                  <span className="material-symbols-outlined text-[16px]">{lesson.video_url ? 'play_circle' : 'description'}</span>
+                  {[lesson.video_url ? 'Video' : null, lesson.content_text ? 'Text' : null, lesson.audio_url ? 'Audio' : null].filter(Boolean).join(' + ') || 'Lesson'}
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-[16px]">schedule</span>
@@ -457,15 +456,21 @@ export default function CourseDetail() {
               </div>
               <div className="md:col-span-5 hidden md:block">
                 <Card className="rotate-2 hover:rotate-0 transition-transform duration-500 overflow-hidden group">
-                  <ImageCard
-                    src={courseImage}
-                    alt={course.title}
-                    overlay={{ gradient: true }}
-                    aspectRatio="4:3"
-                    hoverScale={110}
-                    rounded="lg"
-                    className="w-full shadow-2xl"
-                  />
+                  {course.image_url ? (
+                    <ImageCard
+                      src={course.image_url}
+                      alt={course.title}
+                      overlay={{ gradient: true }}
+                      aspectRatio="4:3"
+                      hoverScale={110}
+                      rounded="lg"
+                      className="w-full shadow-2xl"
+                    />
+                  ) : (
+                    <div className="flex aspect-[4/3] w-full items-center justify-center rounded-lg bg-surface-container-high shadow-2xl">
+                      <span className="material-symbols-outlined text-[96px] text-outline">school</span>
+                    </div>
+                  )}
                 </Card>
               </div>
             </div>
@@ -497,7 +502,7 @@ export default function CourseDetail() {
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-[18px] text-green-600">check_circle</span>
-                        {course.lessons?.filter(l => l.content_type === 'video').length || 0} Video Lessons
+                        {course.lessons?.filter(l => Boolean(l.video_url?.trim())).length || 0} Video Lessons
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-[18px] text-green-600">check_circle</span>

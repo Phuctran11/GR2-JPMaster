@@ -1,13 +1,16 @@
 import databaseService from "../services/database.service.js";
 import ratingModel from "./rating.model.js";
+import pool from "../config/database.js";
 
 export interface Lesson {
   lesson_id: number;
   course_id: number;
   title: string;
-  content_type: 'video' | 'text' | 'quiz';
   content_text: string | null;
+  video_asset_id: number | null;
   video_url: string | null;
+  audio_asset_id: number | null;
+  audio_url: string | null;
   order_index: number;
   duration: number | null;
   created_by: number;
@@ -33,6 +36,8 @@ export interface CourseWithLessons {
   level: string | null;
   is_free: boolean;
   duration: number | null;
+  cover_asset_id: number | null;
+  image_url: string | null;
   created_by: number;
   final_quiz_id: number | null;
   creator_username?: string;
@@ -54,6 +59,8 @@ export interface Course {
   price: number;
   level: string | null;
   duration: number | null;
+  cover_asset_id: number | null;
+  image_url: string | null;
   created_by: number;
   final_quiz_id: number | null;
   creator_username?: string;
@@ -90,6 +97,7 @@ const finalQuizIdSelect = `
     FROM "Quiz" q
     WHERE q.course_id = c.course_id
       AND q.quiz_type = 'final_test'
+      AND q.deleted_at IS NULL
     ORDER BY q.quiz_id DESC
     LIMIT 1
   ) AS final_quiz_id
@@ -105,11 +113,11 @@ export class CourseModel {
     const query = `
       WITH created AS (
         INSERT INTO "Course" (title, description, price, level, created_by, created_at, updated_at)
-        VALUES ($1, $2, $3, NULL, $4, NOW(), NOW())
-        RETURNING course_id, title, description, price, level, duration, created_by, created_at, updated_at
+        VALUES ($1, $2, $3, 'beginner', $4, NOW(), NOW())
+        RETURNING course_id, title, description, price, level, duration, cover_asset_id, image_url, created_by, created_at, updated_at
       )
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.cover_asset_id, c.image_url, c.created_by,
         ${finalQuizIdSelect},
         c.created_at, c.updated_at
       FROM created c;
@@ -121,13 +129,14 @@ export class CourseModel {
   async getCourseById(courseId: number): Promise<Course | null> {
     const query = `
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.cover_asset_id, c.image_url, c.created_by,
         ${finalQuizIdSelect},
         u.username AS creator_username,
         c.created_at, c.updated_at
       FROM "Course" c
       LEFT JOIN "User" u ON u.user_id = c.created_by
-      WHERE c.course_id = $1;
+      WHERE c.course_id = $1
+        AND c.deleted_at IS NULL;
     `;
     const result = await databaseService.executeQuery(query, [courseId]);
     return result.rows[0] ? formatCourse(result.rows[0]) : null;
@@ -136,13 +145,14 @@ export class CourseModel {
   async getCourseByIdWithLessons(courseId: number): Promise<CourseWithLessons | null> {
     const query = `
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.cover_asset_id, c.image_url, c.created_by,
         ${finalQuizIdSelect},
         u.username AS creator_username,
         c.created_at, c.updated_at
       FROM "Course" c
       LEFT JOIN "User" u ON u.user_id = c.created_by
-      WHERE c.course_id = $1;
+      WHERE c.course_id = $1
+        AND c.deleted_at IS NULL;
     `;
     const result = await databaseService.executeQuery(query, [courseId]);
     if (!result.rows[0]) return null;
@@ -154,9 +164,11 @@ export class CourseModel {
           l.lesson_id,
           l.course_id,
           l.title,
-          l.content_type,
           l.content_text,
+          (to_jsonb(l)->>'video_asset_id')::int AS video_asset_id,
           l.video_url,
+          (to_jsonb(l)->>'audio_asset_id')::int AS audio_asset_id,
+          to_jsonb(l)->>'audio_url' AS audio_url,
           l.order_index,
           (to_jsonb(l)->>'duration')::int AS duration,
           (to_jsonb(l)->>'created_by')::int AS created_by,
@@ -164,6 +176,7 @@ export class CourseModel {
           l.updated_at
         FROM "Lesson" l
         WHERE l.course_id = $1
+          AND l.deleted_at IS NULL
         ORDER BY l.order_index ASC;
       `;
       const lessonsResult = await databaseService.executeQuery(lessonsQuery, [courseId]);
@@ -216,6 +229,7 @@ export class CourseModel {
       LEFT JOIN "UserLessonProgress" ulp
         ON ulp.lesson_id = l.lesson_id AND ulp.user_id = $1
       WHERE l.course_id = $2
+        AND l.deleted_at IS NULL
       ORDER BY l.order_index ASC;
     `;
 
@@ -229,9 +243,11 @@ export class CourseModel {
         l.lesson_id,
         l.course_id,
         l.title,
-        l.content_type,
         l.content_text,
+        (to_jsonb(l)->>'video_asset_id')::int AS video_asset_id,
         l.video_url,
+        (to_jsonb(l)->>'audio_asset_id')::int AS audio_asset_id,
+        to_jsonb(l)->>'audio_url' AS audio_url,
         l.order_index,
         (to_jsonb(l)->>'duration')::int AS duration,
         (to_jsonb(l)->>'created_by')::int AS created_by,
@@ -241,6 +257,7 @@ export class CourseModel {
       LEFT JOIN "UserLessonProgress" ulp
         ON ulp.lesson_id = l.lesson_id AND ulp.user_id = $1
       WHERE l.course_id = $2
+        AND l.deleted_at IS NULL
         AND (
           ulp.user_lesson_progress_id IS NULL
           OR COALESCE(ulp.completed, FALSE) = FALSE
@@ -275,7 +292,8 @@ export class CourseModel {
       FROM "Lesson" l
       LEFT JOIN "UserLessonProgress" ulp
         ON ulp.lesson_id = l.lesson_id AND ulp.user_id = $1
-      WHERE l.course_id = $2;
+      WHERE l.course_id = $2
+        AND l.deleted_at IS NULL;
     `;
 
     const result = await databaseService.executeQuery(query, [userId, courseId]);
@@ -289,7 +307,7 @@ export class CourseModel {
   async getAllCourses(limit: number = 10, offset: number = 0): Promise<Course[]> {
     const query = `
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.cover_asset_id, c.image_url, c.created_by,
         ${finalQuizIdSelect},
         u.username AS creator_username,
         c.created_at, c.updated_at,
@@ -300,6 +318,7 @@ export class CourseModel {
       LEFT JOIN "User" u ON u.user_id = c.created_by
       LEFT JOIN "CourseEnrollment" e ON e.course_id = c.course_id
       LEFT JOIN "CourseRating" cr ON cr.course_id = c.course_id
+      WHERE c.deleted_at IS NULL
       GROUP BY c.course_id, u.username
       ORDER BY c.created_at DESC
       LIMIT $1 OFFSET $2;
@@ -311,7 +330,7 @@ export class CourseModel {
   async getPopularCourses(limit: number = 4): Promise<Course[]> {
     const query = `
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.cover_asset_id, c.image_url, c.created_by,
         ${finalQuizIdSelect},
         u.username AS creator_username,
         c.created_at, c.updated_at,
@@ -322,6 +341,7 @@ export class CourseModel {
       LEFT JOIN "User" u ON u.user_id = c.created_by
       LEFT JOIN "CourseEnrollment" e ON e.course_id = c.course_id
       LEFT JOIN "CourseRating" cr ON cr.course_id = c.course_id
+      WHERE c.deleted_at IS NULL
       GROUP BY c.course_id, u.username
       ORDER BY enroll_count DESC, c.created_at DESC
       LIMIT $1;
@@ -339,12 +359,15 @@ export class CourseModel {
         c.price,
         c.level,
         c.duration,
+        c.cover_asset_id,
+        c.image_url,
         c.created_by,
         ${finalQuizIdSelect},
         c.created_at,
         c.updated_at
       FROM "Course" c
       WHERE c.created_by = $1
+        AND c.deleted_at IS NULL
       ORDER BY created_at DESC
       LIMIT $2 OFFSET $3;
     `;
@@ -363,10 +386,11 @@ export class CourseModel {
         UPDATE "Course"
         SET title = $1, description = $2, price = $3, updated_at = NOW()
         WHERE course_id = $4
-        RETURNING course_id, title, description, price, level, duration, created_by, created_at, updated_at
+          AND deleted_at IS NULL
+        RETURNING course_id, title, description, price, level, duration, cover_asset_id, image_url, created_by, created_at, updated_at
       )
       SELECT
-        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
+        c.course_id, c.title, c.description, c.price, c.level, c.duration, c.cover_asset_id, c.image_url, c.created_by,
         ${finalQuizIdSelect},
         c.created_at, c.updated_at
       FROM updated c;
@@ -381,9 +405,11 @@ export class CourseModel {
         l.lesson_id,
         l.course_id,
         l.title,
-        l.content_type,
         l.content_text,
+        (to_jsonb(l)->>'video_asset_id')::int AS video_asset_id,
         l.video_url,
+        (to_jsonb(l)->>'audio_asset_id')::int AS audio_asset_id,
+        to_jsonb(l)->>'audio_url' AS audio_url,
         l.order_index,
         (to_jsonb(l)->>'duration')::int AS duration,
         (to_jsonb(l)->>'created_by')::int AS created_by,
@@ -391,6 +417,7 @@ export class CourseModel {
         l.updated_at
       FROM "Lesson" l
       WHERE l.course_id = $1
+        AND l.deleted_at IS NULL
       ORDER BY l.order_index ASC
       LIMIT 1;
     `;
@@ -404,16 +431,20 @@ export class CourseModel {
         l.lesson_id,
         l.course_id,
         l.title,
-        l.content_type,
         l.content_text,
+        (to_jsonb(l)->>'video_asset_id')::int AS video_asset_id,
         l.video_url,
+        (to_jsonb(l)->>'audio_asset_id')::int AS audio_asset_id,
+        to_jsonb(l)->>'audio_url' AS audio_url,
         l.order_index,
         (to_jsonb(l)->>'duration')::int AS duration,
         (to_jsonb(l)->>'created_by')::int AS created_by,
         l.created_at,
         l.updated_at
       FROM "Lesson" l
-      WHERE l.course_id = $1 AND l.lesson_id = $2
+      WHERE l.course_id = $1
+        AND l.lesson_id = $2
+        AND l.deleted_at IS NULL
       LIMIT 1;
     `;
 
@@ -422,9 +453,59 @@ export class CourseModel {
   }
 
   async deleteCourse(courseId: number): Promise<boolean> {
-    const query = `DELETE FROM "Course" WHERE course_id = $1;`;
-    const result = await databaseService.executeQuery(query, [courseId]);
-    return (result.rowCount ?? 0) > 0;
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const existing = await client.query(`SELECT course_id FROM "Course" WHERE course_id = $1 AND deleted_at IS NULL;`, [courseId]);
+      if (!existing.rowCount) {
+        await client.query("ROLLBACK");
+        return false;
+      }
+
+      await client.query(
+        `
+          UPDATE "Quiz"
+          SET deleted_at = COALESCE(deleted_at, NOW()),
+              updated_at = NOW()
+          WHERE deleted_at IS NULL
+            AND (
+              course_id = $1
+              OR lesson_id IN (SELECT lesson_id FROM "Lesson" WHERE course_id = $1)
+            );
+        `,
+        [courseId]
+      );
+      await client.query(
+        `
+          UPDATE "Lesson"
+          SET deleted_at = COALESCE(deleted_at, NOW()),
+              updated_at = NOW()
+          WHERE course_id = $1
+            AND deleted_at IS NULL;
+        `,
+        [courseId]
+      );
+      await client.query(
+        `
+          UPDATE "Course"
+          SET deleted_at = COALESCE(deleted_at, NOW()),
+              updated_at = NOW()
+          WHERE course_id = $1
+            AND deleted_at IS NULL;
+        `,
+        [courseId]
+      );
+
+      await client.query("COMMIT");
+      return true;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 }
 

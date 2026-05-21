@@ -5,7 +5,6 @@ import { Heading, Text } from '../components/ui/Typography';
 import { MyLearningCard } from '../components/cards';
 import { enrollmentAPI, type EnrolledCourse } from '../services/api';
 import { useToastMessages } from '../hooks/useToastMessages';
-import courseImage from '../assets/course.png';
 
 export default function CourseList() {
   const navigate = useNavigate();
@@ -159,7 +158,7 @@ export default function CourseList() {
                         progress={enrollment.progress_percent ?? (effectiveStatus === 'completed' ? 100 : 0)}
                         status={getStatusLabel(effectiveStatus)}
                         needsFinalTest={needsFinalTest}
-                        image={courseImage}
+                        image={enrollment.course.image_url}
                         onClick={handleOpenCourseDetail}
                         onGetStarted={handleGetStarted}
                         onTakeFinalTest={handleTakeFinalTest}
