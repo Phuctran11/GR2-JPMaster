@@ -230,6 +230,14 @@ export function LessonContent({
           </div>
         </div>
 
+        {lesson.audio_url && (
+          <div className="mb-6">
+            <audio controls src={lesson.audio_url} className="w-full">
+              <track kind="captions" />
+            </audio>
+          </div>
+        )}
+
         <div className="space-y-5 text-on-surface">
           {contentBlocks.length > 0 ? (
             contentBlocks.map((block, index) => {

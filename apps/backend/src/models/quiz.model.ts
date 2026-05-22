@@ -20,6 +20,10 @@ export interface QuizQuestion {
   points: number;
   jlpt_level: string | null;
   section_type: string | null;
+  image_asset_id: number | null;
+  image_url: string | null;
+  audio_asset_id: number | null;
+  audio_url: string | null;
   order_index: number | null;
   marks: number;
   options: QuizOption[];
@@ -31,7 +35,7 @@ export interface QuizDetail {
   course_id: number | null;
   title: string;
   description: string | null;
-  quiz_type: "lesson_quiz" | "practice_test" | "final_test" | "jlpt_mock" | null;
+  quiz_type: "lesson_quiz" | "practice_test" | "final_test" | null;
   passing_score: number;
   total_marks: number;
   time_limit_minutes: number | null;
@@ -87,7 +91,7 @@ export class QuizModel {
     if (!row) return null;
 
     const passingScoreResult = await databaseService.executeQuery(
-      `SELECT passing_score FROM "Quiz" WHERE quiz_id = $1;`,
+      `SELECT passing_score FROM "Quiz" WHERE quiz_id = $1 AND deleted_at IS NULL;`,
       [quizId]
     );
     const passingScore = toNumber(passingScoreResult.rows[0]?.passing_score, 70);
@@ -112,6 +116,7 @@ export class QuizModel {
       JOIN "Quiz" q ON q.quiz_id = qa.quiz_id
       WHERE qa.user_id = $1
         AND qa.quiz_id = $2
+        AND q.deleted_at IS NULL
         AND qa.status IN ('submitted', 'graded')
         AND qa.score >= q.passing_score
       LIMIT 1;
@@ -125,7 +130,8 @@ export class QuizModel {
       SELECT quiz_id, lesson_id, course_id, title, description, quiz_type, passing_score,
              total_marks, time_limit_minutes, created_by, created_at, updated_at
       FROM "Quiz"
-      WHERE quiz_id = $1;
+      WHERE quiz_id = $1
+        AND deleted_at IS NULL;
     `;
     const quizResult = await databaseService.executeQuery(quizQuery, [quizId]);
     const quizRow = quizResult.rows[0];
@@ -141,11 +147,17 @@ export class QuizModel {
         q.points,
         q.jlpt_level,
         q.section_type,
+        q.image_asset_id,
+        q.image_url,
+        q.audio_asset_id,
+        q.audio_url,
         qq.order_index,
         COALESCE(qq.marks, q.points, 1) AS marks
       FROM "QuizQuestion" qq
       JOIN "Question" q ON q.question_id = qq.question_id
       WHERE qq.quiz_id = $1
+        AND qq.deleted_at IS NULL
+        AND q.deleted_at IS NULL
       ORDER BY qq.order_index ASC NULLS LAST, qq.quiz_question_id ASC;
     `;
     const questionResult = await databaseService.executeQuery(questionsQuery, [quizId]);
@@ -183,6 +195,10 @@ export class QuizModel {
       points: toNumber(row.points, 1),
       jlpt_level: row.jlpt_level,
       section_type: row.section_type,
+      image_asset_id: row.image_asset_id,
+      image_url: row.image_url,
+      audio_asset_id: row.audio_asset_id,
+      audio_url: row.audio_url,
       order_index: row.order_index,
       marks: toNumber(row.marks, 1),
       options: optionsByQuestion.get(row.question_id) ?? [],
@@ -222,8 +238,9 @@ export class QuizModel {
     const query = `
       SELECT COALESCE(q.course_id, l.course_id) AS course_id
       FROM "Quiz" q
-      LEFT JOIN "Lesson" l ON l.lesson_id = q.lesson_id
-      WHERE q.quiz_id = $1;
+      LEFT JOIN "Lesson" l ON l.lesson_id = q.lesson_id AND l.deleted_at IS NULL
+      WHERE q.quiz_id = $1
+        AND q.deleted_at IS NULL;
     `;
     const result = await databaseService.executeQuery(query, [quizId]);
     const courseId = result.rows[0]?.course_id;
@@ -234,7 +251,9 @@ export class QuizModel {
     const query = `
       SELECT quiz_id
       FROM "Quiz"
-      WHERE lesson_id = $1 AND quiz_type = 'lesson_quiz'
+      WHERE lesson_id = $1
+        AND quiz_type = 'lesson_quiz'
+        AND deleted_at IS NULL
       ORDER BY quiz_id DESC
       LIMIT 1;
     `;
@@ -251,6 +270,7 @@ export class QuizModel {
       FROM "Quiz"
       WHERE course_id = $1
         AND quiz_type = 'final_test'
+        AND deleted_at IS NULL
       ORDER BY quiz_id DESC
       LIMIT 1;
     `;

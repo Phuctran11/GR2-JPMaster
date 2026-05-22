@@ -18,6 +18,8 @@ const Notes = lazy(() => import('./pages/Notes'));
 const BlogList = lazy(() => import('./pages/BlogList'));
 const BlogDetail = lazy(() => import('./pages/BlogDetail'));
 const TestList = lazy(() => import('./pages/TestList'));
+const JlptTest = lazy(() => import('./pages/JlptTest'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 
@@ -48,6 +50,8 @@ function App() {
               <Route path="/flashcards/:id" element={<FlashcardDetail />} />
               <Route path="/notes" element={<Notes />} />
               <Route path="/tests" element={<TestList />} />
+              <Route path="/tests/:examId" element={<JlptTest />} />
+              <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/blog" element={<BlogList />} />
               <Route path="/blog/:id" element={<BlogDetail />} />
               <Route path="/login" element={<Login />} />

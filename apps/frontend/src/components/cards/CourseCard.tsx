@@ -27,6 +27,18 @@ function CourseTypeBadge({ isFree = false }: { isFree?: boolean }) {
   );
 }
 
+function CourseImagePlaceholder({ title, className = '' }: { title: string; className?: string }) {
+  return (
+    <div
+      role="img"
+      aria-label={title}
+      className={`flex h-full w-full items-center justify-center bg-surface-container-high text-primary ${className}`}
+    >
+      <span className="material-symbols-outlined text-[56px] opacity-80">school</span>
+    </div>
+  );
+}
+
 function triggerEnroll(
   event: MouseEvent<HTMLButtonElement>,
   courseId: number | undefined,
@@ -229,7 +241,7 @@ interface MyLearningCardProps {
   title: string;
   progress: number;
   status: 'In Progress' | 'Completed' | 'Not Started';
-  image: string;
+  image?: string | null;
   needsFinalTest?: boolean;
   onClick?: (courseId: number) => void;
   onGetStarted?: (courseId: number) => void;
@@ -283,7 +295,11 @@ export function MyLearningCard({
       }}
     >
       <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0 group overflow-hidden rounded-lg">
-        <ImageCard src={image} alt={title} hoverScale={105} rounded="md" />
+        {image ? (
+          <ImageCard src={image} alt={title} hoverScale={105} rounded="md" />
+        ) : (
+          <CourseImagePlaceholder title={title} />
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <Heading level="h3" size="headline-sm" className="truncate mb-3">
@@ -342,7 +358,7 @@ export function MyLearningCard({
 interface CourseGridCardProps {
   title: string;
   price: string;
-  image: string;
+  image?: string | null;
   description: string;
   isFree?: boolean;
   courseId?: number;
@@ -391,15 +407,19 @@ export function CourseGridCard({
       />
       <Card className="flex flex-col relative overflow-hidden border-2 border-outline-variant hover:border-primary transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-2 bg-surface-container-high">
       <div className="relative overflow-hidden">
-        <ImageCard
-          src={image}
-          alt={title}
-          overlay={{ gradient: true }}
-          aspectRatio="square"
-          hoverScale={110}
-          rounded="xl"
-          className="w-full"
-        />
+        {image ? (
+          <ImageCard
+            src={image}
+            alt={title}
+            overlay={{ gradient: true }}
+            aspectRatio="square"
+            hoverScale={110}
+            rounded="xl"
+            className="w-full"
+          />
+        ) : (
+          <CourseImagePlaceholder title={title} className="aspect-square rounded-xl" />
+        )}
         <div className="absolute top-4 left-4">
           <CourseTypeBadge isFree={isFree} />
         </div>
@@ -434,7 +454,7 @@ interface FeaturedCourseCardProps {
   description: string;
   price: string;
   isFree?: boolean;
-  image: string;
+  image?: string | null;
   courseId: number;
   onEnroll?: (courseId: number) => void;
   lessonCount?: number;
@@ -489,15 +509,19 @@ export function FeaturedCourseCard({
         <div className="absolute -left-12 -bottom-12 w-80 h-80 bg-secondary-container/15 rounded-full blur-3xl group-hover:blur-2xl transition-all"></div>
         <div className="relative flex flex-col lg:flex-row h-full z-10">
         <div className="lg:w-1/2 relative group/img min-h-[320px] lg:min-h-full overflow-hidden">
-          <ImageCard
-            src={image}
-            alt={title}
-            overlay={{ color: 'absolute inset-0 bg-gradient-to-r from-[#00164e]/40 to-transparent' }}
-            hoverScale={105}
-            aspectRatio="auto"
-            rounded="2xl"
-            className="absolute inset-0 w-full h-full"
-          />
+          {image ? (
+            <ImageCard
+              src={image}
+              alt={title}
+              overlay={{ color: 'absolute inset-0 bg-gradient-to-r from-[#00164e]/40 to-transparent' }}
+              hoverScale={105}
+              aspectRatio="auto"
+              rounded="2xl"
+              className="absolute inset-0 w-full h-full"
+            />
+          ) : (
+            <CourseImagePlaceholder title={title} className="absolute inset-0" />
+          )}
         </div>
         <div className="lg:w-1/2 p-6 sm:p-8 lg:p-10 flex flex-col h-full">
           <div className="flex items-start justify-between mb-8">

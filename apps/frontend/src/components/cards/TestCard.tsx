@@ -41,8 +41,13 @@ export function TestCard({
             {duration}
           </span>
         </div>
-        <div className="group">
-          <ImageCard src={image} alt={title} rounded="md" className="h-40 mb-stack-md opacity-90 group-hover:opacity-100 transition-opacity" />
+        <div className="group -mx-1">
+          <ImageCard
+            src={image}
+            alt={title}
+            rounded="md"
+            className="mb-stack-md h-44 w-full opacity-90 transition-opacity group-hover:opacity-100 [&_img]:h-full [&_img]:w-full [&_img]:object-cover"
+          />
         </div>
       </div>
       <div className="px-stack-lg pb-stack-lg">

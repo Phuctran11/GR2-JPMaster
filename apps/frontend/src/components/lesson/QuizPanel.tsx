@@ -247,6 +247,18 @@ export function QuizPanel({
                       {question.marks} mark{question.marks === 1 ? '' : 's'}
                     </span>
                   </div>
+                  {question.image_url && (
+                    <img
+                      src={question.image_url}
+                      alt=""
+                      className="mt-4 max-h-80 w-full rounded-lg border border-outline-variant object-contain"
+                    />
+                  )}
+                  {question.audio_url && (
+                    <audio controls src={question.audio_url} className="mt-4 w-full">
+                      Your browser does not support audio playback.
+                    </audio>
+                  )}
 
                   {question.question_type === 'fill_in_blank' ? (
                     <input

@@ -32,6 +32,8 @@ export interface UserProfile {
   username: string;
   email: string;
   role: string;
+  status?: 'active' | 'suspended' | 'deleted';
+  deleted_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -44,8 +46,9 @@ const getAuthHeader = (): { Authorization?: string } => {
 
 // Helper to make authenticated requests
 const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
+  const isFormData = options.body instanceof FormData;
   const headers = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...getAuthHeader(),
     ...options.headers,
   };
@@ -154,6 +157,8 @@ export interface Course {
   level?: string | null;
   is_free?: boolean;
   duration?: number | null;
+  cover_asset_id?: number | null;
+  image_url?: string | null;
   created_by: number;
   final_quiz_id?: number | null;
   creator_username?: string;
@@ -168,7 +173,10 @@ export interface Lesson {
   title: string;
   content_type: 'video' | 'text' | 'quiz';
   content_text: string | null;
+  video_asset_id?: number | null;
   video_url: string | null;
+  audio_asset_id?: number | null;
+  audio_url?: string | null;
   order_index: number;
   duration?: number | null;
   created_by: number;
@@ -202,6 +210,10 @@ export interface QuizQuestion {
   points: number;
   jlpt_level: string | null;
   section_type: string | null;
+  image_asset_id?: number | null;
+  image_url?: string | null;
+  audio_asset_id?: number | null;
+  audio_url?: string | null;
   order_index: number | null;
   marks: number;
   options: QuizOption[];
@@ -224,7 +236,7 @@ export interface Quiz {
   course_id: number | null;
   title: string;
   description: string | null;
-  quiz_type: 'lesson_quiz' | 'practice_test' | 'final_test' | 'jlpt_mock' | null;
+  quiz_type: 'lesson_quiz' | 'practice_test' | 'final_test' | null;
   passing_score: number;
   total_marks: number;
   time_limit_minutes: number | null;
@@ -256,6 +268,86 @@ export interface QuizSubmitResult {
     selected_option_ids: number[];
     correct_option_ids: number[];
     answer_text: string | null;
+  }>;
+}
+
+export type JlptSectionType = 'vocabulary' | 'grammar' | 'reading' | 'listening';
+
+export interface JlptExamSummary {
+  exam_id: number;
+  title: string;
+  jlpt_level: 'N1' | 'N2' | 'N3' | 'N4' | 'N5';
+  year: number | null;
+  duration_minutes: number | null;
+  section_count: number;
+  question_count: number;
+  section_types: JlptSectionType[];
+  created_at: string;
+}
+
+export interface JlptExamQuestionOption {
+  option_id: number;
+  question_id: number;
+  option_text: string;
+  explanation: string | null;
+}
+
+export interface JlptExamQuestion {
+  section_id: number;
+  question_id: number;
+  question_text: string;
+  question_type: 'single_choice' | 'multiple_choice' | 'true_false' | 'fill_in_blank';
+  difficulty_level: string | null;
+  explanation: string | null;
+  points: number;
+  marks: number;
+  jlpt_level: string | null;
+  section_type: JlptSectionType;
+  image_url: string | null;
+  audio_url: string | null;
+  order_index: number | null;
+  options: JlptExamQuestionOption[];
+}
+
+export interface JlptExamSection {
+  section_id: number;
+  exam_id: number;
+  title: string | null;
+  section_type: JlptSectionType;
+  section_order: number | null;
+  duration_minutes: number | null;
+  audio_url: string | null;
+  questions: JlptExamQuestion[];
+}
+
+export interface JlptExamDetail extends Omit<JlptExamSummary, 'section_count' | 'question_count' | 'section_types'> {
+  sections: JlptExamSection[];
+}
+
+export interface JlptExamAnswerPayload {
+  question_id: number;
+  option_id?: number;
+  option_ids?: number[];
+  answer_text?: string;
+}
+
+export interface JlptExamSubmitResult {
+  exam_id: number;
+  score: number;
+  total_marks: number;
+  earned_marks: number;
+  passed: boolean;
+  submitted_at: string;
+  question_results: Array<{
+    question_id: number;
+    section_id: number;
+    is_correct: boolean;
+    explanation: string | null;
+    selected_option_ids: number[];
+    correct_option_ids: number[];
+    answer_text: string | null;
+    marks: number;
+    earned_marks: number;
   }>;
 }
 
@@ -292,7 +384,7 @@ export interface LessonNote {
   lesson_title?: string | null;
   course_id?: number | null;
   course_title?: string | null;
-  quiz_type?: 'lesson_quiz' | 'practice_test' | 'final_test' | 'jlpt_mock' | null;
+  quiz_type?: 'lesson_quiz' | 'practice_test' | 'final_test' | null;
   question_text?: string | null;
 }
 
@@ -422,6 +514,8 @@ export interface Course {
   level?: string | null;
   is_free?: boolean;
   duration?: number | null;
+  cover_asset_id?: number | null;
+  image_url?: string | null;
   created_by: number;
   final_quiz_id?: number | null;
   creator_username?: string;
@@ -575,6 +669,43 @@ export const quizAPI = {
       throw new Error(error.error || 'Failed to submit quiz');
     }
 
+    return response.json();
+  },
+};
+
+export const jlptExamAPI = {
+  async getExams(filters: { level?: string; section_type?: string } = {}): Promise<{ data: JlptExamSummary[]; count: number }> {
+    const params = new URLSearchParams();
+    if (filters.level && filters.level !== 'All') params.set('level', filters.level);
+    if (filters.section_type && filters.section_type !== 'all') params.set('section_type', filters.section_type);
+
+    const response = await fetch(`${API_BASE_URL}/jlpt-exams?${params}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch JLPT tests'));
+    return response.json();
+  },
+
+  async getExam(examId: number): Promise<{ data: JlptExamDetail }> {
+    const response = await fetch(`${API_BASE_URL}/jlpt-exams/${examId}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch JLPT test'));
+    return response.json();
+  },
+
+  async submitExam(examId: number, answers: JlptExamAnswerPayload[]): Promise<{ message: string; data: JlptExamSubmitResult }> {
+    const response = await fetch(`${API_BASE_URL}/jlpt-exams/${examId}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers }),
+    });
+
+    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to submit JLPT test'));
     return response.json();
   },
 };
@@ -864,6 +995,280 @@ export const aiAPI = {
 
     return response.json();
   },
+};
+
+export type AdminRole = 'guest' | 'learner' | 'admin';
+export type AdminUserStatus = 'active' | 'suspended';
+export type AdminLessonType = 'video' | 'text' | 'quiz';
+export type AdminQuizType = 'lesson_quiz' | 'practice_test' | 'final_test';
+export type AdminBlogStatus = 'draft' | 'published' | 'archived';
+export type AdminJlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
+export type AdminSectionType = 'vocabulary' | 'grammar' | 'reading' | 'listening';
+export type AdminSortOrder = 'desc' | 'asc';
+
+export interface AdminStats {
+  totals: {
+    users: number;
+    courses: number;
+    lessons: number;
+    tests: number;
+    blogs: number;
+  };
+  usersByRole: Array<{ role: AdminRole; count: number }>;
+  testsByType: Array<{ quiz_type: AdminQuizType | null; count: number }>;
+  recentUsers: Array<Pick<UserProfile, 'user_id' | 'username' | 'email' | 'role' | 'status' | 'created_at'>>;
+  recentCourses: Array<Pick<Course, 'course_id' | 'title' | 'price' | 'level' | 'created_at'>>;
+}
+
+export interface AdminCourse extends Course {
+  lesson_count?: number;
+  cover_asset_id?: number | null;
+  image_url?: string | null;
+}
+
+export interface AdminLesson extends Omit<Lesson, 'created_by'> {
+  created_by?: number;
+  course_title?: string;
+  video_asset_id?: number | null;
+  audio_asset_id?: number | null;
+  audio_url?: string | null;
+}
+
+export interface AdminTest {
+  quiz_id: number;
+  lesson_id: number | null;
+  course_id: number | null;
+  course_title?: string | null;
+  title: string;
+  description: string | null;
+  quiz_type: AdminQuizType;
+  passing_score: number;
+  total_marks: number;
+  time_limit_minutes: number | null;
+  question_count?: number;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminJlptExam {
+  exam_id: number;
+  title: string;
+  jlpt_level: AdminJlptLevel;
+  year: number | null;
+  duration_minutes: number | null;
+  section_count?: number;
+  question_count?: number;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminJlptSection {
+  section_id: number;
+  exam_id: number;
+  title: string | null;
+  section_type: AdminSectionType;
+  section_order: number | null;
+  duration_minutes: number | null;
+  audio_asset_id?: number | null;
+  audio_url?: string | null;
+  question_count?: number;
+  deleted_at?: string | null;
+  updated_at?: string;
+}
+
+export interface AdminJlptSectionPayload {
+  title: string;
+  section_type: AdminSectionType;
+  section_order: number;
+  duration_minutes?: number | null;
+  audio_asset_id?: number | null;
+  audio_url?: string | null;
+}
+
+export type AdminQuestionType = 'single_choice' | 'multiple_choice' | 'true_false' | 'fill_in_blank';
+
+export interface AdminQuestionOption {
+  option_id?: number;
+  question_id?: number;
+  option_text: string;
+  is_correct: boolean;
+  explanation?: string | null;
+}
+
+export interface AdminQuizQuestion {
+  question_id: number;
+  question_text: string;
+  question_type: AdminQuestionType;
+  difficulty_level: string | null;
+  explanation: string | null;
+  points: number;
+  jlpt_level: string | null;
+  section_type: string | null;
+  image_asset_id?: number | null;
+  image_url?: string | null;
+  audio_asset_id?: number | null;
+  audio_url?: string | null;
+  order_index: number | null;
+  marks: number;
+  options: AdminQuestionOption[];
+}
+
+export type AdminQuizQuestionPayload = Omit<AdminQuizQuestion, 'question_id' | 'options'> & {
+  options: AdminQuestionOption[];
+};
+
+export interface AdminBlog {
+  blog_id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  category: string | null;
+  cover_asset_id?: number | null;
+  image_url: string | null;
+  status: AdminBlogStatus;
+  author_id: number;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type AdminMediaKind = 'image' | 'video' | 'audio';
+
+export interface AdminCloudinaryAsset {
+  asset_id: number;
+  public_id: string;
+  secure_url: string;
+  resource_type: 'image' | 'video' | 'raw';
+  media_kind: AdminMediaKind;
+  format: string | null;
+  bytes: number | null;
+  width: number | null;
+  height: number | null;
+  duration_seconds: number | null;
+  folder: string | null;
+  original_filename: string | null;
+  uploaded_by: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+const adminParams = (filters: Record<string, string | number | undefined | null>) => {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      params.set(key, String(value));
+    }
+  });
+  return params.toString();
+};
+
+const adminRequest = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
+  const response = await authenticatedFetch(`${API_BASE_URL}/admin${path}`, options);
+
+  if (!response.ok) {
+    if (response.status === 401) throw new Error('Unauthorized - Please login first');
+    if (response.status === 403) throw new Error('Admin access is required');
+    throw new Error(await getApiErrorMessage(response, 'Admin request failed'));
+  }
+
+  return response.json();
+};
+
+export const adminAPI = {
+  getStats: () => adminRequest<{ data: AdminStats }>('/stats'),
+
+  getUsers: (filters: { search?: string; role?: AdminRole | 'all'; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
+    adminRequest<{ data: UserProfile[]; count: number }>(`/users?${adminParams({ limit: 50, ...filters })}`),
+  createUser: (payload: { username: string; email: string; password: string; role: AdminRole }) =>
+    adminRequest<{ message: string; data: UserProfile }>('/users', { method: 'POST', body: JSON.stringify(payload) }),
+  updateUser: (userId: number, payload: { username: string; email: string; role: AdminRole; status: AdminUserStatus }) =>
+    adminRequest<{ message: string; data: UserProfile }>(`/users/${userId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteUser: (userId: number) =>
+    adminRequest<{ message: string }>(`/users/${userId}`, { method: 'DELETE' }),
+
+  getCourses: (filters: { search?: string; level?: string; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
+    adminRequest<{ data: AdminCourse[]; count: number }>(`/courses?${adminParams({ limit: 50, ...filters })}`),
+  uploadAsset: (payload: { file: File; media_kind: AdminMediaKind; scope: string }) => {
+    const formData = new FormData();
+    formData.append('file', payload.file);
+    formData.append('media_kind', payload.media_kind);
+    formData.append('scope', payload.scope);
+    return adminRequest<{ message: string; data: AdminCloudinaryAsset }>('/assets/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+  createCourse: (payload: { title: string; description?: string | null; price: number; level?: string | null; duration?: number | null; cover_asset_id?: number | null; image_url?: string | null; created_by?: number }) =>
+    adminRequest<{ message: string; data: AdminCourse }>('/courses', { method: 'POST', body: JSON.stringify(payload) }),
+  updateCourse: (courseId: number, payload: Partial<{ title: string; description: string | null; price: number; level: string | null; duration: number | null; cover_asset_id: number | null; image_url: string | null }>) =>
+    adminRequest<{ message: string; data: AdminCourse }>(`/courses/${courseId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteCourse: (courseId: number) =>
+    adminRequest<{ message: string }>(`/courses/${courseId}`, { method: 'DELETE' }),
+
+  getLessons: (filters: { search?: string; course_id?: number | string; limit?: number; offset?: number } = {}) =>
+    adminRequest<{ data: AdminLesson[]; count: number }>(`/lessons?${adminParams({ limit: 50, ...filters })}`),
+  createLesson: (payload: { course_id: number; title: string; content_type: AdminLessonType; content_text?: string | null; video_asset_id?: number | null; video_url?: string | null; audio_asset_id?: number | null; audio_url?: string | null; order_index: number; duration?: number | null }) =>
+    adminRequest<{ message: string; data: AdminLesson }>('/lessons', { method: 'POST', body: JSON.stringify(payload) }),
+  updateLesson: (lessonId: number, payload: Partial<{ title: string; content_type: AdminLessonType; content_text: string | null; video_asset_id: number | null; video_url: string | null; audio_asset_id: number | null; audio_url: string | null; order_index: number; duration: number | null }>) =>
+    adminRequest<{ message: string; data: AdminLesson }>(`/lessons/${lessonId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteLesson: (lessonId: number) =>
+    adminRequest<{ message: string }>(`/lessons/${lessonId}`, { method: 'DELETE' }),
+
+  getTests: (filters: { search?: string; quiz_type?: AdminQuizType | 'all'; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
+    adminRequest<{ data: AdminTest[]; count: number }>(`/tests?${adminParams({ limit: 50, ...filters })}`),
+  createTest: (payload: { title: string; description?: string | null; quiz_type: AdminQuizType; lesson_id?: number | null; course_id?: number | null; passing_score: number; total_marks: number; time_limit_minutes?: number | null; created_by?: number }) =>
+    adminRequest<{ message: string; data: AdminTest }>('/tests', { method: 'POST', body: JSON.stringify(payload) }),
+  updateTest: (quizId: number, payload: Partial<{ title: string; description: string | null; quiz_type: AdminQuizType; lesson_id: number | null; course_id: number | null; passing_score: number; total_marks: number; time_limit_minutes: number | null }>) =>
+    adminRequest<{ message: string; data: AdminTest }>(`/tests/${quizId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteTest: (quizId: number) =>
+    adminRequest<{ message: string }>(`/tests/${quizId}`, { method: 'DELETE' }),
+  getQuizQuestions: (quizId: number) =>
+    adminRequest<{ data: AdminQuizQuestion[]; count: number }>(`/tests/${quizId}/questions`),
+  createQuizQuestion: (quizId: number, payload: AdminQuizQuestionPayload) =>
+    adminRequest<{ message: string; data: AdminQuizQuestion }>(`/tests/${quizId}/questions`, { method: 'POST', body: JSON.stringify(payload) }),
+  updateQuizQuestion: (quizId: number, questionId: number, payload: AdminQuizQuestionPayload) =>
+    adminRequest<{ message: string; data: AdminQuizQuestion }>(`/tests/${quizId}/questions/${questionId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  updateQuizQuestionOrder: (quizId: number, questionId: number, orderIndex: number | null) =>
+    adminRequest<{ message: string }>(`/tests/${quizId}/questions/${questionId}/order`, { method: 'PATCH', body: JSON.stringify({ order_index: orderIndex }) }),
+  deleteQuizQuestion: (quizId: number, questionId: number) =>
+    adminRequest<{ message: string }>(`/tests/${quizId}/questions/${questionId}`, { method: 'DELETE' }),
+
+  getJlptExams: (filters: { search?: string; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
+    adminRequest<{ data: AdminJlptExam[]; count: number }>(`/jlpt-exams?${adminParams({ limit: 50, ...filters })}`),
+  createJlptExam: (payload: { title: string; jlpt_level: AdminJlptLevel; year?: number | null; duration_minutes?: number | null; sections: AdminJlptSectionPayload[] }) =>
+    adminRequest<{ message: string; data: AdminJlptExam }>('/jlpt-exams', { method: 'POST', body: JSON.stringify(payload) }),
+  updateJlptExam: (examId: number, payload: Partial<{ title: string; jlpt_level: AdminJlptLevel; year: number | null; duration_minutes: number | null }>) =>
+    adminRequest<{ message: string; data: AdminJlptExam }>(`/jlpt-exams/${examId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteJlptExam: (examId: number) =>
+    adminRequest<{ message: string }>(`/jlpt-exams/${examId}`, { method: 'DELETE' }),
+  getJlptSections: (examId: number) =>
+    adminRequest<{ data: AdminJlptSection[]; count: number }>(`/jlpt-exams/${examId}/sections`),
+  createJlptSection: (examId: number, payload: AdminJlptSectionPayload) =>
+    adminRequest<{ message: string; data: AdminJlptSection }>(`/jlpt-exams/${examId}/sections`, { method: 'POST', body: JSON.stringify(payload) }),
+  updateJlptSection: (sectionId: number, payload: Partial<AdminJlptSectionPayload>) =>
+    adminRequest<{ message: string; data: AdminJlptSection }>(`/jlpt-sections/${sectionId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteJlptSection: (sectionId: number) =>
+    adminRequest<{ message: string }>(`/jlpt-sections/${sectionId}`, { method: 'DELETE' }),
+  getJlptSectionQuestions: (sectionId: number) =>
+    adminRequest<{ data: AdminQuizQuestion[]; count: number }>(`/jlpt-sections/${sectionId}/questions`),
+  createJlptSectionQuestion: (sectionId: number, payload: AdminQuizQuestionPayload) =>
+    adminRequest<{ message: string; data: AdminQuizQuestion }>(`/jlpt-sections/${sectionId}/questions`, { method: 'POST', body: JSON.stringify(payload) }),
+  updateJlptSectionQuestion: (sectionId: number, questionId: number, payload: AdminQuizQuestionPayload) =>
+    adminRequest<{ message: string; data: AdminQuizQuestion }>(`/jlpt-sections/${sectionId}/questions/${questionId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  updateJlptSectionQuestionOrder: (sectionId: number, questionId: number, orderIndex: number | null) =>
+    adminRequest<{ message: string }>(`/jlpt-sections/${sectionId}/questions/${questionId}/order`, { method: 'PATCH', body: JSON.stringify({ order_index: orderIndex }) }),
+  deleteJlptSectionQuestion: (sectionId: number, questionId: number) =>
+    adminRequest<{ message: string }>(`/jlpt-sections/${sectionId}/questions/${questionId}`, { method: 'DELETE' }),
+
+  getBlogs: (filters: { search?: string; status?: AdminBlogStatus | 'all'; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
+    adminRequest<{ data: AdminBlog[]; count: number }>(`/blogs?${adminParams({ limit: 50, ...filters })}`),
+  createBlog: (payload: { title: string; slug?: string; excerpt?: string | null; content?: string | null; category?: string | null; cover_asset_id?: number | null; image_url?: string | null; status: AdminBlogStatus }) =>
+    adminRequest<{ message: string; data: AdminBlog }>('/blogs', { method: 'POST', body: JSON.stringify(payload) }),
+  updateBlog: (blogId: number, payload: Partial<{ title: string; slug: string; excerpt: string | null; content: string | null; category: string | null; cover_asset_id: number | null; image_url: string | null; status: AdminBlogStatus }>) =>
+    adminRequest<{ message: string; data: AdminBlog }>(`/blogs/${blogId}`, { method: 'PUT', body: JSON.stringify(payload) }),
 };
 
 /**

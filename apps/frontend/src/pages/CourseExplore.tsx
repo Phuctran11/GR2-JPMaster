@@ -5,7 +5,6 @@ import { Heading, Text } from '../components/ui/Typography';
 import { FeaturedCourseCard, CourseGridCard } from '../components/cards';
 import { courseAPI, type Course } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
-import courseImage from '../assets/course.png';
 
 interface CourseFilterSidebarProps {
   level: string;
@@ -251,7 +250,7 @@ export default function CourseExplore() {
                         description={filteredCourses[0].description ?? ''}
                         price={filteredCourses[0].price.toFixed(2)}
                         isFree={Number(filteredCourses[0].price) === 0}
-                        image={courseImage}
+                        image={filteredCourses[0].image_url}
                         courseId={filteredCourses[0].course_id}
                         onEnroll={handleCourseClick}
                         averageRating={filteredCourses[0].average_rating}
@@ -273,7 +272,7 @@ export default function CourseExplore() {
                             title={course.title}
                             description={course.description ?? ''}
                             price={course.price.toFixed(2)}
-                            image={courseImage}
+                            image={course.image_url}
                             isFree={Number(course.price) === 0}
                             courseId={course.course_id}
                             onEnroll={handleCourseClick}

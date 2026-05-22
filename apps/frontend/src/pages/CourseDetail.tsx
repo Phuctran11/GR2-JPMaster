@@ -7,7 +7,6 @@ import { courseAPI, enrollmentAPI, quizAPI, ratingAPI, type Course, type Lesson,
 import { RatingForm } from '../components/cards/RatingForm';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import courseImage from '../assets/course.png';
 import { getCourseLessonCount } from '../utils/course';
 
 interface CourseModule {
@@ -457,15 +456,21 @@ export default function CourseDetail() {
               </div>
               <div className="md:col-span-5 hidden md:block">
                 <Card className="rotate-2 hover:rotate-0 transition-transform duration-500 overflow-hidden group">
-                  <ImageCard
-                    src={courseImage}
-                    alt={course.title}
-                    overlay={{ gradient: true }}
-                    aspectRatio="4:3"
-                    hoverScale={110}
-                    rounded="lg"
-                    className="w-full shadow-2xl"
-                  />
+                  {course.image_url ? (
+                    <ImageCard
+                      src={course.image_url}
+                      alt={course.title}
+                      overlay={{ gradient: true }}
+                      aspectRatio="4:3"
+                      hoverScale={110}
+                      rounded="lg"
+                      className="w-full shadow-2xl"
+                    />
+                  ) : (
+                    <div className="flex aspect-[4/3] w-full items-center justify-center rounded-lg bg-surface-container-high shadow-2xl">
+                      <span className="material-symbols-outlined text-[96px] text-outline">school</span>
+                    </div>
+                  )}
                 </Card>
               </div>
             </div>
