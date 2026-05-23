@@ -5,7 +5,7 @@ export interface User {
   username: string;
   email: string;
   password_hash: string;
-  role: "guest" | "learner" | "admin";
+  role: "learner" | "owner" | "admin";
   status: "active" | "suspended" | "deleted";
   deleted_at: Date | null;
   created_at: Date;
@@ -17,7 +17,7 @@ export class UserModel {
     username: string,
     email: string,
     passwordHash: string,
-    role: "guest" | "learner" | "admin" = "learner"
+    role: "learner" | "owner" | "admin" = "learner"
   ): Promise<User> {
     const query = `
       INSERT INTO "User" (username, email, password_hash, role, status, created_at, updated_at)
@@ -53,7 +53,7 @@ export class UserModel {
     return result.rows;
   }
 
-  async updateUser(userId: number, username: string, email: string, role: "guest" | "learner" | "admin", status: "active" | "suspended" = "active"): Promise<User | null> {
+  async updateUser(userId: number, username: string, email: string, role: "learner" | "owner" | "admin", status: "active" | "suspended" = "active"): Promise<User | null> {
     const query = `
       UPDATE "User"
       SET username = $1, email = $2, role = $3, status = $4, updated_at = NOW()

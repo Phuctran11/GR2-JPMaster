@@ -1,3 +1,4 @@
+import pool from "../config/database.js";
 import databaseService from "../services/database.service.js";
 
 export interface JlptAnswerPayload {
@@ -83,10 +84,13 @@ export class JlptExamModel {
       `
         SELECT s.section_id, q.question_id, q.question_text, q.question_type, q.difficulty_level,
                q.explanation, q.points, q.jlpt_level, q.section_type,
+               q.reading_passage_id, rp.title AS reading_passage_title,
+               rp.passage_text AS reading_passage_text, rp.image_url AS reading_passage_image_url,
                q.image_url, q.audio_url, jsq.order_index
         FROM "JLPTSectionQuestion" jsq
         JOIN "JLPTSection" s ON s.section_id = jsq.section_id
         JOIN "Question" q ON q.question_id = jsq.question_id
+        LEFT JOIN "ReadingPassage" rp ON rp.passage_id = q.reading_passage_id AND rp.deleted_at IS NULL
         WHERE s.exam_id = $1
           AND s.deleted_at IS NULL
           AND jsq.deleted_at IS NULL
@@ -137,7 +141,7 @@ export class JlptExamModel {
     };
   }
 
-  async submitExam(examId: number, answers: JlptAnswerPayload[]) {
+  async submitExam(userId: number, examId: number, answers: JlptAnswerPayload[]) {
     const exam = await this.getExamById(examId);
     if (!exam) return null;
 
@@ -170,12 +174,13 @@ export class JlptExamModel {
     const questionResults = questions.map((question: any) => {
       const answer = answersByQuestion.get(question.question_id);
       const options = optionsByQuestion.get(question.question_id) ?? [];
+      const validOptionIds = new Set(options.map((option) => option.option_id));
       const correctOptions = options.filter((option) => option.is_correct);
       const correctOptionIds = correctOptions.map((option) => option.option_id).sort((a, b) => a - b);
       const selectedOptionIds = question.question_type === "multiple_choice"
-        ? (answer?.option_ids ?? []).map(Number).sort((a, b) => a - b)
+        ? (answer?.option_ids ?? []).map(Number).filter((optionId) => validOptionIds.has(optionId)).sort((a, b) => a - b)
         : answer?.option_id
-          ? [Number(answer.option_id)]
+          ? [Number(answer.option_id)].filter((optionId) => validOptionIds.has(optionId))
           : [];
 
       const isCorrect = question.question_type === "fill_in_blank"
@@ -198,17 +203,62 @@ export class JlptExamModel {
       };
     });
 
-    const score = totalMarks > 0 ? (earnedMarks / totalMarks) * 100 : 0;
+    const score = totalMarks > 0 ? Number(((earnedMarks / totalMarks) * 100).toFixed(2)) : 0;
+    const passed = score >= 60;
+    const attemptStatus = passed ? "graded" : "submitted";
 
-    return {
-      exam_id: exam.exam_id,
-      score,
-      total_marks: totalMarks,
-      earned_marks: earnedMarks,
-      passed: score >= 60,
-      submitted_at: new Date().toISOString(),
-      question_results: questionResults,
-    };
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+
+      const attemptResult = await client.query(
+        `
+          INSERT INTO "QuizAttempt" (user_id, jlpt_exam_id, started_at, submitted_at, score, total_marks, status)
+          VALUES ($1, $2, NOW(), NOW(), $3, $4, $5)
+          RETURNING attempt_id, submitted_at;
+        `,
+        [userId, exam.exam_id, score, totalMarks, attemptStatus]
+      );
+      const attempt = attemptResult.rows[0];
+
+      for (const questionResult of questionResults) {
+        const optionIds = questionResult.selected_option_ids.length > 0 ? questionResult.selected_option_ids : [null];
+        for (const optionId of optionIds) {
+          await client.query(
+            `
+              INSERT INTO "UserAnswer" (attempt_id, question_id, jlpt_section_id, option_id, answer_text, is_correct, answered_at)
+              VALUES ($1, $2, $3, $4, $5, $6, NOW());
+            `,
+            [
+              attempt.attempt_id,
+              questionResult.question_id,
+              questionResult.section_id,
+              optionId,
+              questionResult.answer_text,
+              questionResult.is_correct,
+            ]
+          );
+        }
+      }
+
+      await client.query("COMMIT");
+
+      return {
+        attempt_id: attempt.attempt_id,
+        exam_id: exam.exam_id,
+        score,
+        total_marks: totalMarks,
+        earned_marks: earnedMarks,
+        passed,
+        submitted_at: attempt.submitted_at,
+        question_results: questionResults,
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 }
 

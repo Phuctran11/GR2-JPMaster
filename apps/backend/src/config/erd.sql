@@ -3,7 +3,7 @@ CREATE TABLE "User" (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('guest', 'learner', 'admin')),
+    role VARCHAR(20) NOT NULL CHECK (role IN ('learner', 'owner', 'admin')),
     status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'deleted')),
     deleted_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -79,7 +79,6 @@ CREATE TABLE "Lesson" (
     lesson_id SERIAL PRIMARY KEY,
     course_id INT NOT NULL REFERENCES "Course"(course_id),
     title VARCHAR(255) NOT NULL,
-    content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('video', 'text', 'quiz')),
     content_text TEXT,
     video_asset_id INT REFERENCES "CloudinaryAsset"(asset_id) ON DELETE SET NULL,
     video_url TEXT,
@@ -152,6 +151,24 @@ CREATE INDEX idx_quiz_lesson ON "Quiz"(lesson_id);
 CREATE INDEX idx_quiz_course ON "Quiz"(course_id);
 CREATE INDEX idx_quiz_type ON "Quiz"(quiz_type);
 
+CREATE TABLE "ReadingPassage" (
+    passage_id SERIAL PRIMARY KEY,
+    title VARCHAR(255),
+    jlpt_level VARCHAR(10) CHECK (jlpt_level IN ('N5', 'N4', 'N3', 'N2', 'N1')),
+    passage_text TEXT,
+    image_asset_id INT REFERENCES "CloudinaryAsset"(asset_id) ON DELETE SET NULL,
+    image_url TEXT,
+    created_by INT REFERENCES "User"(user_id) ON DELETE SET NULL,
+    deleted_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_reading_passage_deleted_at ON "ReadingPassage"(deleted_at);
+CREATE INDEX idx_reading_passage_level ON "ReadingPassage"(jlpt_level);
+CREATE INDEX idx_reading_passage_created_by ON "ReadingPassage"(created_by);
+CREATE INDEX idx_reading_passage_image_asset ON "ReadingPassage"(image_asset_id);
+
 CREATE TABLE "Question" (
     question_id SERIAL PRIMARY KEY,
     question_text TEXT NOT NULL,
@@ -161,6 +178,7 @@ CREATE TABLE "Question" (
     points NUMERIC(5, 2) DEFAULT 1,
     jlpt_level VARCHAR(10) CHECK (jlpt_level IN ('N5', 'N4', 'N3', 'N2', 'N1')),
     section_type VARCHAR(30) CHECK (section_type IN ('vocabulary', 'grammar', 'reading', 'listening')),
+    reading_passage_id INT REFERENCES "ReadingPassage"(passage_id) ON DELETE SET NULL,
     image_asset_id INT REFERENCES "CloudinaryAsset"(asset_id) ON DELETE SET NULL,
     image_url TEXT,
     audio_asset_id INT REFERENCES "CloudinaryAsset"(asset_id) ON DELETE SET NULL,
@@ -176,6 +194,7 @@ CREATE INDEX idx_question_image_asset ON "Question"(image_asset_id);
 CREATE INDEX idx_question_audio_asset ON "Question"(audio_asset_id);
 CREATE INDEX idx_question_created_by ON "Question"(created_by);
 CREATE INDEX idx_question_jlpt_section ON "Question"(jlpt_level, section_type);
+CREATE INDEX idx_question_reading_passage ON "Question"(reading_passage_id);
 
 CREATE TABLE "LessonNote" (
     note_id SERIAL PRIMARY KEY,
@@ -240,21 +259,29 @@ CREATE INDEX idx_quiz_question_question ON "QuizQuestion"(question_id);
 CREATE TABLE "QuizAttempt" (
     attempt_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES "User"(user_id),
-    quiz_id INT NOT NULL REFERENCES "Quiz"(quiz_id),
+    quiz_id INT REFERENCES "Quiz"(quiz_id),
+    jlpt_exam_id INT,
     started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     submitted_at TIMESTAMP,
     score NUMERIC(5, 2),
     total_marks NUMERIC(5, 2),
-    status VARCHAR(20) CHECK (status IN ('in_progress', 'submitted', 'graded')) DEFAULT 'in_progress'
+    status VARCHAR(20) CHECK (status IN ('in_progress', 'submitted', 'graded')) DEFAULT 'in_progress',
+    CHECK (
+        (quiz_id IS NOT NULL AND jlpt_exam_id IS NULL)
+        OR
+        (quiz_id IS NULL AND jlpt_exam_id IS NOT NULL)
+    )
 );
 
 CREATE INDEX idx_quiz_attempt_user_quiz ON "QuizAttempt"(user_id, quiz_id);
+CREATE INDEX idx_quiz_attempt_user_jlpt_exam ON "QuizAttempt"(user_id, jlpt_exam_id);
 CREATE INDEX idx_quiz_attempt_status ON "QuizAttempt"(status);
 
 CREATE TABLE "UserAnswer" (
     user_answer_id SERIAL PRIMARY KEY,
     attempt_id INT NOT NULL REFERENCES "QuizAttempt"(attempt_id) ON DELETE CASCADE,
     question_id INT NOT NULL REFERENCES "Question"(question_id),
+    jlpt_section_id INT,
     option_id INT REFERENCES "Option"(option_id),
     answer_text TEXT,
     is_correct BOOLEAN,
@@ -263,6 +290,7 @@ CREATE TABLE "UserAnswer" (
 
 CREATE INDEX idx_user_answer_attempt ON "UserAnswer"(attempt_id);
 CREATE INDEX idx_user_answer_question ON "UserAnswer"(question_id);
+CREATE INDEX idx_user_answer_jlpt_section ON "UserAnswer"(jlpt_section_id);
 CREATE INDEX idx_user_answer_option ON "UserAnswer"(option_id);
 
 CREATE TABLE "JLPTExam" (
@@ -309,6 +337,14 @@ CREATE TABLE "JLPTSectionQuestion" (
 CREATE INDEX idx_jlpt_section_question_deleted_at ON "JLPTSectionQuestion"(deleted_at);
 CREATE INDEX idx_jlpt_section_question_section_order ON "JLPTSectionQuestion"(section_id, order_index);
 CREATE INDEX idx_jlpt_section_question_question ON "JLPTSectionQuestion"(question_id);
+
+ALTER TABLE "QuizAttempt"
+ADD CONSTRAINT fk_quiz_attempt_jlpt_exam
+FOREIGN KEY (jlpt_exam_id) REFERENCES "JLPTExam"(exam_id);
+
+ALTER TABLE "UserAnswer"
+ADD CONSTRAINT fk_user_answer_jlpt_section
+FOREIGN KEY (jlpt_section_id) REFERENCES "JLPTSection"(section_id) ON DELETE SET NULL;
 
 CREATE TABLE "Purchase" (
     purchase_id SERIAL PRIMARY KEY,

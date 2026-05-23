@@ -6,7 +6,6 @@ export interface Lesson {
   lesson_id: number;
   course_id: number;
   title: string;
-  content_type: 'video' | 'text' | 'quiz';
   content_text: string | null;
   video_asset_id: number | null;
   video_url: string | null;
@@ -165,7 +164,6 @@ export class CourseModel {
           l.lesson_id,
           l.course_id,
           l.title,
-          l.content_type,
           l.content_text,
           (to_jsonb(l)->>'video_asset_id')::int AS video_asset_id,
           l.video_url,
@@ -245,7 +243,6 @@ export class CourseModel {
         l.lesson_id,
         l.course_id,
         l.title,
-        l.content_type,
         l.content_text,
         (to_jsonb(l)->>'video_asset_id')::int AS video_asset_id,
         l.video_url,
@@ -408,7 +405,6 @@ export class CourseModel {
         l.lesson_id,
         l.course_id,
         l.title,
-        l.content_type,
         l.content_text,
         (to_jsonb(l)->>'video_asset_id')::int AS video_asset_id,
         l.video_url,
@@ -435,7 +431,6 @@ export class CourseModel {
         l.lesson_id,
         l.course_id,
         l.title,
-        l.content_type,
         l.content_text,
         (to_jsonb(l)->>'video_asset_id')::int AS video_asset_id,
         l.video_url,

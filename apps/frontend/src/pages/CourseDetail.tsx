@@ -66,8 +66,8 @@ function ModuleItem({
             {lesson && (
               <>
                 <span className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px]">{lesson.content_type === 'video' ? 'play_circle' : 'description'}</span>
-                  {lesson.content_type}
+                  <span className="material-symbols-outlined text-[16px]">{lesson.video_url ? 'play_circle' : 'description'}</span>
+                  {[lesson.video_url ? 'Video' : null, lesson.content_text ? 'Text' : null, lesson.audio_url ? 'Audio' : null].filter(Boolean).join(' + ') || 'Lesson'}
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-[16px]">schedule</span>
@@ -502,7 +502,7 @@ export default function CourseDetail() {
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-[18px] text-green-600">check_circle</span>
-                        {course.lessons?.filter(l => l.content_type === 'video').length || 0} Video Lessons
+                        {course.lessons?.filter(l => Boolean(l.video_url?.trim())).length || 0} Video Lessons
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-[18px] text-green-600">check_circle</span>

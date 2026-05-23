@@ -2,9 +2,8 @@ import databaseService from "../services/database.service.js";
 import pool from "../config/database.js";
 import { PoolClient } from "pg";
 
-export type UserRole = "guest" | "learner" | "admin";
+export type UserRole = "learner" | "owner" | "admin";
 export type UserStatus = "active" | "suspended" | "deleted";
-export type LessonContentType = "video" | "text" | "quiz";
 export type QuizType = "lesson_quiz" | "practice_test" | "final_test";
 export type BlogStatus = "draft" | "published" | "archived";
 export type QuestionType = "single_choice" | "multiple_choice" | "true_false" | "fill_in_blank";
@@ -22,6 +21,7 @@ export interface AdminListParams {
   quizType?: QuizType | "all";
   status?: BlogStatus | "all";
   sortOrder?: SortOrder;
+  ownerId?: number;
 }
 
 export interface AdminStats {
@@ -62,6 +62,7 @@ export interface AdminQuizQuestionInput {
   points: number;
   jlpt_level?: string | null;
   section_type?: string | null;
+  reading_passage_id?: number | null;
   image_asset_id?: number | null;
   image_url?: string | null;
   audio_asset_id?: number | null;
@@ -80,24 +81,48 @@ export interface AdminJlptSectionInput {
   audio_url?: string | null;
 }
 
+export interface AutoJlptSectionQuestionsInput {
+  jlpt_level?: JlptLevel;
+  difficulty_counts: Partial<Record<"easy" | "medium" | "hard" | "expert", number>>;
+}
+
+export interface AdminReadingPassageInput {
+  title: string | null;
+  jlpt_level: JlptLevel;
+  passage_text: string | null;
+  image_asset_id?: number | null;
+  image_url?: string | null;
+}
+
 export class AdminModel {
   private async hasBlogTable(): Promise<boolean> {
     const result = await databaseService.executeQuery(`SELECT to_regclass('"Blog"') AS table_name;`);
     return Boolean(result.rows[0]?.table_name);
   }
 
-  async getStats(): Promise<AdminStats> {
+  async getStats(ownerId?: number): Promise<AdminStats> {
     const hasBlogTable = await this.hasBlogTable();
-    const query = `
-      SELECT
-        (SELECT COUNT(*)::int FROM "User" WHERE status <> 'deleted' AND deleted_at IS NULL) AS users,
-        (SELECT COUNT(*)::int FROM "Course" WHERE deleted_at IS NULL) AS courses,
-        (SELECT COUNT(*)::int FROM "Lesson" WHERE deleted_at IS NULL) AS lessons,
-        (SELECT COUNT(*)::int FROM "Quiz" WHERE deleted_at IS NULL) AS tests,
-        ${hasBlogTable ? `(SELECT COUNT(*)::int FROM "Blog")` : "0"} AS blogs;
-    `;
-    const totalsResult = await databaseService.executeQuery(query);
-    const usersByRoleResult = await databaseService.executeQuery(`
+    const values = ownerId ? [ownerId] : [];
+    const ownerParam = ownerId ? "$1" : "";
+    const query = ownerId
+      ? `
+        SELECT
+          0::int AS users,
+          (SELECT COUNT(*)::int FROM "Course" WHERE deleted_at IS NULL AND created_by = ${ownerParam}) AS courses,
+          (SELECT COUNT(*)::int FROM "Lesson" l JOIN "Course" c ON c.course_id = l.course_id WHERE l.deleted_at IS NULL AND c.deleted_at IS NULL AND c.created_by = ${ownerParam}) AS lessons,
+          (SELECT COUNT(*)::int FROM "Quiz" WHERE deleted_at IS NULL AND created_by = ${ownerParam}) AS tests,
+          ${hasBlogTable ? `(SELECT COUNT(*)::int FROM "Blog" WHERE author_id = ${ownerParam})` : "0"} AS blogs;
+      `
+      : `
+        SELECT
+          (SELECT COUNT(*)::int FROM "User" WHERE status <> 'deleted' AND deleted_at IS NULL) AS users,
+          (SELECT COUNT(*)::int FROM "Course" WHERE deleted_at IS NULL) AS courses,
+          (SELECT COUNT(*)::int FROM "Lesson" WHERE deleted_at IS NULL) AS lessons,
+          (SELECT COUNT(*)::int FROM "Quiz" WHERE deleted_at IS NULL) AS tests,
+          ${hasBlogTable ? `(SELECT COUNT(*)::int FROM "Blog")` : "0"} AS blogs;
+      `;
+    const totalsResult = await databaseService.executeQuery(query, values);
+    const usersByRoleResult = ownerId ? { rows: [] } : await databaseService.executeQuery(`
       SELECT role, COUNT(*)::int AS count
       FROM "User"
       WHERE status <> 'deleted'
@@ -109,10 +134,11 @@ export class AdminModel {
       SELECT quiz_type, COUNT(*)::int AS count
       FROM "Quiz"
       WHERE deleted_at IS NULL
+        ${ownerId ? `AND created_by = ${ownerParam}` : ""}
       GROUP BY quiz_type
       ORDER BY count DESC;
-    `);
-    const recentUsersResult = await databaseService.executeQuery(`
+    `, values);
+    const recentUsersResult = ownerId ? { rows: [] } : await databaseService.executeQuery(`
       SELECT user_id, username, email, role, status, created_at
       FROM "User"
       WHERE status <> 'deleted'
@@ -124,9 +150,10 @@ export class AdminModel {
       SELECT course_id, title, price, level, created_at
       FROM "Course"
       WHERE deleted_at IS NULL
+        ${ownerId ? `AND created_by = ${ownerParam}` : ""}
       ORDER BY created_at DESC
       LIMIT 5;
-    `);
+    `, values);
 
     return {
       totals: totalsResult.rows[0],
@@ -199,6 +226,11 @@ export class AdminModel {
       where.push(`c.level ILIKE $${values.length}`);
     }
 
+    if (params.ownerId) {
+      values.push(params.ownerId);
+      where.push(`c.created_by = $${values.length}`);
+    }
+
     values.push(limit, offset);
     const query = `
       SELECT c.course_id, c.title, c.description, c.price, c.level, c.duration, c.created_by,
@@ -247,7 +279,8 @@ export class AdminModel {
       duration: number | null;
       cover_asset_id: number | null;
       image_url: string | null;
-    }>
+    }>,
+    ownerId?: number
   ) {
     const updates: string[] = [];
     const values: unknown[] = [];
@@ -263,12 +296,14 @@ export class AdminModel {
     if (!updates.length) return null;
 
     values.push(courseId);
+    if (ownerId) values.push(ownerId);
     const result = await databaseService.executeQuery(
       `
         UPDATE "Course"
         SET ${updates.join(", ")}, updated_at = NOW()
-        WHERE course_id = $${values.length}
+        WHERE course_id = $${ownerId ? values.length - 1 : values.length}
           AND deleted_at IS NULL
+          ${ownerId ? `AND created_by = $${values.length}` : ""}
         RETURNING course_id, title, description, price, level, duration, cover_asset_id, image_url, created_by, created_at, updated_at;
       `,
       values
@@ -276,13 +311,16 @@ export class AdminModel {
     return result.rows[0] ? { ...result.rows[0], price: Number(result.rows[0].price) } : null;
   }
 
-  async deleteCourse(courseId: number): Promise<boolean> {
+  async deleteCourse(courseId: number, ownerId?: number): Promise<boolean> {
     const client = await pool.connect();
 
     try {
       await client.query("BEGIN");
 
-      const existing = await client.query(`SELECT course_id FROM "Course" WHERE course_id = $1 AND deleted_at IS NULL;`, [courseId]);
+      const existing = await client.query(
+        `SELECT course_id FROM "Course" WHERE course_id = $1 AND deleted_at IS NULL ${ownerId ? "AND created_by = $2" : ""};`,
+        ownerId ? [courseId, ownerId] : [courseId]
+      );
       if (!existing.rowCount) {
         await client.query("ROLLBACK");
         return false;
@@ -347,10 +385,15 @@ export class AdminModel {
       where.push(`l.course_id = $${values.length}`);
     }
 
+    if (params.ownerId) {
+      values.push(params.ownerId);
+      where.push(`c.created_by = $${values.length}`);
+    }
+
     values.push(limit, offset);
     const result = await databaseService.executeQuery(
       `
-        SELECT l.lesson_id, l.course_id, c.title AS course_title, l.title, l.content_type,
+        SELECT l.lesson_id, l.course_id, c.title AS course_title, l.title,
                l.content_text, l.video_asset_id, l.video_url, l.audio_asset_id, l.audio_url,
                l.order_index, l.duration, l.created_at, l.updated_at
         FROM "Lesson" l
@@ -367,7 +410,6 @@ export class AdminModel {
   async createLesson(input: {
     course_id: number;
     title: string;
-    content_type: LessonContentType;
     content_text: string | null;
     video_asset_id: number | null;
     video_url: string | null;
@@ -375,21 +417,25 @@ export class AdminModel {
     audio_url: string | null;
     order_index: number;
     duration: number | null;
+    owner_id?: number;
   }) {
     const result = await databaseService.executeQuery(
       `
         INSERT INTO "Lesson" (
-          course_id, title, content_type, content_text, video_asset_id, video_url,
+          course_id, title, content_text, video_asset_id, video_url,
           audio_asset_id, audio_url, order_index, duration, created_at, updated_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
-        RETURNING lesson_id, course_id, title, content_type, content_text, video_asset_id, video_url,
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()
+        FROM "Course" c
+        WHERE c.course_id = $1
+          AND c.deleted_at IS NULL
+          ${input.owner_id ? "AND c.created_by = $10" : ""}
+        RETURNING lesson_id, course_id, title, content_text, video_asset_id, video_url,
                   audio_asset_id, audio_url, order_index, duration, created_at, updated_at;
       `,
       [
         input.course_id,
         input.title,
-        input.content_type,
         input.content_text,
         input.video_asset_id,
         input.video_url,
@@ -397,16 +443,16 @@ export class AdminModel {
         input.audio_url,
         input.order_index,
         input.duration,
+        ...(input.owner_id ? [input.owner_id] : []),
       ]
     );
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
   async updateLesson(
     lessonId: number,
     input: Partial<{
       title: string;
-      content_type: LessonContentType;
       content_text: string | null;
       video_asset_id: number | null;
       video_url: string | null;
@@ -414,11 +460,12 @@ export class AdminModel {
       audio_url: string | null;
       order_index: number;
       duration: number | null;
-    }>
+    }>,
+    ownerId?: number
   ) {
     const updates: string[] = [];
     const values: unknown[] = [];
-    const fields = ["title", "content_type", "content_text", "video_asset_id", "video_url", "audio_asset_id", "audio_url", "order_index", "duration"] as const;
+    const fields = ["title", "content_text", "video_asset_id", "video_url", "audio_asset_id", "audio_url", "order_index", "duration"] as const;
 
     fields.forEach((field) => {
       if (!isUndefined(input[field])) {
@@ -429,27 +476,43 @@ export class AdminModel {
 
     if (!updates.length) return null;
     values.push(lessonId);
+    if (ownerId) values.push(ownerId);
     const result = await databaseService.executeQuery(
       `
-        UPDATE "Lesson"
+        UPDATE "Lesson" l
         SET ${updates.join(", ")}, updated_at = NOW()
-        WHERE lesson_id = $${values.length}
-          AND deleted_at IS NULL
-        RETURNING lesson_id, course_id, title, content_type, content_text, video_asset_id, video_url,
-                  audio_asset_id, audio_url, order_index, duration, created_at, updated_at;
+        FROM "Course" c
+        WHERE l.course_id = c.course_id
+          AND l.lesson_id = $${ownerId ? values.length - 1 : values.length}
+          AND l.deleted_at IS NULL
+          AND c.deleted_at IS NULL
+          ${ownerId ? `AND c.created_by = $${values.length}` : ""}
+        RETURNING l.lesson_id, l.course_id, l.title, l.content_text, l.video_asset_id, l.video_url,
+                  l.audio_asset_id, l.audio_url, l.order_index, l.duration, l.created_at, l.updated_at;
       `,
       values
     );
     return result.rows[0] || null;
   }
 
-  async deleteLesson(lessonId: number): Promise<boolean> {
+  async deleteLesson(lessonId: number, ownerId?: number): Promise<boolean> {
     const client = await pool.connect();
 
     try {
       await client.query("BEGIN");
 
-      const existing = await client.query(`SELECT lesson_id FROM "Lesson" WHERE lesson_id = $1 AND deleted_at IS NULL;`, [lessonId]);
+      const existing = await client.query(
+        `
+          SELECT l.lesson_id
+          FROM "Lesson" l
+          JOIN "Course" c ON c.course_id = l.course_id
+          WHERE l.lesson_id = $1
+            AND l.deleted_at IS NULL
+            AND c.deleted_at IS NULL
+            ${ownerId ? "AND c.created_by = $2" : ""};
+        `,
+        ownerId ? [lessonId, ownerId] : [lessonId]
+      );
       if (!existing.rowCount) {
         await client.query("ROLLBACK");
         return false;
@@ -502,6 +565,11 @@ export class AdminModel {
       where.push(`q.quiz_type = $${values.length}`);
     }
 
+    if (params.ownerId) {
+      values.push(params.ownerId);
+      where.push(`q.created_by = $${values.length}`);
+    }
+
     values.push(limit, offset);
     const result = await databaseService.executeQuery(
       `
@@ -538,11 +606,26 @@ export class AdminModel {
     total_marks: number;
     time_limit_minutes: number | null;
     created_by: number;
+    owner_id?: number;
   }) {
     const result = await databaseService.executeQuery(
       `
         INSERT INTO "Quiz" (lesson_id, course_id, title, description, quiz_type, passing_score, total_marks, time_limit_minutes, created_by, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()
+        WHERE (
+          $10::int IS NULL
+          OR (
+            ($1::int IS NULL OR EXISTS (
+              SELECT 1
+              FROM "Lesson" l
+              JOIN "Course" lc ON lc.course_id = l.course_id
+              WHERE l.lesson_id = $1 AND l.deleted_at IS NULL AND lc.deleted_at IS NULL AND lc.created_by = $10
+            ))
+            AND ($2::int IS NULL OR EXISTS (
+              SELECT 1 FROM "Course" c WHERE c.course_id = $2 AND c.deleted_at IS NULL AND c.created_by = $10
+            ))
+          )
+        )
         RETURNING quiz_id, lesson_id, course_id, title, description, quiz_type, passing_score, total_marks, time_limit_minutes, created_by, created_at, updated_at;
       `,
       [
@@ -555,12 +638,32 @@ export class AdminModel {
         input.total_marks,
         input.time_limit_minutes,
         input.created_by,
+        input.owner_id ?? null,
       ]
     );
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
-  async updateQuiz(quizId: number, input: Partial<{ lesson_id: number | null; course_id: number | null; title: string; description: string | null; quiz_type: QuizType; passing_score: number; total_marks: number; time_limit_minutes: number | null }>) {
+  async updateQuiz(quizId: number, input: Partial<{ lesson_id: number | null; course_id: number | null; title: string; description: string | null; quiz_type: QuizType; passing_score: number; total_marks: number; time_limit_minutes: number | null }>, ownerId?: number) {
+    if (ownerId && (input.lesson_id !== undefined || input.course_id !== undefined)) {
+      const accessResult = await databaseService.executeQuery(
+        `
+          SELECT
+            ($1::int IS NULL OR EXISTS (
+              SELECT 1
+              FROM "Lesson" l
+              JOIN "Course" lc ON lc.course_id = l.course_id
+              WHERE l.lesson_id = $1 AND l.deleted_at IS NULL AND lc.deleted_at IS NULL AND lc.created_by = $3
+            )) AS lesson_ok,
+            ($2::int IS NULL OR EXISTS (
+              SELECT 1 FROM "Course" c WHERE c.course_id = $2 AND c.deleted_at IS NULL AND c.created_by = $3
+            )) AS course_ok;
+        `,
+        [input.lesson_id ?? null, input.course_id ?? null, ownerId]
+      );
+      if (!accessResult.rows[0]?.lesson_ok || !accessResult.rows[0]?.course_ok) return null;
+    }
+
     const updates: string[] = [];
     const values: unknown[] = [];
     const fields = ["lesson_id", "course_id", "title", "description", "quiz_type", "passing_score", "total_marks", "time_limit_minutes"] as const;
@@ -574,12 +677,14 @@ export class AdminModel {
 
     if (!updates.length) return null;
     values.push(quizId);
+    if (ownerId) values.push(ownerId);
     const result = await databaseService.executeQuery(
       `
         UPDATE "Quiz"
         SET ${updates.join(", ")}, updated_at = NOW()
-        WHERE quiz_id = $${values.length}
+        WHERE quiz_id = $${ownerId ? values.length - 1 : values.length}
           AND deleted_at IS NULL
+          ${ownerId ? `AND created_by = $${values.length}` : ""}
         RETURNING quiz_id, lesson_id, course_id, title, description, quiz_type, passing_score, total_marks, time_limit_minutes, created_by, created_at, updated_at;
       `,
       values
@@ -587,36 +692,41 @@ export class AdminModel {
     return result.rows[0] || null;
   }
 
-  async deleteQuiz(quizId: number): Promise<boolean> {
+  async deleteQuiz(quizId: number, ownerId?: number): Promise<boolean> {
     const result = await databaseService.executeQuery(
       `
         UPDATE "Quiz"
         SET deleted_at = COALESCE(deleted_at, NOW()),
             updated_at = NOW()
         WHERE quiz_id = $1
-          AND deleted_at IS NULL;
+          AND deleted_at IS NULL
+          ${ownerId ? "AND created_by = $2" : ""};
       `,
-      [quizId]
+      ownerId ? [quizId, ownerId] : [quizId]
     );
     return Boolean(result.rowCount);
   }
 
-  async listQuizQuestions(quizId: number) {
+  async listQuizQuestions(quizId: number, ownerId?: number) {
     const questionResult = await databaseService.executeQuery(
       `
         SELECT q.question_id, q.question_text, q.question_type, q.difficulty_level, q.explanation,
-               q.points, q.jlpt_level, q.section_type, q.image_asset_id, q.image_url, q.audio_asset_id, q.audio_url,
+               q.points, q.jlpt_level, q.section_type, q.reading_passage_id,
+               rp.title AS reading_passage_title, rp.passage_text AS reading_passage_text, rp.image_url AS reading_passage_image_url,
+               q.image_asset_id, q.image_url, q.audio_asset_id, q.audio_url,
                qq.order_index, COALESCE(qq.marks, q.points, 1) AS marks
         FROM "QuizQuestion" qq
         JOIN "Question" q ON q.question_id = qq.question_id
         JOIN "Quiz" quiz ON quiz.quiz_id = qq.quiz_id
+        LEFT JOIN "ReadingPassage" rp ON rp.passage_id = q.reading_passage_id AND rp.deleted_at IS NULL
         WHERE qq.quiz_id = $1
           AND quiz.deleted_at IS NULL
+          ${ownerId ? "AND quiz.created_by = $2" : ""}
           AND qq.deleted_at IS NULL
           AND q.deleted_at IS NULL
         ORDER BY qq.order_index ASC NULLS LAST, qq.quiz_question_id ASC;
       `,
-      [quizId]
+      ownerId ? [quizId, ownerId] : [quizId]
     );
     const questionIds = questionResult.rows.map((row) => row.question_id);
     const optionsByQuestion = new Map<number, unknown[]>();
@@ -663,29 +773,50 @@ export class AdminModel {
     );
   }
 
-  async createQuizQuestion(quizId: number, input: AdminQuizQuestionInput, createdBy: number) {
+  async createQuizQuestion(quizId: number, input: AdminQuizQuestionInput, createdBy: number, ownerId?: number) {
     const client = await pool.connect();
 
     try {
       await client.query("BEGIN");
 
       const quizExists = await client.query(
-        `SELECT quiz_type FROM "Quiz" WHERE quiz_id = $1 AND deleted_at IS NULL;`,
-        [quizId]
+        `SELECT quiz_type FROM "Quiz" WHERE quiz_id = $1 AND deleted_at IS NULL ${ownerId ? "AND created_by = $2" : ""};`,
+        ownerId ? [quizId, ownerId] : [quizId]
       );
       if (!quizExists.rowCount) {
         await client.query("ROLLBACK");
         return null;
       }
 
+      if (input.section_type === "reading") {
+        if (!input.reading_passage_id) {
+          await client.query("ROLLBACK");
+          return null;
+        }
+        const passageResult = await client.query(
+          `
+            SELECT passage_id
+            FROM "ReadingPassage"
+            WHERE passage_id = $1
+              AND deleted_at IS NULL
+              ${ownerId ? "AND created_by = $2" : ""};
+          `,
+          ownerId ? [input.reading_passage_id, ownerId] : [input.reading_passage_id]
+        );
+        if (!passageResult.rowCount) {
+          await client.query("ROLLBACK");
+          return null;
+        }
+      }
+
       const questionResult = await client.query(
         `
           INSERT INTO "Question" (
             question_text, question_type, difficulty_level, explanation, points,
-            jlpt_level, section_type, image_asset_id, image_url, audio_asset_id, audio_url,
+            jlpt_level, section_type, reading_passage_id, image_asset_id, image_url, audio_asset_id, audio_url,
             created_by, created_at, updated_at
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW())
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())
           RETURNING question_id;
         `,
         [
@@ -696,6 +827,7 @@ export class AdminModel {
           input.points,
           input.jlpt_level ?? null,
           input.section_type ?? null,
+          input.section_type === "reading" ? input.reading_passage_id ?? null : null,
           input.image_asset_id ?? null,
           input.image_url ?? null,
           input.audio_asset_id ?? null,
@@ -725,7 +857,7 @@ export class AdminModel {
 
       await this.recalculateQuizTotalMarks(client, quizId);
       await client.query("COMMIT");
-      return (await this.listQuizQuestions(quizId)).find((question) => question.question_id === questionId) ?? null;
+      return (await this.listQuizQuestions(quizId, ownerId)).find((question) => question.question_id === questionId) ?? null;
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -734,7 +866,7 @@ export class AdminModel {
     }
   }
 
-  async updateQuizQuestion(quizId: number, questionId: number, input: AdminQuizQuestionInput) {
+  async updateQuizQuestion(quizId: number, questionId: number, input: AdminQuizQuestionInput, ownerId?: number) {
     const client = await pool.connect();
 
     try {
@@ -750,13 +882,35 @@ export class AdminModel {
             AND qq.question_id = $2
             AND qq.deleted_at IS NULL
             AND qst.deleted_at IS NULL
-            AND q.deleted_at IS NULL;
+            AND q.deleted_at IS NULL
+            ${ownerId ? "AND q.created_by = $3" : ""};
         `,
-        [quizId, questionId]
+        ownerId ? [quizId, questionId, ownerId] : [quizId, questionId]
       );
       if (!existing.rowCount) {
         await client.query("ROLLBACK");
         return null;
+      }
+
+      if (input.section_type === "reading") {
+        if (!input.reading_passage_id) {
+          await client.query("ROLLBACK");
+          return null;
+        }
+        const passageResult = await client.query(
+          `
+            SELECT passage_id
+            FROM "ReadingPassage"
+            WHERE passage_id = $1
+              AND deleted_at IS NULL
+              ${ownerId ? "AND created_by = $2" : ""};
+          `,
+          ownerId ? [input.reading_passage_id, ownerId] : [input.reading_passage_id]
+        );
+        if (!passageResult.rowCount) {
+          await client.query("ROLLBACK");
+          return null;
+        }
       }
 
       await client.query(
@@ -769,12 +923,13 @@ export class AdminModel {
               points = $5,
               jlpt_level = $6,
               section_type = $7,
-              image_asset_id = $8,
-              image_url = $9,
-              audio_asset_id = $10,
-              audio_url = $11,
+              reading_passage_id = $8,
+              image_asset_id = $9,
+              image_url = $10,
+              audio_asset_id = $11,
+              audio_url = $12,
               updated_at = NOW()
-          WHERE question_id = $12;
+          WHERE question_id = $13;
         `,
         [
           input.question_text,
@@ -784,6 +939,7 @@ export class AdminModel {
           input.points,
           input.jlpt_level ?? null,
           input.section_type ?? null,
+          input.section_type === "reading" ? input.reading_passage_id ?? null : null,
           input.image_asset_id ?? null,
           input.image_url ?? null,
           input.audio_asset_id ?? null,
@@ -850,7 +1006,7 @@ export class AdminModel {
 
       await this.recalculateQuizTotalMarks(client, quizId);
       await client.query("COMMIT");
-      return (await this.listQuizQuestions(quizId)).find((question) => question.question_id === questionId) ?? null;
+      return (await this.listQuizQuestions(quizId, ownerId)).find((question) => question.question_id === questionId) ?? null;
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -859,7 +1015,7 @@ export class AdminModel {
     }
   }
 
-  async updateQuizQuestionOrder(quizId: number, questionId: number, orderIndex: number | null): Promise<boolean> {
+  async updateQuizQuestionOrder(quizId: number, questionId: number, orderIndex: number | null, ownerId?: number): Promise<boolean> {
     const result = await databaseService.executeQuery(
       `
         UPDATE "QuizQuestion" qq
@@ -869,14 +1025,15 @@ export class AdminModel {
           AND qq.quiz_id = $2
           AND qq.question_id = $3
           AND qq.deleted_at IS NULL
-          AND q.deleted_at IS NULL;
+          AND q.deleted_at IS NULL
+          ${ownerId ? "AND q.created_by = $4" : ""};
       `,
-      [orderIndex, quizId, questionId]
+      ownerId ? [orderIndex, quizId, questionId, ownerId] : [orderIndex, quizId, questionId]
     );
     return Boolean(result.rowCount);
   }
 
-  async deleteQuizQuestion(quizId: number, questionId: number): Promise<boolean> {
+  async deleteQuizQuestion(quizId: number, questionId: number, ownerId?: number): Promise<boolean> {
     const client = await pool.connect();
 
     try {
@@ -891,9 +1048,10 @@ export class AdminModel {
             AND qq.question_id = $2
             AND qq.deleted_at IS NULL
             AND qst.deleted_at IS NULL
-            AND q.deleted_at IS NULL;
+            AND q.deleted_at IS NULL
+            ${ownerId ? "AND q.created_by = $3" : ""};
         `,
-        [quizId, questionId]
+        ownerId ? [quizId, questionId, ownerId] : [quizId, questionId]
       );
       if (!existing.rowCount) {
         await client.query("ROLLBACK");
@@ -930,6 +1088,11 @@ export class AdminModel {
     if (params.search?.trim()) {
       values.push(`%${params.search.trim()}%`);
       where.push(`e.title ILIKE $${values.length}`);
+    }
+
+    if (params.ownerId) {
+      values.push(params.ownerId);
+      where.push(`e.created_by = $${values.length}`);
     }
 
     values.push(limit, offset);
@@ -1006,7 +1169,8 @@ export class AdminModel {
 
   async updateJlptExam(
     examId: number,
-    input: Partial<{ title: string; jlpt_level: JlptLevel; year: number | null; duration_minutes: number | null }>
+    input: Partial<{ title: string; jlpt_level: JlptLevel; year: number | null; duration_minutes: number | null }>,
+    ownerId?: number
   ) {
     const updates: string[] = [];
     const values: unknown[] = [];
@@ -1021,12 +1185,14 @@ export class AdminModel {
 
     if (!updates.length) return null;
     values.push(examId);
+    if (ownerId) values.push(ownerId);
     const result = await databaseService.executeQuery(
       `
         UPDATE "JLPTExam"
         SET ${updates.join(", ")}, updated_at = NOW()
-        WHERE exam_id = $${values.length}
+        WHERE exam_id = $${ownerId ? values.length - 1 : values.length}
           AND deleted_at IS NULL
+          ${ownerId ? `AND created_by = $${values.length}` : ""}
         RETURNING exam_id, title, jlpt_level, year, duration_minutes, created_by, created_at, updated_at;
       `,
       values
@@ -1034,12 +1200,15 @@ export class AdminModel {
     return result.rows[0] || null;
   }
 
-  async deleteJlptExam(examId: number): Promise<boolean> {
+  async deleteJlptExam(examId: number, ownerId?: number): Promise<boolean> {
     const client = await pool.connect();
 
     try {
       await client.query("BEGIN");
-      const existing = await client.query(`SELECT exam_id FROM "JLPTExam" WHERE exam_id = $1 AND deleted_at IS NULL;`, [examId]);
+      const existing = await client.query(
+        `SELECT exam_id FROM "JLPTExam" WHERE exam_id = $1 AND deleted_at IS NULL ${ownerId ? "AND created_by = $2" : ""};`,
+        ownerId ? [examId, ownerId] : [examId]
+      );
       if (!existing.rowCount) {
         await client.query("ROLLBACK");
         return false;
@@ -1084,7 +1253,89 @@ export class AdminModel {
     }
   }
 
-  async listJlptSections(examId: number) {
+  async listReadingPassages(params: { jlptLevel?: JlptLevel; ownerId?: number }) {
+    const values: unknown[] = [];
+    const where = [`deleted_at IS NULL`];
+
+    if (params.jlptLevel) {
+      values.push(params.jlptLevel);
+      where.push(`jlpt_level = $${values.length}`);
+    }
+
+    if (params.ownerId) {
+      values.push(params.ownerId);
+      where.push(`created_by = $${values.length}`);
+    }
+
+    const result = await databaseService.executeQuery(
+      `
+        SELECT passage_id, title, jlpt_level, passage_text, image_asset_id, image_url, created_by, created_at, updated_at
+        FROM "ReadingPassage"
+        WHERE ${where.join(" AND ")}
+        ORDER BY updated_at DESC, passage_id DESC;
+      `,
+      values
+    );
+    return result.rows;
+  }
+
+  async createReadingPassage(input: AdminReadingPassageInput & { created_by: number }) {
+    const result = await databaseService.executeQuery(
+      `
+        INSERT INTO "ReadingPassage" (title, jlpt_level, passage_text, image_asset_id, image_url, created_by, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+        RETURNING passage_id, title, jlpt_level, passage_text, image_asset_id, image_url, created_by, created_at, updated_at;
+      `,
+      [input.title, input.jlpt_level, input.passage_text, input.image_asset_id ?? null, input.image_url ?? null, input.created_by]
+    );
+    return result.rows[0];
+  }
+
+  async updateReadingPassage(passageId: number, input: Partial<AdminReadingPassageInput>, ownerId?: number) {
+    const updates: string[] = [];
+    const values: unknown[] = [];
+    const fields = ["title", "jlpt_level", "passage_text", "image_asset_id", "image_url"] as const;
+
+    fields.forEach((field) => {
+      if (!isUndefined(input[field])) {
+        values.push(input[field]);
+        updates.push(`${field} = $${values.length}`);
+      }
+    });
+
+    if (!updates.length) return null;
+    values.push(passageId);
+    if (ownerId) values.push(ownerId);
+
+    const result = await databaseService.executeQuery(
+      `
+        UPDATE "ReadingPassage"
+        SET ${updates.join(", ")}, updated_at = NOW()
+        WHERE passage_id = $${ownerId ? values.length - 1 : values.length}
+          AND deleted_at IS NULL
+          ${ownerId ? `AND created_by = $${values.length}` : ""}
+        RETURNING passage_id, title, jlpt_level, passage_text, image_asset_id, image_url, created_by, created_at, updated_at;
+      `,
+      values
+    );
+    return result.rows[0] || null;
+  }
+
+  async deleteReadingPassage(passageId: number, ownerId?: number): Promise<boolean> {
+    const result = await databaseService.executeQuery(
+      `
+        UPDATE "ReadingPassage"
+        SET deleted_at = COALESCE(deleted_at, NOW()), updated_at = NOW()
+        WHERE passage_id = $1
+          AND deleted_at IS NULL
+          ${ownerId ? "AND created_by = $2" : ""};
+      `,
+      ownerId ? [passageId, ownerId] : [passageId]
+    );
+    return Boolean(result.rowCount);
+  }
+
+  async listJlptSections(examId: number, ownerId?: number) {
     const result = await databaseService.executeQuery(
       `
         SELECT s.section_id, s.exam_id, s.title, s.section_type, s.section_order, s.duration_minutes,
@@ -1096,15 +1347,16 @@ export class AdminModel {
         WHERE s.exam_id = $1
           AND s.deleted_at IS NULL
           AND e.deleted_at IS NULL
+          ${ownerId ? "AND e.created_by = $2" : ""}
         GROUP BY s.section_id
         ORDER BY s.section_order ASC NULLS LAST, s.section_id ASC;
       `,
-      [examId]
+      ownerId ? [examId, ownerId] : [examId]
     );
     return result.rows;
   }
 
-  async createJlptSection(examId: number, input: AdminJlptSectionInput) {
+  async createJlptSection(examId: number, input: AdminJlptSectionInput, ownerId?: number) {
     const result = await databaseService.executeQuery(
       `
         INSERT INTO "JLPTSection" (
@@ -1114,6 +1366,7 @@ export class AdminModel {
         FROM "JLPTExam" e
         WHERE e.exam_id = $1
           AND e.deleted_at IS NULL
+          ${ownerId ? "AND e.created_by = $8" : ""}
         RETURNING section_id, exam_id, title, section_type, section_order, duration_minutes,
                   audio_asset_id, audio_url, deleted_at, updated_at;
       `,
@@ -1125,12 +1378,13 @@ export class AdminModel {
         input.duration_minutes ?? null,
         input.section_type === "listening" ? input.audio_asset_id ?? null : null,
         input.section_type === "listening" ? input.audio_url ?? null : null,
+        ...(ownerId ? [ownerId] : []),
       ]
     );
     return result.rows[0] || null;
   }
 
-  async updateJlptSection(sectionId: number, input: Partial<AdminJlptSectionInput>) {
+  async updateJlptSection(sectionId: number, input: Partial<AdminJlptSectionInput>, ownerId?: number) {
     const updates: string[] = [];
     const values: unknown[] = [];
     const fields = ["title", "section_type", "section_order", "duration_minutes", "audio_asset_id", "audio_url"] as const;
@@ -1144,15 +1398,17 @@ export class AdminModel {
 
     if (!updates.length) return null;
     values.push(sectionId);
+    if (ownerId) values.push(ownerId);
     const result = await databaseService.executeQuery(
       `
         UPDATE "JLPTSection" s
         SET ${updates.join(", ")}, updated_at = NOW()
         FROM "JLPTExam" e
         WHERE s.exam_id = e.exam_id
-          AND s.section_id = $${values.length}
+          AND s.section_id = $${ownerId ? values.length - 1 : values.length}
           AND s.deleted_at IS NULL
           AND e.deleted_at IS NULL
+          ${ownerId ? `AND e.created_by = $${values.length}` : ""}
         RETURNING s.section_id, s.exam_id, s.title, s.section_type, s.section_order, s.duration_minutes,
                   s.audio_asset_id, s.audio_url, s.deleted_at, s.updated_at;
       `,
@@ -1161,7 +1417,7 @@ export class AdminModel {
     return result.rows[0] || null;
   }
 
-  async deleteJlptSection(sectionId: number): Promise<boolean> {
+  async deleteJlptSection(sectionId: number, ownerId?: number): Promise<boolean> {
     const client = await pool.connect();
 
     try {
@@ -1173,9 +1429,10 @@ export class AdminModel {
           JOIN "JLPTExam" e ON e.exam_id = s.exam_id
           WHERE s.section_id = $1
             AND s.deleted_at IS NULL
-            AND e.deleted_at IS NULL;
+            AND e.deleted_at IS NULL
+            ${ownerId ? "AND e.created_by = $2" : ""};
         `,
-        [sectionId]
+        ownerId ? [sectionId, ownerId] : [sectionId]
       );
       if (!existing.rowCount) {
         await client.query("ROLLBACK");
@@ -1211,24 +1468,28 @@ export class AdminModel {
     }
   }
 
-  async listJlptSectionQuestions(sectionId: number) {
+  async listJlptSectionQuestions(sectionId: number, ownerId?: number) {
     const questionResult = await databaseService.executeQuery(
       `
         SELECT q.question_id, q.question_text, q.question_type, q.difficulty_level, q.explanation,
-               q.points, q.jlpt_level, q.section_type, q.image_asset_id, q.image_url, q.audio_asset_id, q.audio_url,
+               q.points, q.jlpt_level, q.section_type, q.reading_passage_id,
+               rp.title AS reading_passage_title, rp.passage_text AS reading_passage_text, rp.image_url AS reading_passage_image_url,
+               q.image_asset_id, q.image_url, q.audio_asset_id, q.audio_url,
                jsq.order_index, COALESCE(q.points, 1) AS marks
         FROM "JLPTSectionQuestion" jsq
         JOIN "Question" q ON q.question_id = jsq.question_id
         JOIN "JLPTSection" s ON s.section_id = jsq.section_id
         JOIN "JLPTExam" e ON e.exam_id = s.exam_id
+        LEFT JOIN "ReadingPassage" rp ON rp.passage_id = q.reading_passage_id AND rp.deleted_at IS NULL
         WHERE jsq.section_id = $1
           AND jsq.deleted_at IS NULL
           AND q.deleted_at IS NULL
           AND s.deleted_at IS NULL
           AND e.deleted_at IS NULL
+          ${ownerId ? "AND e.created_by = $2" : ""}
         ORDER BY jsq.order_index ASC NULLS LAST, jsq.id ASC;
       `,
-      [sectionId]
+      ownerId ? [sectionId, ownerId] : [sectionId]
     );
     const questionIds = questionResult.rows.map((row) => row.question_id);
     const optionsByQuestion = new Map<number, unknown[]>();
@@ -1258,7 +1519,7 @@ export class AdminModel {
     }));
   }
 
-  async createJlptSectionQuestion(sectionId: number, input: AdminQuizQuestionInput, createdBy: number) {
+  async createJlptSectionQuestion(sectionId: number, input: AdminQuizQuestionInput, createdBy: number, ownerId?: number) {
     const client = await pool.connect();
 
     try {
@@ -1270,24 +1531,46 @@ export class AdminModel {
           JOIN "JLPTExam" e ON e.exam_id = s.exam_id
           WHERE s.section_id = $1
             AND s.deleted_at IS NULL
-            AND e.deleted_at IS NULL;
+            AND e.deleted_at IS NULL
+            ${ownerId ? "AND e.created_by = $2" : ""};
         `,
-        [sectionId]
+        ownerId ? [sectionId, ownerId] : [sectionId]
       );
       if (!sectionResult.rowCount) {
         await client.query("ROLLBACK");
         return null;
       }
       const sectionType = sectionResult.rows[0].section_type as SectionType;
+      if (sectionType === "reading" && !input.reading_passage_id) {
+        await client.query("ROLLBACK");
+        return null;
+      }
+
+      if (sectionType === "reading" && input.reading_passage_id) {
+        const passageResult = await client.query(
+          `
+            SELECT passage_id
+            FROM "ReadingPassage"
+            WHERE passage_id = $1
+              AND deleted_at IS NULL
+              ${ownerId ? "AND created_by = $2" : ""};
+          `,
+          ownerId ? [input.reading_passage_id, ownerId] : [input.reading_passage_id]
+        );
+        if (!passageResult.rowCount) {
+          await client.query("ROLLBACK");
+          return null;
+        }
+      }
 
       const questionResult = await client.query(
         `
           INSERT INTO "Question" (
             question_text, question_type, difficulty_level, explanation, points,
-            jlpt_level, section_type, image_asset_id, image_url, audio_asset_id, audio_url,
+            jlpt_level, section_type, reading_passage_id, image_asset_id, image_url, audio_asset_id, audio_url,
             created_by, created_at, updated_at
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW())
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())
           RETURNING question_id;
         `,
         [
@@ -1298,6 +1581,7 @@ export class AdminModel {
           input.points,
           input.jlpt_level ?? null,
           sectionType,
+          sectionType === "reading" ? input.reading_passage_id ?? null : null,
           input.image_asset_id ?? null,
           input.image_url ?? null,
           null,
@@ -1326,7 +1610,7 @@ export class AdminModel {
       }
 
       await client.query("COMMIT");
-      return (await this.listJlptSectionQuestions(sectionId)).find((question) => question.question_id === questionId) ?? null;
+      return (await this.listJlptSectionQuestions(sectionId, ownerId)).find((question) => question.question_id === questionId) ?? null;
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -1335,7 +1619,136 @@ export class AdminModel {
     }
   }
 
-  async updateJlptSectionQuestion(sectionId: number, questionId: number, input: AdminQuizQuestionInput) {
+  async autoAddJlptSectionQuestions(sectionId: number, input: AutoJlptSectionQuestionsInput, ownerId?: number) {
+    const client = await pool.connect();
+    let committed = false;
+    const difficulties = ["easy", "medium", "hard", "expert"] as const;
+    const requested = difficulties
+      .map((difficulty) => ({ difficulty, count: Math.max(0, Math.floor(Number(input.difficulty_counts[difficulty]) || 0)) }))
+      .filter((item) => item.count > 0);
+
+    if (!requested.length) {
+      return { status: "invalid" as const, error: "At least one difficulty count is required" };
+    }
+
+    try {
+      await client.query("BEGIN");
+
+      const sectionResult = await client.query(
+        `
+          SELECT s.section_id, s.section_type, e.jlpt_level
+          FROM "JLPTSection" s
+          JOIN "JLPTExam" e ON e.exam_id = s.exam_id
+          WHERE s.section_id = $1
+            AND s.deleted_at IS NULL
+            AND e.deleted_at IS NULL
+            ${ownerId ? "AND e.created_by = $2" : ""};
+        `,
+        ownerId ? [sectionId, ownerId] : [sectionId]
+      );
+
+      if (!sectionResult.rowCount) {
+        await client.query("ROLLBACK");
+        return { status: "not_found" as const };
+      }
+
+      const section = sectionResult.rows[0] as { section_type: SectionType; jlpt_level: JlptLevel };
+      if (section.section_type !== "vocabulary" && section.section_type !== "grammar") {
+        await client.query("ROLLBACK");
+        return { status: "unsupported_section" as const };
+      }
+
+      const jlptLevel = input.jlpt_level ?? section.jlpt_level;
+      const selectedQuestionIds: number[] = [];
+      const shortages: Array<{ difficulty: string; requested: number; available: number }> = [];
+
+      for (const item of requested) {
+        const params: unknown[] = [sectionId, section.section_type, jlptLevel, item.difficulty, item.count, selectedQuestionIds];
+        if (ownerId) params.push(ownerId);
+
+        const candidateResult = await client.query(
+          `
+            SELECT q.question_id
+            FROM "Question" q
+            WHERE q.deleted_at IS NULL
+              AND q.section_type = $2
+              AND q.jlpt_level = $3
+              AND q.difficulty_level = $4
+              AND NOT (q.question_id = ANY($6::int[]))
+              AND NOT EXISTS (
+                SELECT 1
+                FROM "JLPTSectionQuestion" existing
+                WHERE existing.section_id = $1
+                  AND existing.question_id = q.question_id
+                  AND existing.deleted_at IS NULL
+              )
+              AND EXISTS (
+                SELECT 1
+                FROM "Option" o
+                WHERE o.question_id = q.question_id
+                  AND o.is_correct = TRUE
+              )
+              AND (SELECT COUNT(*) FROM "Option" o WHERE o.question_id = q.question_id) >= 2
+              ${ownerId ? "AND q.created_by = $7" : ""}
+            ORDER BY RANDOM()
+            LIMIT $5;
+          `,
+          params
+        );
+
+        const availableCount = candidateResult.rowCount ?? 0;
+        if (availableCount < item.count) {
+          shortages.push({ difficulty: item.difficulty, requested: item.count, available: availableCount });
+        }
+
+        selectedQuestionIds.push(...candidateResult.rows.map((row) => Number(row.question_id)));
+      }
+
+      if (shortages.length) {
+        await client.query("ROLLBACK");
+        return { status: "insufficient" as const, shortages };
+      }
+
+      const orderResult = await client.query(
+        `
+          SELECT COALESCE(MAX(order_index), 0)::int AS max_order
+          FROM "JLPTSectionQuestion"
+          WHERE section_id = $1
+            AND deleted_at IS NULL;
+        `,
+        [sectionId]
+      );
+      let nextOrder = Number(orderResult.rows[0]?.max_order || 0) + 1;
+
+      for (const questionId of selectedQuestionIds) {
+        await client.query(
+          `
+            INSERT INTO "JLPTSectionQuestion" (section_id, question_id, order_index)
+            VALUES ($1, $2, $3);
+          `,
+          [sectionId, questionId, nextOrder]
+        );
+        nextOrder += 1;
+      }
+
+      await client.query("COMMIT");
+      committed = true;
+
+      return {
+        status: "created" as const,
+        added_count: selectedQuestionIds.length,
+        requested_count: requested.reduce((total, item) => total + item.count, 0),
+        questions: await this.listJlptSectionQuestions(sectionId, ownerId),
+      };
+    } catch (error) {
+      if (!committed) await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async updateJlptSectionQuestion(sectionId: number, questionId: number, input: AdminQuizQuestionInput, ownerId?: number) {
     const client = await pool.connect();
 
     try {
@@ -1352,15 +1765,37 @@ export class AdminModel {
             AND jsq.deleted_at IS NULL
             AND s.deleted_at IS NULL
             AND e.deleted_at IS NULL
-            AND q.deleted_at IS NULL;
+            AND q.deleted_at IS NULL
+            ${ownerId ? "AND e.created_by = $3" : ""};
         `,
-        [sectionId, questionId]
+        ownerId ? [sectionId, questionId, ownerId] : [sectionId, questionId]
       );
       if (!existing.rowCount) {
         await client.query("ROLLBACK");
         return null;
       }
       const sectionType = existing.rows[0].section_type as SectionType;
+      if (sectionType === "reading" && !input.reading_passage_id) {
+        await client.query("ROLLBACK");
+        return null;
+      }
+
+      if (sectionType === "reading" && input.reading_passage_id) {
+        const passageResult = await client.query(
+          `
+            SELECT passage_id
+            FROM "ReadingPassage"
+            WHERE passage_id = $1
+              AND deleted_at IS NULL
+              ${ownerId ? "AND created_by = $2" : ""};
+          `,
+          ownerId ? [input.reading_passage_id, ownerId] : [input.reading_passage_id]
+        );
+        if (!passageResult.rowCount) {
+          await client.query("ROLLBACK");
+          return null;
+        }
+      }
 
       await client.query(
         `
@@ -1372,12 +1807,13 @@ export class AdminModel {
               points = $5,
               jlpt_level = $6,
               section_type = $7,
-              image_asset_id = $8,
-              image_url = $9,
-              audio_asset_id = $10,
-              audio_url = $11,
+              reading_passage_id = $8,
+              image_asset_id = $9,
+              image_url = $10,
+              audio_asset_id = $11,
+              audio_url = $12,
               updated_at = NOW()
-          WHERE question_id = $12;
+          WHERE question_id = $13;
         `,
         [
           input.question_text,
@@ -1387,6 +1823,7 @@ export class AdminModel {
           input.points,
           input.jlpt_level ?? null,
           sectionType,
+          sectionType === "reading" ? input.reading_passage_id ?? null : null,
           input.image_asset_id ?? null,
           input.image_url ?? null,
           null,
@@ -1452,7 +1889,7 @@ export class AdminModel {
       );
 
       await client.query("COMMIT");
-      return (await this.listJlptSectionQuestions(sectionId)).find((question) => question.question_id === questionId) ?? null;
+      return (await this.listJlptSectionQuestions(sectionId, ownerId)).find((question) => question.question_id === questionId) ?? null;
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -1461,7 +1898,7 @@ export class AdminModel {
     }
   }
 
-  async updateJlptSectionQuestionOrder(sectionId: number, questionId: number, orderIndex: number | null): Promise<boolean> {
+  async updateJlptSectionQuestionOrder(sectionId: number, questionId: number, orderIndex: number | null, ownerId?: number): Promise<boolean> {
     const result = await databaseService.executeQuery(
       `
         UPDATE "JLPTSectionQuestion" jsq
@@ -1473,14 +1910,15 @@ export class AdminModel {
           AND jsq.question_id = $3
           AND jsq.deleted_at IS NULL
           AND s.deleted_at IS NULL
-          AND e.deleted_at IS NULL;
+          AND e.deleted_at IS NULL
+          ${ownerId ? "AND e.created_by = $4" : ""};
       `,
-      [orderIndex, sectionId, questionId]
+      ownerId ? [orderIndex, sectionId, questionId, ownerId] : [orderIndex, sectionId, questionId]
     );
     return Boolean(result.rowCount);
   }
 
-  async deleteJlptSectionQuestion(sectionId: number, questionId: number): Promise<boolean> {
+  async deleteJlptSectionQuestion(sectionId: number, questionId: number, ownerId?: number): Promise<boolean> {
     const result = await databaseService.executeQuery(
       `
         UPDATE "JLPTSectionQuestion" jsq
@@ -1492,9 +1930,10 @@ export class AdminModel {
           AND jsq.question_id = $2
           AND jsq.deleted_at IS NULL
           AND s.deleted_at IS NULL
-          AND e.deleted_at IS NULL;
+          AND e.deleted_at IS NULL
+          ${ownerId ? "AND e.created_by = $3" : ""};
       `,
-      [sectionId, questionId]
+      ownerId ? [sectionId, questionId, ownerId] : [sectionId, questionId]
     );
     return Boolean(result.rowCount);
   }
@@ -1517,6 +1956,11 @@ export class AdminModel {
     if (params.status && params.status !== "all") {
       values.push(params.status);
       where.push(`status = $${values.length}`);
+    }
+
+    if (params.ownerId) {
+      values.push(params.ownerId);
+      where.push(`author_id = $${values.length}`);
     }
 
     values.push(limit, offset);
@@ -1570,7 +2014,8 @@ export class AdminModel {
       cover_asset_id: number | null;
       image_url: string | null;
       status: BlogStatus;
-    }>
+    }>,
+    ownerId?: number
   ) {
     if (!(await this.hasBlogTable())) {
       throw new Error('Blog table is not available. Create the "Blog" table from erd.sql first.');
@@ -1591,6 +2036,7 @@ export class AdminModel {
 
     if (!updates.length) return null;
     values.push(blogId);
+    if (ownerId) values.push(ownerId);
     const result = await databaseService.executeQuery(
       `
         UPDATE "Blog"
@@ -1600,7 +2046,8 @@ export class AdminModel {
               ELSE published_at
             END,
             updated_at = NOW()
-        WHERE blog_id = $${values.length}
+        WHERE blog_id = $${ownerId ? values.length - 1 : values.length}
+          ${ownerId ? `AND author_id = $${values.length}` : ""}
         RETURNING blog_id, title, slug, excerpt, content, category, cover_asset_id, image_url, status, author_id, published_at, created_at, updated_at;
       `,
       values

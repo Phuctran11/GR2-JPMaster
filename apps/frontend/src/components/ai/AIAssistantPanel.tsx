@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, Card, Icon } from '../index';
 import { aiAPI, type FlashcardAiMode, type LessonAiMode } from '../../services/api';
+import { useToastMessages } from '../../hooks/useToastMessages';
 
 type FlashcardContext = {
   type: 'flashcard';
@@ -64,13 +65,13 @@ export function AIAssistantPanel({
   onSaveAnswer,
   saveAnswerLabel = 'Save as Note',
 }: AIAssistantPanelProps) {
+  const toast = useToastMessages();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loadingMode, setLoadingMode] = useState<FlashcardAiMode | LessonAiMode | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [savingAnswer, setSavingAnswer] = useState(false);
-  const [saveMessage, setSaveMessage] = useState('');
   const selectedTextLabel = getSelectedTextLabel(context);
   const cleanedAnswer = cleanAiText(answer);
 
@@ -85,7 +86,6 @@ export function AIAssistantPanel({
       setLoadingMode(mode);
       setError('');
       setAnswer('');
-      setSaveMessage('');
 
       const result =
         context.type === 'flashcard'
@@ -135,9 +135,11 @@ export function AIAssistantPanel({
       setSavingAnswer(true);
       setError('');
       await onSaveAnswer(cleanedAnswer);
-      setSaveMessage('Saved to notes.');
+      toast.success('AI note saved successfully.');
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Unable to save this answer.');
+      const message = saveError instanceof Error ? saveError.message : 'Unable to save this answer.';
+      setError(message);
+      toast.error(message);
     } finally {
       setSavingAnswer(false);
     }
@@ -220,7 +222,6 @@ export function AIAssistantPanel({
             )}
           </div>
           <div className="whitespace-pre-line text-body-md leading-7 text-on-surface">{cleanedAnswer}</div>
-          {saveMessage && <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-body-sm text-emerald-700">{saveMessage}</p>}
         </div>
       )}
     </Card>

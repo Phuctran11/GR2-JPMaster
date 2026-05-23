@@ -14,10 +14,10 @@ import {
   type AdminJlptLevel,
   type AdminJlptSection,
   type AdminLesson,
-  type AdminLessonType,
   type AdminQuestionType,
   type AdminQuizQuestion,
   type AdminQuizType,
+  type AdminReadingPassage,
   type AdminRole,
   type AdminSortOrder,
   type AdminStats,
@@ -28,7 +28,7 @@ import {
 } from '../services/api';
 
 type AdminTab = 'overview' | 'users' | 'courses' | 'tests' | 'jlpt' | 'blogs';
-type ModalName = 'user' | 'course' | 'lessons' | 'lesson' | 'test' | 'questions' | 'question' | 'jlptExam' | 'jlptSections' | 'jlptSection' | 'blog' | null;
+type ModalName = 'user' | 'course' | 'lessons' | 'lesson' | 'test' | 'questions' | 'question' | 'jlptExam' | 'jlptSections' | 'jlptSection' | 'readingPassage' | 'autoJlptQuestions' | 'blog' | null;
 
 const tabs: Array<{ id: AdminTab; label: string; icon: string }> = [
   { id: 'overview', label: 'Overview', icon: 'monitoring' },
@@ -43,11 +43,6 @@ const courseLevelOptions = [
   { value: 'beginner', label: 'Beginner' },
   { value: 'intermediate', label: 'Intermediate' },
   { value: 'advanced', label: 'Advanced' },
-];
-const lessonTypeOptions: Array<{ value: AdminLessonType; label: string }> = [
-  { value: 'text', label: 'Text' },
-  { value: 'video', label: 'Video' },
-  { value: 'quiz', label: 'Quiz' },
 ];
 const quizTypeOptions: Array<{ value: AdminQuizType; label: string }> = [
   { value: 'practice_test', label: 'Practice test' },
@@ -89,7 +84,6 @@ const emptyCourse = { title: '', description: '', price: 0, level: 'beginner', d
 const emptyLesson = {
   course_id: '',
   title: '',
-  content_type: 'text' as AdminLessonType,
   content_text: '',
   video_asset_id: null as number | null,
   video_url: '',
@@ -131,6 +125,7 @@ const emptyQuestion = {
   points: 1,
   jlpt_level: 'N5',
   section_type: 'vocabulary',
+  reading_passage_id: '',
   image_asset_id: null as number | null,
   image_url: '',
   audio_asset_id: null as number | null,
@@ -141,6 +136,20 @@ const emptyQuestion = {
     { option_id: undefined as number | undefined, option_text: '', is_correct: true, explanation: '' },
     { option_id: undefined as number | undefined, option_text: '', is_correct: false, explanation: '' },
   ],
+};
+const emptyReadingPassage = {
+  title: '',
+  jlpt_level: 'N5' as AdminJlptLevel,
+  passage_text: '',
+  image_asset_id: null as number | null,
+  image_url: '',
+};
+const emptyAutoJlptQuestions = {
+  jlpt_level: 'N5' as AdminJlptLevel,
+  easy: 0,
+  medium: 0,
+  hard: 0,
+  expert: 0,
 };
 const emptyBlog = {
   title: '',
@@ -303,6 +312,7 @@ export default function AdminDashboard() {
   const { user, loading } = useAuth();
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+  const [isAdminNavOpen, setIsAdminNavOpen] = useState(() => (typeof window === 'undefined' ? true : window.innerWidth >= 768));
   const [activeModal, setActiveModal] = useState<ModalName>(null);
   const [busy, setBusy] = useState(false);
 
@@ -343,6 +353,10 @@ export default function AdminDashboard() {
   const [editingJlptSectionId, setEditingJlptSectionId] = useState<number | null>(null);
   const [managingJlptSectionId, setManagingJlptSectionId] = useState<number | null>(null);
   const [jlptQuestions, setJlptQuestions] = useState<AdminQuizQuestion[]>([]);
+  const [readingPassages, setReadingPassages] = useState<AdminReadingPassage[]>([]);
+  const [readingPassageForm, setReadingPassageForm] = useState(emptyReadingPassage);
+  const [editingReadingPassageId, setEditingReadingPassageId] = useState<number | null>(null);
+  const [autoJlptQuestionsForm, setAutoJlptQuestionsForm] = useState(emptyAutoJlptQuestions);
   const [blogForm, setBlogForm] = useState(emptyBlog);
   const [editingBlogId, setEditingBlogId] = useState<number | null>(null);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
@@ -393,6 +407,16 @@ export default function AdminDashboard() {
     () => [...jlptQuestions].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0) || a.question_id - b.question_id),
     [jlptQuestions]
   );
+  const visibleTabs = useMemo(
+    () => tabs.filter((tab) => user?.role === 'admin' || tab.id !== 'users'),
+    [user?.role]
+  );
+
+  useEffect(() => {
+    if (user?.role !== 'admin' && activeTab === 'users') {
+      setActiveTab('overview');
+    }
+  }, [activeTab, user?.role]);
 
   const run = async (task: () => Promise<void>, success?: string) => {
     setBusy(true);
@@ -407,7 +431,13 @@ export default function AdminDashboard() {
   };
 
   const loadStats = () => run(async () => setStats((await adminAPI.getStats()).data));
-  const loadUsers = () => run(async () => setUsers((await adminAPI.getUsers(userFilter)).data));
+  const loadUsers = () => run(async () => {
+    if (user?.role !== 'admin') {
+      setUsers([]);
+      return;
+    }
+    setUsers((await adminAPI.getUsers(userFilter)).data);
+  });
   const loadCourses = () => run(async () => setCourses((await adminAPI.getCourses(courseFilter)).data));
   const loadLessons = () => run(async () => setLessons((await adminAPI.getLessons()).data));
   const loadTests = () => run(async () => setTests((await adminAPI.getTests(testFilter)).data));
@@ -416,12 +446,13 @@ export default function AdminDashboard() {
   const loadJlptExams = () => run(async () => setJlptExams((await adminAPI.getJlptExams(jlptFilter)).data));
   const loadJlptSections = (examId: number) => run(async () => setJlptSections((await adminAPI.getJlptSections(examId)).data));
   const loadJlptQuestions = (sectionId: number) => run(async () => setJlptQuestions((await adminAPI.getJlptSectionQuestions(sectionId)).data));
+  const loadReadingPassages = (level?: AdminJlptLevel) => run(async () => setReadingPassages((await adminAPI.getReadingPassages(level ? { jlpt_level: level } : {})).data));
   const loadBlogs = () => run(async () => setBlogs((await adminAPI.getBlogs(blogFilter)).data));
 
   useEffect(() => {
-    if (user?.role !== 'admin') return;
+    if (user?.role !== 'admin' && user?.role !== 'owner') return;
     void loadStats();
-    void loadUsers();
+    if (user.role === 'admin') void loadUsers();
     void loadCourses();
     void loadLessons();
     void loadTests();
@@ -437,35 +468,44 @@ export default function AdminDashboard() {
   }, [userFilter.search, userFilter.role, userFilter.sort_order]);
 
   useEffect(() => {
-    if (user?.role !== 'admin') return;
+    if (user?.role !== 'admin' && user?.role !== 'owner') return;
     const timer = window.setTimeout(() => void loadCourses(), 350);
     return () => window.clearTimeout(timer);
   }, [courseFilter.search, courseFilter.level, courseFilter.sort_order]);
 
   useEffect(() => {
-    if (user?.role !== 'admin') return;
+    if (user?.role !== 'admin' && user?.role !== 'owner') return;
     const timer = window.setTimeout(() => void loadTests(), 350);
     return () => window.clearTimeout(timer);
   }, [testFilter.search, testFilter.quiz_type, testFilter.sort_order]);
 
   useEffect(() => {
-    if (user?.role !== 'admin') return;
+    if (user?.role !== 'admin' && user?.role !== 'owner') return;
     const timer = window.setTimeout(() => void loadJlptExams(), 350);
     return () => window.clearTimeout(timer);
   }, [jlptFilter.search, jlptFilter.sort_order]);
 
   useEffect(() => {
-    if (user?.role !== 'admin') return;
+    if (user?.role !== 'admin' && user?.role !== 'owner') return;
     const timer = window.setTimeout(() => void loadBlogs(), 350);
     return () => window.clearTimeout(timer);
   }, [blogFilter.search, blogFilter.status, blogFilter.sort_order]);
 
   if (loading) return <div className="min-h-screen bg-background p-8 text-on-surface">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role !== 'admin') return <Navigate to="/" replace />;
+  if (user.role !== 'admin' && user.role !== 'owner') return <Navigate to="/" replace />;
 
   const refreshAll = async () => {
-    await Promise.all([loadStats(), loadUsers(), loadCourses(), loadLessons(), loadTests(), loadLessonQuizzes(), loadJlptExams(), loadBlogs()]);
+    await Promise.all([
+      loadStats(),
+      user.role === 'admin' ? loadUsers() : Promise.resolve(),
+      loadCourses(),
+      loadLessons(),
+      loadTests(),
+      loadLessonQuizzes(),
+      loadJlptExams(),
+      loadBlogs(),
+    ]);
   };
 
   const closeModal = () => {
@@ -630,7 +670,6 @@ export default function AdminDashboard() {
     setLessonForm({
       course_id: String(item.course_id),
       title: item.title,
-      content_type: item.content_type,
       content_text: item.content_text || '',
       video_asset_id: item.video_asset_id ?? null,
       video_url: item.video_url || '',
@@ -715,9 +754,20 @@ export default function AdminDashboard() {
       ...emptyQuestion,
       jlpt_level: selectedJlptExam?.jlpt_level ?? emptyQuestion.jlpt_level,
       section_type: section,
+      reading_passage_id: '',
       order_index: String(sectionQuestionCount + 1),
     });
+    if (section === 'reading') void loadReadingPassages(selectedJlptExam?.jlpt_level);
     setActiveModal('question');
+  };
+
+  const openAutoJlptQuestions = () => {
+    if (!managingJlptSection || !['vocabulary', 'grammar'].includes(managingJlptSection.section_type)) return;
+    setAutoJlptQuestionsForm({
+      ...emptyAutoJlptQuestions,
+      jlpt_level: selectedJlptExam?.jlpt_level ?? emptyAutoJlptQuestions.jlpt_level,
+    });
+    setActiveModal('autoJlptQuestions');
   };
 
   const openEditQuestion = (question: AdminQuizQuestion) => {
@@ -730,6 +780,7 @@ export default function AdminDashboard() {
       points: question.points,
       jlpt_level: jlptLevelOptions.some((option) => option.value === question.jlpt_level) ? question.jlpt_level || 'N5' : 'N5',
       section_type: sectionTypeOptions.some((option) => option.value === question.section_type) ? question.section_type || 'vocabulary' : 'vocabulary',
+      reading_passage_id: question.reading_passage_id?.toString() || '',
       image_asset_id: question.image_asset_id ?? null,
       image_url: question.image_url || '',
       audio_asset_id: question.audio_asset_id ?? null,
@@ -883,7 +934,29 @@ export default function AdminDashboard() {
     setEditingQuestionId(null);
     setJlptQuestions([]);
     void loadJlptQuestions(section.section_id);
+    if (section.section_type === 'reading') void loadReadingPassages(selectedJlptExam?.jlpt_level);
     setActiveModal('jlptSections');
+  };
+
+  const openCreateReadingPassage = () => {
+    setEditingReadingPassageId(null);
+    setReadingPassageForm({
+      ...emptyReadingPassage,
+      jlpt_level: selectedJlptExam?.jlpt_level ?? emptyReadingPassage.jlpt_level,
+    });
+    setActiveModal('readingPassage');
+  };
+
+  const openEditReadingPassage = (passage: AdminReadingPassage) => {
+    setEditingReadingPassageId(passage.passage_id);
+    setReadingPassageForm({
+      title: passage.title || '',
+      jlpt_level: passage.jlpt_level,
+      passage_text: passage.passage_text || '',
+      image_asset_id: passage.image_asset_id ?? null,
+      image_url: passage.image_url || '',
+    });
+    setActiveModal('readingPassage');
   };
 
   const submitJlptExam = (event: FormEvent) => {
@@ -1068,7 +1141,6 @@ export default function AdminDashboard() {
       const payload = {
         course_id: courseId,
         title: lessonForm.title,
-        content_type: lessonForm.content_type,
         content_text: lessonForm.content_text || null,
         video_asset_id: lessonForm.video_asset_id,
         video_url: lessonForm.video_url || null,
@@ -1127,6 +1199,7 @@ export default function AdminDashboard() {
         points: Number(questionForm.points),
         jlpt_level: questionForm.jlpt_level,
         section_type: sectionType,
+        reading_passage_id: sectionType === 'reading' ? toNullableNumber(questionForm.reading_passage_id) : null,
         image_asset_id: questionForm.image_asset_id,
         image_url: questionForm.image_url || null,
         audio_asset_id: allowQuestionAudio ? questionForm.audio_asset_id : null,
@@ -1160,6 +1233,45 @@ export default function AdminDashboard() {
     }, editingQuestionId ? 'Question updated successfully' : 'Question created successfully');
   };
 
+  const submitAutoJlptQuestions = (event: FormEvent) => {
+    event.preventDefault();
+    if (!managingJlptSectionId) return;
+
+    void run(async () => {
+      const result = await adminAPI.autoAddJlptSectionQuestions(managingJlptSectionId, {
+        jlpt_level: autoJlptQuestionsForm.jlpt_level,
+        difficulty_counts: {
+          easy: Number(autoJlptQuestionsForm.easy) || 0,
+          medium: Number(autoJlptQuestionsForm.medium) || 0,
+          hard: Number(autoJlptQuestionsForm.hard) || 0,
+          expert: Number(autoJlptQuestionsForm.expert) || 0,
+        },
+      });
+      setJlptQuestions(result.data);
+      await Promise.all([managingJlptExamId ? loadJlptSections(managingJlptExamId) : Promise.resolve(), loadJlptExams(), loadStats()]);
+      setActiveModal('jlptSections');
+    }, 'Questions added from bank successfully');
+  };
+
+  const submitReadingPassage = (event: FormEvent) => {
+    event.preventDefault();
+    void run(async () => {
+      const payload = {
+        title: readingPassageForm.title || null,
+        jlpt_level: readingPassageForm.jlpt_level,
+        passage_text: readingPassageForm.passage_text || null,
+        image_asset_id: readingPassageForm.image_asset_id,
+        image_url: readingPassageForm.image_url || null,
+      };
+
+      if (editingReadingPassageId) await adminAPI.updateReadingPassage(editingReadingPassageId, payload);
+      else await adminAPI.createReadingPassage(payload);
+
+      await loadReadingPassages(selectedJlptExam?.jlpt_level);
+      setActiveModal('jlptSections');
+    }, editingReadingPassageId ? 'Reading passage updated successfully' : 'Reading passage created successfully');
+  };
+
   const submitBlog = (event: FormEvent) => {
     event.preventDefault();
     void run(async () => {
@@ -1185,12 +1297,34 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="mx-auto max-w-[1280px] px-margin-mobile py-6 md:px-margin-desktop">
+      <div className="flex">
+        <AdminSidebar
+          tabs={visibleTabs}
+          activeTab={activeTab}
+          isOpen={isAdminNavOpen}
+          onToggle={() => setIsAdminNavOpen((previous) => !previous)}
+          onSelect={(tab) => {
+            setActiveTab(tab);
+            if (window.innerWidth < 768) setIsAdminNavOpen(false);
+          }}
+        />
+
+        {isAdminNavOpen && (
+          <div
+            className="fixed inset-x-0 bottom-0 z-30 bg-black/50 md:hidden"
+            style={{ top: '73px' }}
+            onClick={() => setIsAdminNavOpen(false)}
+            role="presentation"
+          />
+        )}
+
+        <main className="min-w-0 flex-1 py-6 pl-20 pr-margin-mobile md:px-margin-desktop">
+          <div className="mx-auto max-w-[1280px]">
         <section className="mb-6 rounded-lg border border-outline-variant bg-surface p-5 shadow-sm">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <p className="text-label-md font-semibold uppercase text-primary">JPMaster Admin</p>
-              <h1 className="mt-1 text-headline-lg font-bold text-on-surface">Administration Dashboard</h1>
+              <p className="text-label-md font-semibold uppercase text-primary">JPMaster Dashboard</p>
+              <h1 className="mt-1 text-headline-lg font-bold text-on-surface">Dashboard</h1>
               <p className="mt-2 max-w-2xl text-body-md text-on-surface-variant">
                 Track platform metrics and manage users, courses, lessons, tests, and blog content.
               </p>
@@ -1202,46 +1336,31 @@ export default function AdminDashboard() {
           </div>
         </section>
 
-        <div className="mb-5 flex gap-2 overflow-x-auto border-b border-outline-variant">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-label-md transition-colors ${
-                activeTab === tab.id ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[20px]">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
         {activeTab === 'overview' && stats && (
           <section className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
-              <StatTile label="Users" value={stats.totals.users} icon="group" />
+            <div className={`grid grid-cols-1 gap-4 ${user.role === 'admin' ? 'md:grid-cols-5' : 'md:grid-cols-4'}`}>
+              {user.role === 'admin' && <StatTile label="Users" value={stats.totals.users} icon="group" />}
               <StatTile label="Courses" value={stats.totals.courses} icon="school" />
               <StatTile label="Lessons" value={stats.totals.lessons} icon="menu_book" />
               <StatTile label="Tests" value={stats.totals.tests} icon="quiz" />
               <StatTile label="Blogs" value={stats.totals.blogs} icon="article" />
             </div>
-            <div className="grid gap-4 lg:grid-cols-2">
-              <SummaryPanel title="Users by Role" rows={stats.usersByRole.map((item) => [item.role, item.count])} />
+            <div className={`grid gap-4 ${user.role === 'admin' ? 'lg:grid-cols-2' : ''}`}>
+              {user.role === 'admin' && <SummaryPanel title="Users by Role" rows={stats.usersByRole.map((item) => [item.role, item.count])} />}
               <SummaryPanel title="Tests by Type" rows={stats.testsByType.map((item) => [item.quiz_type || 'Uncategorized', item.count])} />
             </div>
           </section>
         )}
 
-        {activeTab === 'users' && (
+        {activeTab === 'users' && user.role === 'admin' && (
           <section className="space-y-4">
             <SectionToolbar title="Users" actionLabel="New User" onAction={openCreateUser}>
               <input className={inputClass} placeholder="Search by name or email" value={userFilter.search} onChange={(e) => setUserFilter({ ...userFilter, search: e.target.value })} />
               <select className={inputClass} value={userFilter.role} onChange={(e) => setUserFilter({ ...userFilter, role: e.target.value as AdminRole | 'all' })}>
                 <option value="all">All roles</option>
                 <option value="learner">Learner</option>
+                <option value="owner">Owner</option>
                 <option value="admin">Admin</option>
-                <option value="guest">Guest</option>
               </select>
               <select className={inputClass} value={userFilter.sort_order} onChange={(e) => setUserFilter({ ...userFilter, sort_order: e.target.value as AdminSortOrder })}>
                 {sortOrderOptions.map((option) => (
@@ -1407,7 +1526,9 @@ export default function AdminDashboard() {
             />
           </section>
         )}
+          </div>
       </main>
+      </div>
 
       {activeModal === 'user' && (
         <Modal title={editingUserId ? 'Edit User' : 'Create User'} subtitle="Manage account identity and access role." onClose={closeModal}>
@@ -1418,8 +1539,8 @@ export default function AdminDashboard() {
             <Field label="Role">
               <select className={inputClass} value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value as AdminRole })}>
                 <option value="learner">Learner</option>
+                <option value="owner">Owner</option>
                 <option value="admin">Admin</option>
-                <option value="guest">Guest</option>
               </select>
             </Field>
             <Field label="Status">
@@ -1557,7 +1678,7 @@ export default function AdminDashboard() {
               </button>
             </div>
             <AdminTable
-              headers={['Order', 'Title', 'Type', 'Quiz', 'Duration', 'Actions']}
+              headers={['Order', 'Title', 'Content', 'Quiz', 'Duration', 'Actions']}
               rows={sortedCourseLessons
                 .map((item, index) => [
                   item.order_index,
@@ -1565,7 +1686,12 @@ export default function AdminDashboard() {
                     <p className="font-semibold text-on-surface">{item.title}</p>
                     <p className="text-label-md text-on-surface-variant">ID #{item.lesson_id}</p>
                   </div>,
-                  optionLabel(lessonTypeOptions, item.content_type),
+                  <div className="flex flex-wrap gap-1">
+                    {item.video_url && <span className="rounded bg-primary/10 px-2 py-1 text-label-md text-primary">Video</span>}
+                    {item.content_text && <span className="rounded bg-secondary/10 px-2 py-1 text-label-md text-secondary">Text</span>}
+                    {item.audio_url && <span className="rounded bg-tertiary/10 px-2 py-1 text-label-md text-tertiary">Audio</span>}
+                    {!item.video_url && !item.content_text && !item.audio_url && <span className="text-on-surface-variant">Empty</span>}
+                  </div>,
                   lessonQuizzes.some((quiz) => quiz.lesson_id === item.lesson_id) ? (
                     <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-1 text-label-md font-semibold text-primary">
                       <span className="material-symbols-outlined text-[16px]">quiz</span>
@@ -1689,15 +1815,6 @@ export default function AdminDashboard() {
                     <h3 className="text-title-md font-semibold text-on-surface">Settings</h3>
                   </div>
                   <div className="space-y-4">
-                    <Field label="Type">
-                      <select className={inputClass} value={lessonForm.content_type} onChange={(e) => setLessonForm({ ...lessonForm, content_type: e.target.value as AdminLessonType })}>
-                        {lessonTypeOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
                     <Field label="Order"><input className={inputClass} type="number" min="1" value={lessonForm.order_index} onChange={(e) => setLessonForm({ ...lessonForm, order_index: Number(e.target.value) })} /></Field>
                     <Field label="Duration"><input className={inputClass} type="number" min="0" value={lessonForm.duration} onChange={(e) => setLessonForm({ ...lessonForm, duration: e.target.value })} /></Field>
                   </div>
@@ -1975,11 +2092,50 @@ export default function AdminDashboard() {
                     {managingJlptSection ? `${jlptQuestions.length} questions in this section` : 'Select a section first'}
                   </p>
                 </div>
-                <button className={actionButtonClass} onClick={openCreateQuestion} disabled={!managingJlptSectionId}>
-                  <span className="material-symbols-outlined text-[18px]">add</span>
-                  New Question
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  {managingJlptSection?.section_type === 'reading' && (
+                    <button className={secondaryButtonClass} onClick={openCreateReadingPassage}>
+                      <span className="material-symbols-outlined text-[18px]">article</span>
+                      New Passage
+                    </button>
+                  )}
+                  <button
+                    className={secondaryButtonClass}
+                    onClick={openAutoJlptQuestions}
+                    disabled={!managingJlptSectionId || !managingJlptSection || !['vocabulary', 'grammar'].includes(managingJlptSection.section_type)}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">shuffle</span>
+                    Auto Add
+                  </button>
+                  <button className={actionButtonClass} onClick={openCreateQuestion} disabled={!managingJlptSectionId}>
+                    <span className="material-symbols-outlined text-[18px]">add</span>
+                    New Question
+                  </button>
+                </div>
               </div>
+              {managingJlptSection?.section_type === 'reading' && (
+                <div className="rounded-lg border border-outline-variant bg-surface-container-low p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <p className="text-label-md font-semibold text-on-surface">{readingPassages.length} reading passages</p>
+                    <button type="button" className={secondaryButtonClass} onClick={() => void loadReadingPassages(selectedJlptExam?.jlpt_level)}>
+                      <span className="material-symbols-outlined text-[18px]">refresh</span>
+                    </button>
+                  </div>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {readingPassages.map((passage) => (
+                      <button
+                        key={passage.passage_id}
+                        type="button"
+                        className="rounded-lg border border-outline-variant bg-surface p-3 text-left hover:border-primary"
+                        onClick={() => openEditReadingPassage(passage)}
+                      >
+                        <p className="truncate font-semibold text-on-surface">{passage.title || `Passage #${passage.passage_id}`}</p>
+                        <p className="mt-1 line-clamp-2 text-label-md text-on-surface-variant">{passage.passage_text || passage.image_url || 'Image passage'}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {!managingJlptSectionId ? (
                 <div className="rounded-lg border border-dashed border-outline-variant bg-surface-container-lowest p-6 text-center text-on-surface-variant">
                   Select a section to view and manage its questions.
@@ -2023,7 +2179,6 @@ export default function AdminDashboard() {
                           </button>
                           <button className={secondaryButtonClass} onClick={() => openEditQuestion(question)}>
                             <span className="material-symbols-outlined text-[18px]">edit</span>
-                            Edit
                           </button>
                           <button className={dangerButtonClass} disabled={busy} onClick={() => deleteQuestion(question)}>
                             <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -2103,6 +2258,79 @@ export default function AdminDashboard() {
               </div>
             )}
             <ModalActions busy={busy} submitLabel={editingJlptSectionId ? 'Save Section' : 'Create Section'} onCancel={() => setActiveModal('jlptSections')} />
+          </form>
+        </Modal>
+      )}
+
+      {activeModal === 'autoJlptQuestions' && (
+        <Modal
+          title="Auto Add Questions"
+          subtitle={managingJlptSection ? `${optionLabel(sectionTypeOptions, managingJlptSection.section_type)} - ${selectedJlptExam?.title || 'JLPT test'}` : 'JLPT section'}
+          onClose={() => setActiveModal('jlptSections')}
+        >
+          <form onSubmit={submitAutoJlptQuestions} className="space-y-4">
+            <Field label="JLPT Level">
+              <select
+                className={inputClass}
+                value={autoJlptQuestionsForm.jlpt_level}
+                onChange={(e) => setAutoJlptQuestionsForm({ ...autoJlptQuestionsForm, jlpt_level: e.target.value as AdminJlptLevel })}
+              >
+                {jlptLevelOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {difficultyOptions.map((option) => {
+                const key = option.value as 'easy' | 'medium' | 'hard' | 'expert';
+                return (
+                  <Field key={option.value} label={option.label}>
+                    <input
+                      className={inputClass}
+                      type="number"
+                      min="0"
+                      value={autoJlptQuestionsForm[key]}
+                      onChange={(e) => setAutoJlptQuestionsForm({ ...autoJlptQuestionsForm, [key]: Number(e.target.value) })}
+                    />
+                  </Field>
+                );
+              })}
+            </div>
+            <ModalActions busy={busy} submitLabel="Auto Add Questions" onCancel={() => setActiveModal('jlptSections')} />
+          </form>
+        </Modal>
+      )}
+
+      {activeModal === 'readingPassage' && (
+        <Modal title={editingReadingPassageId ? 'Edit Reading Passage' : 'Create Reading Passage'} subtitle={selectedJlptExam?.title || 'JLPT reading'} onClose={() => setActiveModal('jlptSections')} size="lg">
+          <form onSubmit={submitReadingPassage} className="space-y-4">
+            <Field label="Title">
+              <input className={inputClass} value={readingPassageForm.title} onChange={(e) => setReadingPassageForm({ ...readingPassageForm, title: e.target.value })} />
+            </Field>
+            <Field label="JLPT Level">
+              <select className={inputClass} value={readingPassageForm.jlpt_level} onChange={(e) => setReadingPassageForm({ ...readingPassageForm, jlpt_level: e.target.value as AdminJlptLevel })}>
+                {jlptLevelOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Passage Text">
+              <textarea className={inputClass} rows={8} value={readingPassageForm.passage_text} onChange={(e) => setReadingPassageForm({ ...readingPassageForm, passage_text: e.target.value })} />
+            </Field>
+            <AssetUploader
+              label="Passage Image"
+              accept="image/*"
+              previewUrl={readingPassageForm.image_url}
+              mediaKind="image"
+              scope="reading-passages"
+              fieldKey="reading-passage-image"
+              uploadingField={uploadingField}
+              onUpload={uploadAsset}
+              onUploaded={(asset) => setReadingPassageForm({ ...readingPassageForm, image_asset_id: asset.asset_id, image_url: asset.secure_url })}
+            />
+            <ModalActions busy={busy} submitLabel={editingReadingPassageId ? 'Save Passage' : 'Create Passage'} onCancel={() => setActiveModal('jlptSections')} />
           </form>
         </Modal>
       )}
@@ -2342,6 +2570,23 @@ export default function AdminDashboard() {
                     ))}
                   </select>
                 </Field>
+                {questionForm.section_type === 'reading' && (
+                  <Field label="Reading Passage">
+                    <select
+                      className={inputClass}
+                      required
+                      value={questionForm.reading_passage_id}
+                      onChange={(e) => setQuestionForm({ ...questionForm, reading_passage_id: e.target.value })}
+                    >
+                      <option value="">Select passage</option>
+                      {readingPassages.map((passage) => (
+                        <option key={passage.passage_id} value={passage.passage_id}>
+                          {passage.title || `Passage #${passage.passage_id}`}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                )}
               </aside>
             </div>
             <ModalActions busy={busy} submitLabel={editingQuestionId ? 'Save Question' : 'Create Question'} onCancel={closeQuestionForm} />
@@ -2436,6 +2681,70 @@ function ModalActions({ busy, submitLabel, onCancel }: { busy: boolean; submitLa
         {submitLabel}
       </button>
     </div>
+  );
+}
+
+function AdminSidebar({
+  tabs,
+  activeTab,
+  isOpen,
+  onToggle,
+  onSelect,
+}: {
+  tabs: Array<{ id: AdminTab; label: string; icon: string }>;
+  activeTab: AdminTab;
+  isOpen: boolean;
+  onToggle: () => void;
+  onSelect: (tab: AdminTab) => void;
+}) {
+  return (
+    <aside
+      className={`fixed left-0 top-[73px] z-40 flex h-[calc(100vh-73px)] flex-shrink-0 flex-col overflow-y-auto border-r border-outline-variant bg-surface-container-low transition-all duration-300 md:sticky ${
+        isOpen ? 'w-72' : 'w-16'
+      }`}
+    >
+      <div className={`flex min-h-14 flex-shrink-0 items-center border-b border-outline-variant bg-surface-container ${isOpen ? 'justify-between px-4' : 'justify-center px-2'}`}>
+        {isOpen && (
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-label-sm font-semibold uppercase text-on-surface">Admin panel</h3>
+            <p className="truncate text-label-sm text-on-surface-variant">{tabs.length} sections</p>
+          </div>
+        )}
+        <button
+          type="button"
+          className={`inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-outline-variant bg-surface text-on-surface shadow-sm transition-colors hover:border-primary hover:text-primary ${isOpen ? 'ml-3' : ''}`}
+          onClick={onToggle}
+          aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+        >
+          <span className="material-symbols-outlined text-[20px]">{isOpen ? 'menu_open' : 'menu'}</span>
+        </button>
+      </div>
+
+      <nav className="flex flex-1 flex-col overflow-y-auto">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              className={`flex gap-2 border-b border-outline-variant/20 px-3 py-3 transition-colors hover:bg-surface-container ${
+                isOpen ? 'items-center justify-start text-left' : 'items-center justify-center text-center'
+              } ${isActive ? 'bg-primary/5 font-bold text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+              onClick={() => onSelect(tab.id)}
+              title={tab.label}
+            >
+              <span className="flex-shrink-0">
+                <span className="material-symbols-outlined text-[22px]" style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}>
+                  {tab.icon}
+                </span>
+              </span>
+              <span className={`truncate text-label-sm font-label-sm ${isOpen ? 'inline' : 'hidden'}`}>{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+    </aside>
   );
 }
 

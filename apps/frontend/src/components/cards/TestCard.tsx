@@ -22,11 +22,8 @@ export function TestCard({
   return (
     <Card className="bg-surface border border-outline-variant hover:shadow-lg transition-all duration-300 flex flex-col group">
       <div className="p-stack-lg flex-grow flex flex-col">
-        <div className="flex justify-between items-start mb-stack-md">
+        <div className="flex items-start mb-stack-md">
           <LevelBadge level={level} variant="solid" />
-          <span className="material-symbols-outlined text-outline group-hover:text-secondary transition-colors">
-            bookmark
-          </span>
         </div>
         <Heading level="h3" size="headline-sm" className="text-on-surface mb-stack-sm leading-tight">
           {title}

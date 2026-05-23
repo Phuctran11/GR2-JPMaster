@@ -62,7 +62,7 @@ export function LessonHeaderSection({
                 </span>
                 <span className="flex items-center gap-1 font-label-md text-label-md">
                   <span className="material-symbols-outlined text-[18px]">menu_book</span>
-                  {lesson.content_type}
+                  {[lesson.video_url?.trim() ? 'Video' : null, lesson.content_text?.trim() ? 'Text' : null, lesson.audio_url?.trim() ? 'Audio' : null].filter(Boolean).join(' + ') || 'Lesson'}
                 </span>
               </div>
               <div className="flex min-w-[180px] flex-1 items-center gap-3 sm:max-w-xs">

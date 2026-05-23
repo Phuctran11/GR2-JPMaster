@@ -5,8 +5,8 @@ import userModel from "../models/user.model.js";
 import passwordService from "../services/password.service.js";
 import tokenService from "../services/token.service.js";
 
-type UserRole = "guest" | "learner" | "admin";
-const VALID_ROLES: UserRole[] = ["guest", "learner", "admin"];
+type UserRole = "learner" | "owner" | "admin";
+const VALID_ROLES: UserRole[] = ["learner", "owner", "admin"];
 
 interface GoogleTokenInfo {
   aud?: string;

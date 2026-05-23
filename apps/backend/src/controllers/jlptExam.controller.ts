@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 import jlptExamModel from "../models/jlptExam.model.js";
 
 const validLevels = ["N1", "N2", "N3", "N4", "N5", "All"];
@@ -33,13 +34,17 @@ export class JlptExamController {
     }
   }
 
-  async submitExam(req: Request, res: Response, next: NextFunction) {
+  async submitExam(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
       const examId = Number(req.params.examId);
       if (!Number.isFinite(examId)) return res.status(400).json({ error: "Invalid JLPT exam ID" });
       if (!Array.isArray(req.body.answers)) return res.status(400).json({ error: "answers must be an array" });
 
-      const data = await jlptExamModel.submitExam(examId, req.body.answers);
+      const data = await jlptExamModel.submitExam(req.user.user_id, examId, req.body.answers);
       if (!data) return res.status(404).json({ error: "JLPT exam not found" });
       return res.status(201).json({ message: data.passed ? "JLPT test passed" : "JLPT test submitted", data });
     } catch (error) {

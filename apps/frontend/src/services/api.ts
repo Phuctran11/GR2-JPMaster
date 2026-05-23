@@ -171,7 +171,6 @@ export interface Lesson {
   lesson_id: number;
   course_id: number;
   title: string;
-  content_type: 'video' | 'text' | 'quiz';
   content_text: string | null;
   video_asset_id?: number | null;
   video_url: string | null;
@@ -303,6 +302,10 @@ export interface JlptExamQuestion {
   marks: number;
   jlpt_level: string | null;
   section_type: JlptSectionType;
+  reading_passage_id: number | null;
+  reading_passage_title: string | null;
+  reading_passage_text: string | null;
+  reading_passage_image_url: string | null;
   image_url: string | null;
   audio_url: string | null;
   order_index: number | null;
@@ -332,6 +335,7 @@ export interface JlptExamAnswerPayload {
 }
 
 export interface JlptExamSubmitResult {
+  attempt_id: number;
   exam_id: number;
   score: number;
   total_marks: number;
@@ -451,6 +455,26 @@ export interface CreateFlashcardPayload {
   order_index?: number | null;
 }
 
+export type UploadedAssetMediaKind = 'image' | 'video' | 'audio';
+
+export interface UploadedAsset {
+  asset_id: number;
+  public_id: string;
+  secure_url: string;
+  resource_type: 'image' | 'video' | 'raw';
+  media_kind: UploadedAssetMediaKind;
+  format: string | null;
+  bytes: number | null;
+  width: number | null;
+  height: number | null;
+  duration_seconds: number | null;
+  folder: string | null;
+  original_filename: string | null;
+  uploaded_by: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type FlashcardAiMode = 'paragraph' | 'dialogue' | 'explain' | 'ask';
 export type LessonAiMode = 'explain' | 'grammar' | 'summary' | 'ask';
 
@@ -480,7 +504,17 @@ export interface AiResponse {
 const getApiErrorMessage = async (response: Response, fallback: string) => {
   try {
     const error = await response.json();
-    if (typeof error.error === 'string') return error.error;
+    const shortageMessage = Array.isArray(error.shortages)
+      ? error.shortages
+          .map((item: { difficulty?: string; requested?: number; available?: number }) => {
+            const requested = Number(item.requested) || 0;
+            const available = Number(item.available) || 0;
+            const missing = Math.max(requested - available, 0);
+            return `${item.difficulty || 'unknown'}: need ${requested}, available ${available}, missing ${missing}`;
+          })
+          .join('; ')
+      : '';
+    if (typeof error.error === 'string') return shortageMessage ? `${error.error}. ${shortageMessage}` : error.error;
     if (typeof error.error?.message === 'string') return error.error.message;
     if (typeof error.message === 'string') return error.message;
   } catch {
@@ -699,9 +733,8 @@ export const jlptExamAPI = {
   },
 
   async submitExam(examId: number, answers: JlptExamAnswerPayload[]): Promise<{ message: string; data: JlptExamSubmitResult }> {
-    const response = await fetch(`${API_BASE_URL}/jlpt-exams/${examId}/submit`, {
+    const response = await authenticatedFetch(`${API_BASE_URL}/jlpt-exams/${examId}/submit`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ answers }),
     });
 
@@ -952,6 +985,21 @@ export const flashcardAPI = {
     return response.json();
   },
 
+  async updateCard(flashcardId: number, payload: Partial<CreateFlashcardPayload>): Promise<{ message: string; data: Flashcard }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/${flashcardId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update flashcard');
+    }
+
+    return response.json();
+  },
+
   async deleteCard(flashcardId: number): Promise<{ message: string }> {
     const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/${flashcardId}`, {
       method: 'DELETE',
@@ -961,6 +1009,27 @@ export const flashcardAPI = {
       if (response.status === 401) throw new Error('Unauthorized - Please login first');
       const error = await response.json();
       throw new Error(error.error || 'Failed to delete flashcard');
+    }
+
+    return response.json();
+  },
+};
+
+export const assetAPI = {
+  async upload(payload: { file: File; media_kind: UploadedAssetMediaKind; scope: string }): Promise<{ message: string; data: UploadedAsset }> {
+    const formData = new FormData();
+    formData.append('file', payload.file);
+    formData.append('media_kind', payload.media_kind);
+    formData.append('scope', payload.scope);
+
+    const response = await authenticatedFetch(`${API_BASE_URL}/assets/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      throw new Error(await getApiErrorMessage(response, 'Failed to upload asset'));
     }
 
     return response.json();
@@ -997,9 +1066,8 @@ export const aiAPI = {
   },
 };
 
-export type AdminRole = 'guest' | 'learner' | 'admin';
+export type AdminRole = 'learner' | 'owner' | 'admin';
 export type AdminUserStatus = 'active' | 'suspended';
-export type AdminLessonType = 'video' | 'text' | 'quiz';
 export type AdminQuizType = 'lesson_quiz' | 'practice_test' | 'final_test';
 export type AdminBlogStatus = 'draft' | 'published' | 'archived';
 export type AdminJlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
@@ -1087,6 +1155,31 @@ export interface AdminJlptSectionPayload {
   audio_url?: string | null;
 }
 
+export interface AdminAutoJlptQuestionsPayload {
+  jlpt_level?: AdminJlptLevel;
+  difficulty_counts: Partial<Record<'easy' | 'medium' | 'hard' | 'expert', number>>;
+}
+
+export interface AdminReadingPassage {
+  passage_id: number;
+  title: string | null;
+  jlpt_level: AdminJlptLevel;
+  passage_text: string | null;
+  image_asset_id?: number | null;
+  image_url?: string | null;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminReadingPassagePayload {
+  title?: string | null;
+  jlpt_level: AdminJlptLevel;
+  passage_text?: string | null;
+  image_asset_id?: number | null;
+  image_url?: string | null;
+}
+
 export type AdminQuestionType = 'single_choice' | 'multiple_choice' | 'true_false' | 'fill_in_blank';
 
 export interface AdminQuestionOption {
@@ -1106,6 +1199,10 @@ export interface AdminQuizQuestion {
   points: number;
   jlpt_level: string | null;
   section_type: string | null;
+  reading_passage_id?: number | null;
+  reading_passage_title?: string | null;
+  reading_passage_text?: string | null;
+  reading_passage_image_url?: string | null;
   image_asset_id?: number | null;
   image_url?: string | null;
   audio_asset_id?: number | null;
@@ -1210,9 +1307,9 @@ export const adminAPI = {
 
   getLessons: (filters: { search?: string; course_id?: number | string; limit?: number; offset?: number } = {}) =>
     adminRequest<{ data: AdminLesson[]; count: number }>(`/lessons?${adminParams({ limit: 50, ...filters })}`),
-  createLesson: (payload: { course_id: number; title: string; content_type: AdminLessonType; content_text?: string | null; video_asset_id?: number | null; video_url?: string | null; audio_asset_id?: number | null; audio_url?: string | null; order_index: number; duration?: number | null }) =>
+  createLesson: (payload: { course_id: number; title: string; content_text?: string | null; video_asset_id?: number | null; video_url?: string | null; audio_asset_id?: number | null; audio_url?: string | null; order_index: number; duration?: number | null }) =>
     adminRequest<{ message: string; data: AdminLesson }>('/lessons', { method: 'POST', body: JSON.stringify(payload) }),
-  updateLesson: (lessonId: number, payload: Partial<{ title: string; content_type: AdminLessonType; content_text: string | null; video_asset_id: number | null; video_url: string | null; audio_asset_id: number | null; audio_url: string | null; order_index: number; duration: number | null }>) =>
+  updateLesson: (lessonId: number, payload: Partial<{ title: string; content_text: string | null; video_asset_id: number | null; video_url: string | null; audio_asset_id: number | null; audio_url: string | null; order_index: number; duration: number | null }>) =>
     adminRequest<{ message: string; data: AdminLesson }>(`/lessons/${lessonId}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteLesson: (lessonId: number) =>
     adminRequest<{ message: string }>(`/lessons/${lessonId}`, { method: 'DELETE' }),
@@ -1244,6 +1341,14 @@ export const adminAPI = {
     adminRequest<{ message: string; data: AdminJlptExam }>(`/jlpt-exams/${examId}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteJlptExam: (examId: number) =>
     adminRequest<{ message: string }>(`/jlpt-exams/${examId}`, { method: 'DELETE' }),
+  getReadingPassages: (filters: { jlpt_level?: AdminJlptLevel } = {}) =>
+    adminRequest<{ data: AdminReadingPassage[]; count: number }>(`/reading-passages?${adminParams(filters)}`),
+  createReadingPassage: (payload: AdminReadingPassagePayload) =>
+    adminRequest<{ message: string; data: AdminReadingPassage }>('/reading-passages', { method: 'POST', body: JSON.stringify(payload) }),
+  updateReadingPassage: (passageId: number, payload: AdminReadingPassagePayload) =>
+    adminRequest<{ message: string; data: AdminReadingPassage }>(`/reading-passages/${passageId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteReadingPassage: (passageId: number) =>
+    adminRequest<{ message: string }>(`/reading-passages/${passageId}`, { method: 'DELETE' }),
   getJlptSections: (examId: number) =>
     adminRequest<{ data: AdminJlptSection[]; count: number }>(`/jlpt-exams/${examId}/sections`),
   createJlptSection: (examId: number, payload: AdminJlptSectionPayload) =>
@@ -1256,6 +1361,8 @@ export const adminAPI = {
     adminRequest<{ data: AdminQuizQuestion[]; count: number }>(`/jlpt-sections/${sectionId}/questions`),
   createJlptSectionQuestion: (sectionId: number, payload: AdminQuizQuestionPayload) =>
     adminRequest<{ message: string; data: AdminQuizQuestion }>(`/jlpt-sections/${sectionId}/questions`, { method: 'POST', body: JSON.stringify(payload) }),
+  autoAddJlptSectionQuestions: (sectionId: number, payload: AdminAutoJlptQuestionsPayload) =>
+    adminRequest<{ message: string; data: AdminQuizQuestion[]; added_count: number; requested_count: number }>(`/jlpt-sections/${sectionId}/questions/auto`, { method: 'POST', body: JSON.stringify(payload) }),
   updateJlptSectionQuestion: (sectionId: number, questionId: number, payload: AdminQuizQuestionPayload) =>
     adminRequest<{ message: string; data: AdminQuizQuestion }>(`/jlpt-sections/${sectionId}/questions/${questionId}`, { method: 'PUT', body: JSON.stringify(payload) }),
   updateJlptSectionQuestionOrder: (sectionId: number, questionId: number, orderIndex: number | null) =>

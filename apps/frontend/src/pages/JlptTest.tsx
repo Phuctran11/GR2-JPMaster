@@ -65,6 +65,7 @@ export default function JlptTest() {
   const [phase, setPhase] = useState<TestPhase>('intro');
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const [showSectionSubmitConfirm, setShowSectionSubmitConfirm] = useState(false);
 
   useEffect(() => {
     if (!Number.isFinite(numericExamId)) return;
@@ -100,6 +101,10 @@ export default function JlptTest() {
     () => questions.filter((question) => isQuestionAnswered(question, answers[question.question_id])).length,
     [answers, questions]
   );
+  const sectionsToRender = phase === 'submitted' ? sections : activeSection ? [activeSection] : [];
+
+  const getUnansweredCount = (section: JlptExamSection) =>
+    section.questions.filter((question) => !isQuestionAnswered(question, answers[question.question_id])).length;
 
   useEffect(() => {
     if (phase !== 'section' && phase !== 'break') return;
@@ -154,8 +159,10 @@ export default function JlptTest() {
 
   const startExam = () => startSection(0);
 
-  const finishSection = () => {
-    if (!exam) return;
+  const performFinishSection = () => {
+    if (!exam || !activeSection) return;
+    setShowSectionSubmitConfirm(false);
+
     if (activeSectionIndex >= exam.sections.length - 1) {
       void submitExam();
       return;
@@ -163,6 +170,11 @@ export default function JlptTest() {
     setPhase('break');
     setRemainingSeconds(BREAK_SECONDS);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const finishSection = () => {
+    if (!exam || !activeSection || submitting) return;
+    setShowSectionSubmitConfirm(true);
   };
 
   const submitExam = async () => {
@@ -188,6 +200,7 @@ export default function JlptTest() {
     setPhase('intro');
     setActiveSectionIndex(0);
     setRemainingSeconds(0);
+    setShowSectionSubmitConfirm(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -343,26 +356,51 @@ export default function JlptTest() {
             </section>
           )}
 
-          {activeSection && (
-            <section className="rounded-xl border border-outline-variant bg-white p-5 shadow-sm">
+          {sectionsToRender.map((section, sectionRenderIndex) => {
+            const sectionResultCount = result?.question_results.filter((item) => item.section_id === section.section_id).length ?? 0;
+            const sectionCorrectCount = result?.question_results.filter((item) => item.section_id === section.section_id && item.is_correct).length ?? 0;
+
+            return (
+            <section key={section.section_id} className="rounded-xl border border-outline-variant bg-white p-5 shadow-sm">
               <div className="mb-4 border-b border-outline-variant pb-4">
-                <h2 className="text-headline-sm font-bold text-on-surface">{activeSection.title || sectionLabels[activeSection.section_type]}</h2>
+                <h2 className="text-headline-sm font-bold text-on-surface">{section.title || sectionLabels[section.section_type]}</h2>
                 <p className="mt-1 text-label-md text-on-surface-variant">
-                  {sectionLabels[activeSection.section_type]} · {activeSection.questions.length} questions
+                  {sectionLabels[section.section_type]} · {section.questions.length} questions
                 </p>
-                {activeSection.audio_url && <audio controls src={activeSection.audio_url} className="mt-3 w-full" />}
+                {phase === 'submitted' && result && (
+                  <p className="mt-2 inline-flex rounded-full bg-surface-container px-3 py-1 text-label-md font-bold text-on-surface">
+                    {sectionCorrectCount}/{sectionResultCount || section.questions.length} correct
+                  </p>
+                )}
+                {section.audio_url && <audio controls src={section.audio_url} className="mt-3 w-full" />}
               </div>
 
               <div className="space-y-4">
-                {activeSection.questions.map((question, questionIndex) => {
+                {section.questions.map((question, questionIndex) => {
                   const currentAnswer = answers[question.question_id] ?? { optionIds: [], answerText: '' };
                   const questionResult = result?.question_results.find((item) => item.question_id === question.question_id);
+                  const previousQuestion = section.questions[questionIndex - 1];
+                  const shouldShowPassage = Boolean(
+                    question.reading_passage_id &&
+                    question.reading_passage_id !== previousQuestion?.reading_passage_id
+                  );
 
                   return (
-                    <article key={question.question_id} className="rounded-lg border border-outline-variant bg-surface-container-lowest p-4">
+                    <div key={question.question_id} className="space-y-3">
+                    {shouldShowPassage && (
+                      <section className="rounded-lg border border-primary/20 bg-primary-fixed/20 p-4">
+                        <p className="text-label-md font-bold uppercase text-primary">Reading Passage</p>
+                        {question.reading_passage_title && <h3 className="mt-1 text-title-md font-bold text-on-surface">{question.reading_passage_title}</h3>}
+                        {question.reading_passage_image_url && (
+                          <img src={question.reading_passage_image_url} alt={question.reading_passage_title || 'Reading passage'} className="mt-3 max-h-[520px] w-full rounded-lg border border-outline-variant object-contain" />
+                        )}
+                        {question.reading_passage_text && <p className="mt-3 whitespace-pre-line text-body-md leading-7 text-on-surface">{question.reading_passage_text}</p>}
+                      </section>
+                    )}
+                    <article className="rounded-lg border border-outline-variant bg-surface-container-lowest p-4">
                       <div className="flex gap-3">
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">
-                          {questionIndex + 1}
+                          {phase === 'submitted' ? `${sectionRenderIndex + 1}.${questionIndex + 1}` : questionIndex + 1}
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-start justify-between gap-2">
@@ -427,11 +465,13 @@ export default function JlptTest() {
                         </div>
                       </div>
                     </article>
+                    </div>
                   );
                 })}
               </div>
             </section>
-          )}
+            );
+          })}
 
           {phase === 'section' && (
             <section className="sticky bottom-4 z-20 rounded-lg border border-outline-variant bg-white p-4 shadow-lg">
@@ -449,6 +489,66 @@ export default function JlptTest() {
                 </button>
               </div>
             </section>
+          )}
+
+          {showSectionSubmitConfirm && activeSection && (
+            <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="jlpt-section-submit-title">
+              <section className="w-full max-w-md rounded-xl border border-outline-variant bg-white p-6 shadow-xl">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-fixed text-on-primary-fixed">
+                    <span className="material-symbols-outlined text-[28px]">assignment_turned_in</span>
+                  </div>
+                  <div>
+                    <h3 id="jlpt-section-submit-title" className="text-headline-sm font-bold text-on-surface">
+                      {activeSectionIndex >= exam.sections.length - 1 ? 'Submit this JLPT test?' : 'Submit this section?'}
+                    </h3>
+                    <p className="mt-2 text-body-md text-on-surface-variant">
+                      {activeSectionIndex >= exam.sections.length - 1
+                        ? 'After submitting, the whole test will be graded and you cannot edit this attempt.'
+                        : 'After submitting this section, you will move to the break and cannot edit this section.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-4 text-body-sm text-on-surface-variant">
+                  <div className="flex items-center justify-between gap-3">
+                    <span>Section</span>
+                    <strong className="text-on-surface">{activeSection.title || sectionLabels[activeSection.section_type]}</strong>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span>Answered</span>
+                    <strong className="text-on-surface">{activeSectionAnsweredCount}/{activeSection.questions.length}</strong>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span>Time remaining</span>
+                    <strong className="text-on-surface">{formatTime(remainingSeconds)}</strong>
+                  </div>
+                  {getUnansweredCount(activeSection) > 0 && (
+                    <p className="text-amber-800">
+                      {getUnansweredCount(activeSection)} question{getUnansweredCount(activeSection) === 1 ? '' : 's'} still unanswered.
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowSectionSubmitConfirm(false)}
+                    className="rounded-lg border border-outline-variant bg-white px-5 py-3 font-bold text-on-surface"
+                  >
+                    Back to questions
+                  </button>
+                  <button
+                    type="button"
+                    onClick={performFinishSection}
+                    disabled={submitting}
+                    className="rounded-lg bg-primary px-5 py-3 font-bold text-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {submitting ? 'Submitting...' : activeSectionIndex >= exam.sections.length - 1 ? 'Submit test now' : 'Submit section now'}
+                  </button>
+                </div>
+              </section>
+            </div>
           )}
         </div>
       </Container>
