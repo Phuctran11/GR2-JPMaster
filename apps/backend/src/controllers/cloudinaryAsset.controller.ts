@@ -7,7 +7,8 @@ const VALID_MEDIA_KINDS: MediaKind[] = ["image", "video", "audio"];
 const MAX_FILE_SIZE_MB = 200;
 
 const getFolder = (mediaKind: MediaKind, scope: string) => {
-  const safeScope = scope.replace(/[^a-zA-Z0-9_-]/g, "-").toLowerCase() || "general";
+  const normalizedScope = scope === "questions" ? "question-bank" : scope;
+  const safeScope = normalizedScope.replace(/[^a-zA-Z0-9_-]/g, "-").toLowerCase() || "general";
   return `jpmaster/${safeScope}/${mediaKind}`;
 };
 
@@ -42,7 +43,23 @@ export class CloudinaryAssetController {
       }
 
       const folder = getFolder(mediaKind, scope);
+      console.info("[UPLOAD] Starting Cloudinary upload", {
+        media_kind: mediaKind,
+        scope,
+        folder,
+        filename: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        user_id: req.user?.user_id ?? null,
+      });
       const uploaded = await uploadBufferToCloudinary(req.file, mediaKind, folder);
+      console.info("[UPLOAD] Cloudinary upload completed", {
+        media_kind: mediaKind,
+        folder,
+        public_id: uploaded.public_id,
+        resource_type: uploaded.resource_type,
+        bytes: uploaded.bytes,
+      });
       const asset = await cloudinaryAssetModel.createAsset({
         public_id: uploaded.public_id,
         secure_url: uploaded.secure_url,

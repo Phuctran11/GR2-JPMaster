@@ -157,8 +157,11 @@ const emptyBlog = {
   excerpt: '',
   content: '',
   category: '',
+  tags: '',
   cover_asset_id: null as number | null,
   image_url: '',
+  video_asset_id: null as number | null,
+  video_url: '',
   status: 'draft' as AdminBlogStatus,
 };
 
@@ -1065,11 +1068,28 @@ export default function AdminDashboard() {
       excerpt: item.excerpt || '',
       content: item.content || '',
       category: item.category || '',
+      tags: item.tags?.map((tag) => tag.name).join(', ') || '',
       cover_asset_id: item.cover_asset_id ?? null,
       image_url: item.image_url || '',
+      video_asset_id: item.video_asset_id ?? null,
+      video_url: item.video_url || '',
       status: item.status,
     });
     setActiveModal('blog');
+  };
+
+  const deleteBlog = (item: AdminBlog) => {
+    const confirmed = window.confirm(`Hide blog "${item.title}"?`);
+    if (!confirmed) return;
+
+    void run(async () => {
+      await adminAPI.deleteBlog(item.blog_id);
+      if (editingBlogId === item.blog_id) {
+        setEditingBlogId(null);
+        closeModal();
+      }
+      await Promise.all([loadBlogs(), loadStats()]);
+    }, 'Blog hidden successfully');
   };
 
   const uploadAsset = async (
@@ -1280,9 +1300,12 @@ export default function AdminDashboard() {
         slug: blogForm.slug || undefined,
         excerpt: blogForm.excerpt || null,
         content: blogForm.content || null,
-        category: blogForm.category || null,
+        category_name: blogForm.category || null,
+        tags: blogForm.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
         cover_asset_id: blogForm.cover_asset_id,
         image_url: blogForm.image_url || null,
+        video_asset_id: blogForm.video_asset_id,
+        video_url: blogForm.video_url || null,
         status: blogForm.status,
       };
       if (editingBlogId) await adminAPI.updateBlog(editingBlogId, payload);
@@ -1521,8 +1544,21 @@ export default function AdminDashboard() {
               </select>
             </SectionToolbar>
             <AdminTable
-              headers={['ID', 'Title', 'Category', 'Status', 'Slug', 'Actions']}
-              rows={blogs.map((item) => [item.blog_id, item.title, item.category || '-', item.status, item.slug, <button className={secondaryButtonClass} onClick={() => openEditBlog(item)}>Edit</button>])}
+              headers={['ID', 'Title', 'Category', 'Status', 'Author', 'Slug', 'Actions']}
+              rows={blogs.map((item) => [
+                item.blog_id,
+                item.title,
+                item.category || '-',
+                item.status,
+                item.author_username || item.author_id,
+                item.slug,
+                <div className="flex flex-wrap gap-2">
+                  <button className={secondaryButtonClass} onClick={() => openEditBlog(item)}>Edit</button>
+                  <button className={dangerButtonClass} disabled={busy} onClick={() => deleteBlog(item)}>
+                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>,
+              ])}
             />
           </section>
         )}
@@ -2609,6 +2645,7 @@ export default function AdminDashboard() {
                 </select>
               </Field>
             </div>
+            <Field label="Tags"><input className={inputClass} placeholder="grammar, N5, vocabulary" value={blogForm.tags} onChange={(e) => setBlogForm({ ...blogForm, tags: e.target.value })} /></Field>
             <Field label="Excerpt"><textarea className={inputClass} rows={3} value={blogForm.excerpt} onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })} /></Field>
             <Field label="Content"><textarea className={inputClass} rows={7} value={blogForm.content} onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })} /></Field>
             <AssetUploader
@@ -2616,11 +2653,22 @@ export default function AdminDashboard() {
               accept="image/*"
               previewUrl={blogForm.image_url}
               mediaKind="image"
-              scope="blogs"
+              scope="blog"
               fieldKey="blog-cover"
               uploadingField={uploadingField}
               onUpload={uploadAsset}
               onUploaded={(asset) => setBlogForm({ ...blogForm, cover_asset_id: asset.asset_id, image_url: asset.secure_url })}
+            />
+            <AssetUploader
+              label="Blog Video"
+              accept="video/*"
+              previewUrl={blogForm.video_url}
+              mediaKind="video"
+              scope="blog"
+              fieldKey="blog-video"
+              uploadingField={uploadingField}
+              onUpload={uploadAsset}
+              onUploaded={(asset) => setBlogForm({ ...blogForm, video_asset_id: asset.asset_id, video_url: asset.secure_url })}
             />
             <ModalActions busy={busy} submitLabel={editingBlogId ? 'Save Changes' : 'Create Blog'} onCancel={closeModal} />
           </form>

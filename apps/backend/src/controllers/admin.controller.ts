@@ -944,9 +944,12 @@ export class AdminController {
         slug: requireString(req.body.slug) || slugify(title),
         excerpt: requireString(req.body.excerpt) || null,
         content: requireString(req.body.content) || null,
-        category: requireString(req.body.category) || null,
+        category_name: requireString(req.body.category_name ?? req.body.category) || null,
+        tags: Array.isArray(req.body.tags) ? req.body.tags.map((tag: unknown) => requireString(tag)).filter(Boolean) : [],
         cover_asset_id: toNumberOrNull(req.body.cover_asset_id),
         image_url: requireString(req.body.image_url) || null,
+        video_asset_id: toNumberOrNull(req.body.video_asset_id),
+        video_url: requireString(req.body.video_url) || null,
         status,
         author_id: req.user!.user_id,
       });
@@ -967,13 +970,30 @@ export class AdminController {
         slug: req.body.slug === undefined ? (title ? slugify(title) : undefined) : requireString(req.body.slug),
         excerpt: req.body.excerpt === undefined ? undefined : requireString(req.body.excerpt) || null,
         content: req.body.content === undefined ? undefined : requireString(req.body.content) || null,
-        category: req.body.category === undefined ? undefined : requireString(req.body.category) || null,
+        category_name: req.body.category_name === undefined && req.body.category === undefined ? undefined : requireString(req.body.category_name ?? req.body.category) || null,
+        tags: req.body.tags === undefined ? undefined : Array.isArray(req.body.tags) ? req.body.tags.map((tag: unknown) => requireString(tag)).filter(Boolean) : [],
         cover_asset_id: optionalNumber(req.body.cover_asset_id),
         image_url: req.body.image_url === undefined ? undefined : requireString(req.body.image_url) || null,
+        video_asset_id: optionalNumber(req.body.video_asset_id),
+        video_url: req.body.video_url === undefined ? undefined : requireString(req.body.video_url) || null,
         status: req.body.status,
       }, ownerScope(req));
       if (!data) return res.status(404).json({ error: "Blog not found or no changes provided" });
       return res.status(200).json({ message: "Blog updated successfully", data });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteBlog(req: Request, res: Response, next: NextFunction) {
+    try {
+      const blogId = Number(req.params.id);
+      if (!Number.isFinite(blogId)) return res.status(400).json({ error: "Invalid blog ID" });
+
+      const deleted = await adminModel.deleteBlog(blogId, ownerScope(req));
+      if (!deleted) return res.status(404).json({ error: "Blog not found" });
+
+      return res.status(200).json({ message: "Blog hidden successfully" });
     } catch (error) {
       next(error);
     }

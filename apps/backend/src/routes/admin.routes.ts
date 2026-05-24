@@ -78,5 +78,6 @@ router.delete("/jlpt-sections/:sectionId/questions/:questionId", adminController
 router.get("/blogs", adminController.listBlogs.bind(adminController));
 router.post("/blogs", adminController.createBlog.bind(adminController));
 router.put("/blogs/:id", adminController.updateBlog.bind(adminController));
+router.delete("/blogs/:id", adminController.deleteBlog.bind(adminController));
 
 export default router;

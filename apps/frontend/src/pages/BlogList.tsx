@@ -1,110 +1,232 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Header, Footer, Breadcrumbs } from '../components';
 import { Heading } from '../components/ui/Typography';
 import { BlogFilterBar } from '../components/sections/BlogFilterBar';
 import { BlogCard, FeaturedBlogCard } from '../components/cards';
+import { blogAPI, type Blog, type BlogCategory } from '../services/api';
+
+const formatBlogDate = (value?: string | null) => {
+  if (!value) return 'Draft';
+  return new Intl.DateTimeFormat('en', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(value));
+};
+
+const toCardProps = (blog: Blog) => ({
+  title: blog.title,
+  category: blog.category || 'Article',
+  date: formatBlogDate(blog.published_at || blog.created_at),
+  image: blog.image_url,
+  excerpt: blog.excerpt || 'Read the latest article from JPMaster.',
+  link: `/blog/${blog.slug || blog.blog_id}`,
+});
+
+const timeFilters = [
+  { value: 'all', label: 'All time' },
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+  { value: 'year', label: 'This year' },
+] as const;
+
+type TimeFilter = (typeof timeFilters)[number]['value'];
+
+const getPublishedAfter = (filter: TimeFilter) => {
+  const now = new Date();
+  if (filter === '7d') now.setDate(now.getDate() - 7);
+  else if (filter === '30d') now.setDate(now.getDate() - 30);
+  else if (filter === 'year') {
+    now.setMonth(0, 1);
+    now.setHours(0, 0, 0, 0);
+  } else {
+    return undefined;
+  }
+  return now.toISOString();
+};
+
+function BlogListSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-gutter md:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className="h-[360px] animate-pulse rounded-xl border border-outline-variant bg-surface">
+          <div className="h-44 rounded-t-xl bg-surface-container" />
+          <div className="space-y-3 p-stack-md">
+            <div className="h-4 w-24 rounded bg-surface-container" />
+            <div className="h-6 w-4/5 rounded bg-surface-container" />
+            <div className="h-4 w-full rounded bg-surface-container" />
+            <div className="h-4 w-2/3 rounded bg-surface-container" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function BlogList() {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All Topics');
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const breadcrumbs = [
     { label: 'Home', path: '/' },
     { label: 'Blog' },
   ];
 
-  const featuredPost = {
-    title: 'Mastering Hiragana in Just 7 Days',
-    category: 'Study Tips',
-    date: 'Oct 24, 2024',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA0xj_VYUvWsUkyZnKlzKGJuWn3JjGoL_0ukpCNYbJyUc53ThNIk4z_ijfjjTRuSlrAW0jzco2J1O3ag2pEzJzdsMGH4-T8q3xdEcLZH9MUSH6q3YrGsUL9UIXr5VWjvAlVtmt4uD4AbBCp6zqZVwcnixwWOXaPSL5NcilIJcK4ZeCCR707tz8T3uToyohS1R7sX645SFvXeCqye80QJCVE2jmbSfsvN-859n2lb0gURpuXakWUyVovz4juZJz6QyLpZnIJIsYXQElR',
-    excerpt:
-      'Learn the mnemonic techniques that elite language learners use to memorize the basic Japanese script with 100% retention.',
-    link: '/blog/mastering-hiragana',
-  };
+  useEffect(() => {
+    let active = true;
+    const timer = window.setTimeout(async () => {
+      try {
+        setLoading(true);
+        const selectedCategory = category === 'All Topics' ? undefined : category;
+        const [blogResult, categoryResult] = await Promise.all([
+          blogAPI.getBlogs({ search, category: selectedCategory, published_after: getPublishedAfter(timeFilter), limit: 24 }),
+          blogAPI.getCategories(),
+        ]);
+        if (!active) return;
+        setBlogs(blogResult.data);
+        setCategories(categoryResult.data);
+        setError(null);
+      } catch (err) {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : 'Failed to load blogs');
+        setBlogs([]);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }, 250);
 
-  const posts = [
-    {
-      title: 'Essential Business Etiquette',
-      category: 'Japanese Culture',
-      date: 'Oct 22, 2024',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAsWrHlOesV2E-CYJNEHM4GII82cMvCdTo1loLIhvLMSQ2_uvX_KpSCTE859WhhMxZ-i8woA98WORbTWNLivywfi5M1C421KEVTgw0tcFWhjOZBTH2Fx0jutiHSOEC4Bj2caZ6zLNQWPgKV7e3cMTt1ajnELBq9i7NAf-YZSnrLq1LIw9pqqzl-77O7zcnpoDzG9RU8Ym2AfWTaWzff_FbRyOBFXQLUHRGAEPed-D6nVb7ooAjKwM9GAbPb6z_hwEPgGy7HtOoC2DLI',
-      excerpt: 'Navigating the complexities of bow angles and business card exchange in Tokyo.',
-      link: '/blog/business-etiquette',
-    },
-    {
-      title: "The 'Wa' vs 'Ga' Mystery",
-      category: 'Grammar',
-      date: 'Oct 20, 2024',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDlg_Efllnt4NRdLALQrTufPlPd2U7pdUrt4D_F4WbgatPeTQN4rUqJYjOC3QQN19SmwBUugqTz8Z9hfC7TgKxqMHK-hTeHcT7dVpLRuuThZAkg8WfpcOSEGSRB0FerrNHmzSz6ZicApf_TNZgIDZbrUiTAOgVidj-eFNiV3RLlW4HD5lyhwVOPNZbMwY9aKlzMLJ9N92yOXQHr8I53tDl6K_7SbvqCwTFIQ5Es67fbh_94csjcBONyuPKzMrb9KuaGOmdDEOpY62ar',
-      excerpt: 'Finally understanding the subtle particles that define Japanese sentence structure.',
-      link: '/blog/wa-vs-ga',
-    },
-    {
-      title: 'Design Philosophy: Ma',
-      category: 'Culture',
-      date: 'Oct 18, 2024',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDlhO4vQW4FsSW79mCZFM6Uh92uq7PgpLIahNmuLDA-SypgEBj2SxbvdvOTxGjSs3m6Ks_9B3E_7wHKAigozhI3FLoqwB6z7Nq3GA4pLXesd1pqWB1eKtneeTaYHexBFFc_kc2u4kNU9LR7f5CK3Cj0Xcc7waGv7TvK5sImOiXlpUM0aD6Ulz_JBI86Z0HL-aKCmBbewbXBpYNOBE23FFXkH3iMdkOeiq0J-sh44VwAXiG9fnMRnwtT2-P6jn7H2_8H870ujYYlnIs0',
-      excerpt: 'How the concept of "negative space" influences Japanese life and language.',
-      link: '/blog/ma-design',
-    },
-  ];
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [search, category, timeFilter]);
+
+  const categoryOptions = useMemo(() => ['All Topics', ...categories.map((item) => item.name)], [categories]);
+  const [featuredPost, ...posts] = blogs;
+  const latestPosts = posts.slice(2);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <Breadcrumbs items={breadcrumbs} />
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative h-[480px] w-full flex items-center overflow-hidden">
+        <section className="relative min-h-[430px] w-full overflow-hidden">
           <img
-            alt="Japanese landscape background"
+            alt="Japanese study desk"
             className="absolute inset-0 w-full h-full object-cover"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAa9ohhXsOi-YdFZ5ysTk4rVHJEMUXbm5Lgv3SwtYky0Lr7-4xFEYiVZHgWAwoRudYl6iERr1NN-wH6ILmQm5dmm8sA876OfNtlQBvNtgT8uhnMfnUeO8bignKgaULmVYB4sYAsRXQpA0eXTgeBVTw8s5wW2UWGOIcZN3kyLm_1X-592UJQOARG3kwuyFLf7SuFcvOANBaWHlpEg3dkyZAatUDsA262FSSEcVPLVwBiwv60jzOvo5yWArinQ0Cliow_vdcr14yp4kr"
+            src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1800&q=80"
           />
-          <div className="absolute inset-0 bg-primary/40 backdrop-blur-[2px]"></div>
-          <div className="relative max-w-[1280px] mx-auto px-margin-desktop w-full">
-            <div className="max-w-2xl">
+          <div className="absolute inset-0 bg-black/45"></div>
+          <div className="relative mx-auto flex min-h-[430px] w-full max-w-[1280px] items-end px-margin-desktop pb-section-gap pt-24">
+            <div className="max-w-3xl">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-label-md font-semibold text-white backdrop-blur">
+                <span className="material-symbols-outlined text-[18px]">menu_book</span>
+                Japanese learning journal
+              </div>
               <h1 className="font-display-lg text-display-lg text-on-primary mb-stack-md">Blog</h1>
-              <p className="font-body-lg text-body-lg text-inverse-on-surface/90">
-                Discover useful knowledge and study tips for learning Japanese from experts. Deep dive into grammar, culture,
-                and mastery.
+              <p className="max-w-2xl font-body-lg text-body-lg text-inverse-on-surface/90">
+                Practical Japanese learning guides, culture notes, and JLPT study resources from JPMaster.
               </p>
+              <div className="mt-stack-lg grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
+                  <p className="text-headline-md font-bold">{blogs.length}</p>
+                  <p className="text-label-md text-white/80">Articles</p>
+                </div>
+                <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
+                  <p className="text-headline-md font-bold">{categories.length}</p>
+                  <p className="text-label-md text-white/80">Topics</p>
+                </div>
+                <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
+                  <p className="text-headline-md font-bold">JLPT</p>
+                  <p className="text-label-md text-white/80">Study focus</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Filter Section */}
-        <BlogFilterBar />
+        <BlogFilterBar categories={categoryOptions} onCategoryChange={setCategory} onSearch={setSearch} />
 
-        {/* Posts Grid */}
         <section className="max-w-[1280px] mx-auto px-margin-desktop py-section-gap">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-section-gap">
-            {/* Featured Post */}
-            <FeaturedBlogCard {...featuredPost} />
-
-            {/* Sidebar Posts */}
-            <div className="md:col-span-4 space-y-gutter">
-              {posts.slice(0, 2).map((post) => (
-                <BlogCard key={post.title} {...post} />
-              ))}
+          <div className="mb-stack-lg flex flex-col justify-between gap-3 md:flex-row md:items-end">
+            <div>
+              <p className="text-label-md font-black uppercase tracking-wide text-secondary">Latest from JPMaster</p>
+              <Heading level="h2" size="headline-lg" className="mt-2 text-on-surface">Study articles and culture notes</Heading>
             </div>
+            {!loading && !error && (
+              <p className="text-body-md text-on-surface-variant">
+                Showing {blogs.length} {blogs.length === 1 ? 'article' : 'articles'}
+                {category !== 'All Topics' ? ` in ${category}` : ''}
+              </p>
+            )}
           </div>
 
-          {/* Newsletter CTA */}
-          <div className="md:col-span-4 bg-surface-container-high border border-dashed border-outline rounded-xl flex flex-col items-center justify-center p-stack-lg text-center">
-            <span className="material-symbols-outlined text-outline text-display-lg mb-stack-md">mail</span>
-            <Heading level="h3" size="headline-md" className="text-on-surface mb-2">
-              Expert Tips in Inbox?
-            </Heading>
-            <p className="text-on-surface-variant font-body-md text-body-md mb-stack-lg">
-              Join 15,000+ students receiving weekly curated resources.
-            </p>
-            <button className="w-full py-3 bg-primary text-on-primary rounded-lg font-label-md">Subscribe Now</button>
-          </div>
-
-          {/* Additional Posts */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-section-gap">
-            {posts.map((post) => (
-              <BlogCard key={post.title} {...post} />
+          <div className="mb-stack-lg flex flex-wrap items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low p-2">
+            <span className="ml-2 mr-1 inline-flex items-center gap-2 text-label-md font-semibold text-on-surface-variant">
+              <span className="material-symbols-outlined text-[18px]">schedule</span>
+              Time
+            </span>
+            {timeFilters.map((filter) => (
+              <button
+                key={filter.value}
+                type="button"
+                onClick={() => setTimeFilter(filter.value)}
+                className={`min-h-9 rounded-lg px-3 text-label-md transition-colors ${
+                  timeFilter === filter.value
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'bg-surface text-on-surface-variant hover:bg-surface-container-high'
+                }`}
+              >
+                {filter.label}
+              </button>
             ))}
           </div>
+
+          {loading && <BlogListSkeleton />}
+          {error && (
+            <div className="rounded-xl border border-error/25 bg-error/5 p-stack-lg text-error">
+              {error}
+            </div>
+          )}
+          {!loading && !error && blogs.length === 0 && (
+            <div className="rounded-xl border border-outline-variant bg-surface p-section-gap text-center">
+              <span className="material-symbols-outlined text-display-md text-outline">search_off</span>
+              <Heading level="h2" size="headline-md" className="text-on-surface mb-2">No articles found</Heading>
+              <p className="text-on-surface-variant">Try a different category or search keyword.</p>
+            </div>
+          )}
+
+          {!loading && !error && featuredPost && (
+            <>
+              <div className="mb-section-gap">
+                <div className="mb-stack-md flex items-center justify-between">
+                  <h3 className="text-headline-md font-semibold text-on-surface">Featured article</h3>
+                  <p className="text-body-md text-on-surface-variant">Latest published post</p>
+                </div>
+                <div className="grid grid-cols-1 gap-gutter lg:grid-cols-[1.15fr_1fr_1fr]">
+                  <FeaturedBlogCard {...toCardProps(featuredPost)} />
+                  {posts.slice(0, 2).map((post) => (
+                    <BlogCard key={post.blog_id} {...toCardProps(post)} />
+                  ))}
+                </div>
+              </div>
+
+              {latestPosts.length > 0 && (
+                <div className="mb-stack-lg flex items-center justify-between border-t border-outline-variant pt-stack-lg">
+                  <h3 className="text-headline-md font-semibold text-on-surface">More articles</h3>
+                </div>
+              )}
+
+              {latestPosts.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-section-gap">
+                  {latestPosts.map((post) => (
+                    <BlogCard key={post.blog_id} {...toCardProps(post)} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </section>
       </main>
       <Footer />

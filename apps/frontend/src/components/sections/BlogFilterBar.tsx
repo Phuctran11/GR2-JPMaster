@@ -20,26 +20,27 @@ export function BlogFilterBar({
   };
 
   return (
-    <section className="bg-surface-container-low border-b border-outline-variant">
-      <div className="max-w-[1280px] mx-auto px-margin-desktop py-stack-lg flex flex-col md:flex-row justify-between items-center gap-gutter">
-        <div className="flex flex-wrap gap-stack-sm">
+    <section className="sticky top-0 z-20 border-b border-outline-variant bg-surface/95 backdrop-blur">
+      <div className="max-w-[1280px] mx-auto px-margin-desktop py-stack-md">
+        <div className="flex flex-col gap-stack-md lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 flex-wrap gap-2">
           {categories.map((category) => (
             <button
               key={category}
               onClick={() => handleCategoryClick(category)}
-              className={`px-6 py-2 font-label-md text-label-md rounded-full transition-colors ${
+              className={`min-h-10 rounded-lg px-4 py-2 font-label-md text-label-md transition-colors ${
                 activeCategory === category
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface text-on-surface-variant border border-outline-variant hover:bg-surface-container-high'
+                  ? 'bg-primary text-on-primary shadow-sm'
+                  : 'border border-outline-variant bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
               }`}
             >
               {category}
             </button>
           ))}
-        </div>
-        <div className="relative w-full md:w-80">
+          </div>
+        <div className="relative w-full lg:w-96">
           <input
-            className="w-full pl-12 pr-4 py-3 bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md"
+            className="min-h-12 w-full rounded-lg border border-outline-variant bg-surface pl-12 pr-4 font-body-md outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
             placeholder="Search articles..."
             type="text"
             value={searchQuery}
@@ -51,6 +52,7 @@ export function BlogFilterBar({
           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">
             search
           </span>
+        </div>
         </div>
       </div>
     </section>
