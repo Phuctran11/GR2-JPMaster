@@ -15,6 +15,7 @@ import aiRoutes from "./routes/ai.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import jlptExamRoutes from "./routes/jlptExam.routes.js";
 import assetRoutes from "./routes/asset.routes.js";
+import blogRoutes from "./routes/blog.routes.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 
 dotenv.config();
@@ -39,6 +40,7 @@ app.use("/api/lesson-notes", lessonNoteRoutes);
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/assets", assetRoutes);
+app.use("/api/blogs", blogRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/jlpt-exams", jlptExamRoutes);
 

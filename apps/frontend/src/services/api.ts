@@ -193,6 +193,42 @@ export interface CourseRating {
   created_at: string;
 }
 
+export interface BlogTag {
+  tag_id: number;
+  name: string;
+  slug: string;
+  tag_type: 'skill' | 'jlpt_level' | 'topic';
+}
+
+export interface Blog {
+  blog_id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  category_id: number | null;
+  category: string | null;
+  category_slug: string | null;
+  cover_asset_id?: number | null;
+  image_url: string | null;
+  video_asset_id?: number | null;
+  video_url?: string | null;
+  status: 'draft' | 'published' | 'archived';
+  author_id: number;
+  author_username?: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  tags: BlogTag[];
+}
+
+export interface BlogCategory {
+  category_id: number;
+  name: string;
+  slug: string;
+  blog_count: number;
+}
+
 export interface QuizOption {
   option_id: number;
   question_id: number;
@@ -1222,11 +1258,17 @@ export interface AdminBlog {
   slug: string;
   excerpt: string | null;
   content: string | null;
+  category_id?: number | null;
   category: string | null;
+  category_slug?: string | null;
+  tags?: BlogTag[];
   cover_asset_id?: number | null;
   image_url: string | null;
+  video_asset_id?: number | null;
+  video_url?: string | null;
   status: AdminBlogStatus;
   author_id: number;
+  author_username?: string | null;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -1372,10 +1414,33 @@ export const adminAPI = {
 
   getBlogs: (filters: { search?: string; status?: AdminBlogStatus | 'all'; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
     adminRequest<{ data: AdminBlog[]; count: number }>(`/blogs?${adminParams({ limit: 50, ...filters })}`),
-  createBlog: (payload: { title: string; slug?: string; excerpt?: string | null; content?: string | null; category?: string | null; cover_asset_id?: number | null; image_url?: string | null; status: AdminBlogStatus }) =>
+  createBlog: (payload: { title: string; slug?: string; excerpt?: string | null; content?: string | null; category?: string | null; category_name?: string | null; tags?: string[]; cover_asset_id?: number | null; image_url?: string | null; video_asset_id?: number | null; video_url?: string | null; status: AdminBlogStatus }) =>
     adminRequest<{ message: string; data: AdminBlog }>('/blogs', { method: 'POST', body: JSON.stringify(payload) }),
-  updateBlog: (blogId: number, payload: Partial<{ title: string; slug: string; excerpt: string | null; content: string | null; category: string | null; cover_asset_id: number | null; image_url: string | null; status: AdminBlogStatus }>) =>
+  updateBlog: (blogId: number, payload: Partial<{ title: string; slug: string; excerpt: string | null; content: string | null; category: string | null; category_name: string | null; tags: string[]; cover_asset_id: number | null; image_url: string | null; video_asset_id: number | null; video_url: string | null; status: AdminBlogStatus }>) =>
     adminRequest<{ message: string; data: AdminBlog }>(`/blogs/${blogId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteBlog: (blogId: number) =>
+    adminRequest<{ message: string }>(`/blogs/${blogId}`, { method: 'DELETE' }),
+};
+
+export const blogAPI = {
+  async getBlogs(filters: { search?: string; category?: string; tag?: string; published_after?: string; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}): Promise<{ data: Blog[]; count: number }> {
+    const params = adminParams({ limit: 20, ...filters });
+    const response = await fetch(`${API_BASE_URL}/blogs?${params}`);
+    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch blogs'));
+    return response.json();
+  },
+
+  async getBlog(identifier: string): Promise<{ data: Blog }> {
+    const response = await fetch(`${API_BASE_URL}/blogs/${encodeURIComponent(identifier)}`);
+    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch blog'));
+    return response.json();
+  },
+
+  async getCategories(): Promise<{ data: BlogCategory[]; count: number }> {
+    const response = await fetch(`${API_BASE_URL}/blogs/categories`);
+    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch blog categories'));
+    return response.json();
+  },
 };
 
 /**

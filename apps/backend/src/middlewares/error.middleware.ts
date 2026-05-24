@@ -6,6 +6,33 @@ export interface ApiError extends Error {
   statusCode?: number;
 }
 
+const getNestedErrorMessage = (err: unknown) => {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === "object" && "error" in err) {
+    const nested = (err as { error?: unknown }).error;
+    if (nested && typeof nested === "object" && "message" in nested) {
+      return String((nested as { message?: unknown }).message);
+    }
+  }
+  if (err && typeof err === "object" && "message" in err) {
+    return String((err as { message?: unknown }).message);
+  }
+  return "";
+};
+
+const getNestedHttpCode = (err: unknown) => {
+  if (err && typeof err === "object" && "error" in err) {
+    const nested = (err as { error?: unknown }).error;
+    if (nested && typeof nested === "object" && "http_code" in nested) {
+      return Number((nested as { http_code?: unknown }).http_code);
+    }
+  }
+  if (err && typeof err === "object" && "http_code" in err) {
+    return Number((err as { http_code?: unknown }).http_code);
+  }
+  return undefined;
+};
+
 export const errorHandler = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof multer.MulterError) {
     const status = err.code === "LIMIT_FILE_SIZE" ? 413 : 400;
@@ -23,12 +50,18 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
     });
   }
 
-  const status = err.status || err.statusCode || 500;
-  const message = err.message || "Internal server error";
+  const nestedMessage = getNestedErrorMessage(err);
+  const nestedHttpCode = getNestedHttpCode(err);
+  const isTimeoutError = /timeout|request timeout/i.test(nestedMessage);
+  const status = err.status || err.statusCode || (isTimeoutError || nestedHttpCode === 499 ? 504 : 500);
+  const message = nestedMessage || err.message || "Internal server error";
 
   console.error("[ERROR] Status:", status);
   console.error("[ERROR] Message:", message);
   console.error("[ERROR] Stack:", err.stack);
+  if ("code" in err) console.error("[ERROR] Code:", (err as ApiError & { code?: unknown }).code);
+  if ("cause" in err) console.error("[ERROR] Cause:", (err as ApiError & { cause?: unknown }).cause);
+  if ("errors" in err) console.error("[ERROR] Errors:", (err as ApiError & { errors?: unknown }).errors);
 
   res.status(status).json({
     error: {

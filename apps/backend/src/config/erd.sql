@@ -55,25 +55,61 @@ CREATE INDEX idx_course_deleted_at ON "Course"(deleted_at);
 CREATE INDEX idx_course_created_by ON "Course"(created_by);
 CREATE INDEX idx_course_level ON "Course"(level);
 
+CREATE TABLE "BlogCategory" (
+    category_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    slug VARCHAR(120) UNIQUE NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE "Blog" (
     blog_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     excerpt TEXT,
     content TEXT,
-    category VARCHAR(100),
+    category_id INT REFERENCES "BlogCategory"(category_id) ON DELETE SET NULL,
     cover_asset_id INT REFERENCES "CloudinaryAsset"(asset_id) ON DELETE SET NULL,
     image_url TEXT,
+    video_asset_id INT REFERENCES "CloudinaryAsset"(asset_id) ON DELETE SET NULL,
+    video_url TEXT,
     status VARCHAR(20) CHECK (status IN ('draft', 'published', 'archived')) DEFAULT 'draft',
     author_id INT NOT NULL REFERENCES "User"(user_id),
     published_at TIMESTAMP,
+    deleted_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (status <> 'published' OR published_at IS NOT NULL)
 );
 
 CREATE INDEX idx_blog_status ON "Blog"(status);
 CREATE INDEX idx_blog_author ON "Blog"(author_id);
+CREATE INDEX idx_blog_category ON "Blog"(category_id);
 CREATE INDEX idx_blog_cover_asset ON "Blog"(cover_asset_id);
+CREATE INDEX idx_blog_video_asset ON "Blog"(video_asset_id);
+CREATE INDEX idx_blog_deleted_at ON "Blog"(deleted_at);
+
+CREATE TABLE "BlogTag" (
+    tag_id SERIAL PRIMARY KEY,
+    name VARCHAR(80) UNIQUE NOT NULL,
+    slug VARCHAR(100) UNIQUE NOT NULL,
+    tag_type VARCHAR(30) CHECK (tag_type IN ('skill', 'jlpt_level', 'topic')) DEFAULT 'topic',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "BlogTagMap" (
+    blog_id INT NOT NULL REFERENCES "Blog"(blog_id) ON DELETE CASCADE,
+    tag_id INT NOT NULL REFERENCES "BlogTag"(tag_id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (blog_id, tag_id)
+);
+
+CREATE INDEX idx_blog_tag_type ON "BlogTag"(tag_type);
+CREATE INDEX idx_blog_tag_map_blog ON "BlogTagMap"(blog_id);
+CREATE INDEX idx_blog_tag_map_tag ON "BlogTagMap"(tag_id);
 
 CREATE TABLE "Lesson" (
     lesson_id SERIAL PRIMARY KEY,

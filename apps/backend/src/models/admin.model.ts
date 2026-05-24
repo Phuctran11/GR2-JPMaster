@@ -111,7 +111,7 @@ export class AdminModel {
           (SELECT COUNT(*)::int FROM "Course" WHERE deleted_at IS NULL AND created_by = ${ownerParam}) AS courses,
           (SELECT COUNT(*)::int FROM "Lesson" l JOIN "Course" c ON c.course_id = l.course_id WHERE l.deleted_at IS NULL AND c.deleted_at IS NULL AND c.created_by = ${ownerParam}) AS lessons,
           (SELECT COUNT(*)::int FROM "Quiz" WHERE deleted_at IS NULL AND created_by = ${ownerParam}) AS tests,
-          ${hasBlogTable ? `(SELECT COUNT(*)::int FROM "Blog" WHERE author_id = ${ownerParam})` : "0"} AS blogs;
+          ${hasBlogTable ? `(SELECT COUNT(*)::int FROM "Blog" WHERE deleted_at IS NULL AND author_id = ${ownerParam})` : "0"} AS blogs;
       `
       : `
         SELECT
@@ -119,7 +119,7 @@ export class AdminModel {
           (SELECT COUNT(*)::int FROM "Course" WHERE deleted_at IS NULL) AS courses,
           (SELECT COUNT(*)::int FROM "Lesson" WHERE deleted_at IS NULL) AS lessons,
           (SELECT COUNT(*)::int FROM "Quiz" WHERE deleted_at IS NULL) AS tests,
-          ${hasBlogTable ? `(SELECT COUNT(*)::int FROM "Blog")` : "0"} AS blogs;
+          ${hasBlogTable ? `(SELECT COUNT(*)::int FROM "Blog" WHERE deleted_at IS NULL)` : "0"} AS blogs;
       `;
     const totalsResult = await databaseService.executeQuery(query, values);
     const usersByRoleResult = ownerId ? { rows: [] } : await databaseService.executeQuery(`
@@ -1946,30 +1946,43 @@ export class AdminModel {
     const { limit, offset } = withLimitOffset(params);
     const direction = orderDirection(params);
     const values: unknown[] = [];
-    const where: string[] = [];
+    const where: string[] = [`b.deleted_at IS NULL`];
 
     if (params.search?.trim()) {
       values.push(`%${params.search.trim()}%`);
-      where.push(`(title ILIKE $${values.length} OR excerpt ILIKE $${values.length} OR category ILIKE $${values.length})`);
+      where.push(`(b.title ILIKE $${values.length} OR b.excerpt ILIKE $${values.length} OR bc.name ILIKE $${values.length})`);
     }
 
     if (params.status && params.status !== "all") {
       values.push(params.status);
-      where.push(`status = $${values.length}`);
+      where.push(`b.status = $${values.length}`);
     }
 
     if (params.ownerId) {
       values.push(params.ownerId);
-      where.push(`author_id = $${values.length}`);
+      where.push(`b.author_id = $${values.length}`);
     }
 
     values.push(limit, offset);
     const result = await databaseService.executeQuery(
       `
-        SELECT blog_id, title, slug, excerpt, content, category, cover_asset_id, image_url, status, author_id, published_at, created_at, updated_at
-        FROM "Blog"
-        ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
-        ORDER BY blog_id ${direction}
+        SELECT b.blog_id, b.title, b.slug, b.excerpt, b.content, b.category_id,
+               bc.name AS category, bc.slug AS category_slug,
+               b.cover_asset_id, b.image_url, b.video_asset_id, b.video_url, b.status, b.author_id, u.username AS author_username,
+               b.published_at, b.created_at, b.updated_at,
+               COALESCE(
+                 json_agg(json_build_object('tag_id', bt.tag_id, 'name', bt.name, 'slug', bt.slug, 'tag_type', bt.tag_type) ORDER BY bt.name)
+                 FILTER (WHERE bt.tag_id IS NOT NULL),
+                 '[]'::json
+               ) AS tags
+        FROM "Blog" b
+        LEFT JOIN "BlogCategory" bc ON bc.category_id = b.category_id
+        LEFT JOIN "User" u ON u.user_id = b.author_id
+        LEFT JOIN "BlogTagMap" btm ON btm.blog_id = b.blog_id
+        LEFT JOIN "BlogTag" bt ON bt.tag_id = btm.tag_id
+        WHERE ${where.join(" AND ")}
+        GROUP BY b.blog_id, bc.category_id, u.username
+        ORDER BY b.blog_id ${direction}
         LIMIT $${values.length - 1} OFFSET $${values.length};
       `,
       values
@@ -1977,14 +1990,106 @@ export class AdminModel {
     return result.rows;
   }
 
+  private blogSlug(value: string) {
+    return value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  private async ensureBlogCategory(client: PoolClient, categoryName: string | null | undefined) {
+    const name = categoryName?.trim();
+    if (!name) return null;
+    const slug = this.blogSlug(name);
+    const result = await client.query(
+      `
+        INSERT INTO "BlogCategory" (name, slug, created_at, updated_at)
+        VALUES ($1, $2, NOW(), NOW())
+        ON CONFLICT (name) DO UPDATE
+        SET updated_at = "BlogCategory".updated_at
+        RETURNING category_id;
+      `,
+      [name, slug]
+    );
+    return result.rows[0]?.category_id ?? null;
+  }
+
+  private async replaceBlogTags(client: PoolClient, blogId: number, tags: string[] | undefined) {
+    if (tags === undefined) return;
+
+    await client.query(`DELETE FROM "BlogTagMap" WHERE blog_id = $1;`, [blogId]);
+
+    const normalizedTags = [...new Set(tags.map((tag) => tag.trim()).filter(Boolean))];
+    for (const tag of normalizedTags) {
+      const slug = this.blogSlug(tag);
+      const tagType = ["vocabulary", "grammar", "reading", "listening"].includes(slug)
+        ? "skill"
+        : /^n[1-5]$/.test(slug)
+          ? "jlpt_level"
+          : "topic";
+      const tagResult = await client.query(
+        `
+          INSERT INTO "BlogTag" (name, slug, tag_type, created_at, updated_at)
+          VALUES ($1, $2, $3, NOW(), NOW())
+          ON CONFLICT (name) DO UPDATE
+          SET updated_at = "BlogTag".updated_at
+          RETURNING tag_id;
+        `,
+        [tag, slug.toUpperCase().startsWith("N") ? slug.toUpperCase() : slug, tagType]
+      );
+      await client.query(
+        `
+          INSERT INTO "BlogTagMap" (blog_id, tag_id, created_at)
+          VALUES ($1, $2, NOW())
+          ON CONFLICT (blog_id, tag_id) DO NOTHING;
+        `,
+        [blogId, tagResult.rows[0].tag_id]
+      );
+    }
+  }
+
+  private async getBlogById(blogId: number, ownerId?: number) {
+    const values: unknown[] = [blogId];
+    if (ownerId) values.push(ownerId);
+
+    const result = await databaseService.executeQuery(
+      `
+        SELECT b.blog_id, b.title, b.slug, b.excerpt, b.content, b.category_id,
+               bc.name AS category, bc.slug AS category_slug,
+               b.cover_asset_id, b.image_url, b.video_asset_id, b.video_url, b.status, b.author_id, u.username AS author_username,
+               b.published_at, b.created_at, b.updated_at,
+               COALESCE(
+                 json_agg(json_build_object('tag_id', bt.tag_id, 'name', bt.name, 'slug', bt.slug, 'tag_type', bt.tag_type) ORDER BY bt.name)
+                 FILTER (WHERE bt.tag_id IS NOT NULL),
+                 '[]'::json
+               ) AS tags
+        FROM "Blog" b
+        LEFT JOIN "BlogCategory" bc ON bc.category_id = b.category_id
+        LEFT JOIN "User" u ON u.user_id = b.author_id
+        LEFT JOIN "BlogTagMap" btm ON btm.blog_id = b.blog_id
+        LEFT JOIN "BlogTag" bt ON bt.tag_id = btm.tag_id
+        WHERE b.blog_id = $1
+          AND b.deleted_at IS NULL
+          ${ownerId ? "AND b.author_id = $2" : ""}
+        GROUP BY b.blog_id, bc.category_id, u.username;
+      `,
+      values
+    );
+    return result.rows[0] || null;
+  }
+
   async createBlog(input: {
     title: string;
     slug: string;
     excerpt: string | null;
     content: string | null;
-    category: string | null;
+    category_name: string | null;
+    tags?: string[];
     cover_asset_id: number | null;
     image_url: string | null;
+    video_asset_id: number | null;
+    video_url: string | null;
     status: BlogStatus;
     author_id: number;
   }) {
@@ -1992,15 +2097,28 @@ export class AdminModel {
       throw new Error('Blog table is not available. Create the "Blog" table from erd.sql first.');
     }
 
-    const result = await databaseService.executeQuery(
-      `
-        INSERT INTO "Blog" (title, slug, excerpt, content, category, cover_asset_id, image_url, status, author_id, published_at, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CASE WHEN $8 = 'published' THEN NOW() ELSE NULL END, NOW(), NOW())
-        RETURNING blog_id, title, slug, excerpt, content, category, cover_asset_id, image_url, status, author_id, published_at, created_at, updated_at;
-      `,
-      [input.title, input.slug, input.excerpt, input.content, input.category, input.cover_asset_id, input.image_url, input.status, input.author_id]
-    );
-    return result.rows[0];
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const categoryId = await this.ensureBlogCategory(client, input.category_name);
+      const result = await client.query(
+        `
+          INSERT INTO "Blog" (title, slug, excerpt, content, category_id, cover_asset_id, image_url, video_asset_id, video_url, status, author_id, published_at, created_at, updated_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CASE WHEN $12::text = 'published' THEN NOW() ELSE NULL END, NOW(), NOW())
+          RETURNING blog_id;
+        `,
+        [input.title, input.slug, input.excerpt, input.content, categoryId, input.cover_asset_id, input.image_url, input.video_asset_id, input.video_url, input.status, input.author_id, input.status]
+      );
+      const blogId = result.rows[0].blog_id;
+      await this.replaceBlogTags(client, blogId, input.tags);
+      await client.query("COMMIT");
+      return await this.getBlogById(blogId);
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   async updateBlog(
@@ -2010,9 +2128,12 @@ export class AdminModel {
       slug: string;
       excerpt: string | null;
       content: string | null;
-      category: string | null;
+      category_name: string | null;
+      tags: string[];
       cover_asset_id: number | null;
       image_url: string | null;
+      video_asset_id: number | null;
+      video_url: string | null;
       status: BlogStatus;
     }>,
     ownerId?: number
@@ -2021,38 +2142,83 @@ export class AdminModel {
       throw new Error('Blog table is not available. Create the "Blog" table from erd.sql first.');
     }
 
-    const updates: string[] = [];
-    const values: unknown[] = [];
-    const fields = ["title", "slug", "excerpt", "content", "category", "cover_asset_id", "image_url", "status"] as const;
-    let statusParamIndex: number | null = null;
-
-    fields.forEach((field) => {
-      if (!isUndefined(input[field])) {
-        values.push(input[field]);
-        if (field === "status") statusParamIndex = values.length;
-        updates.push(`${field} = $${values.length}`);
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const existing = await client.query(
+        `SELECT blog_id FROM "Blog" WHERE blog_id = $1 AND deleted_at IS NULL ${ownerId ? "AND author_id = $2" : ""};`,
+        ownerId ? [blogId, ownerId] : [blogId]
+      );
+      if (!existing.rowCount) {
+        await client.query("ROLLBACK");
+        return null;
       }
-    });
 
-    if (!updates.length) return null;
-    values.push(blogId);
-    if (ownerId) values.push(ownerId);
+      const updates: string[] = [];
+      const values: unknown[] = [];
+      const fields = ["title", "slug", "excerpt", "content", "cover_asset_id", "image_url", "video_asset_id", "video_url", "status"] as const;
+      let statusParamIndex: number | null = null;
+
+      fields.forEach((field) => {
+        if (!isUndefined(input[field])) {
+          values.push(input[field]);
+          if (field === "status") statusParamIndex = values.length;
+          updates.push(`${field} = $${values.length}`);
+        }
+      });
+
+      if (!isUndefined(input.category_name)) {
+        values.push(await this.ensureBlogCategory(client, input.category_name));
+        updates.push(`category_id = $${values.length}`);
+      }
+
+      if (updates.length) {
+        let publishStatusParam = "FALSE";
+        if (statusParamIndex) {
+          values.push(input.status);
+          publishStatusParam = `$${values.length}::text = 'published'`;
+        }
+        values.push(blogId);
+        await client.query(
+          `
+            UPDATE "Blog"
+            SET ${updates.join(", ")},
+                published_at = CASE
+                  WHEN published_at IS NULL AND ${publishStatusParam} THEN NOW()
+                  ELSE published_at
+                END,
+                updated_at = NOW()
+            WHERE blog_id = $${values.length}
+              AND deleted_at IS NULL;
+          `,
+          values
+        );
+      }
+
+      await this.replaceBlogTags(client, blogId, input.tags);
+      await client.query("COMMIT");
+      return await this.getBlogById(blogId, ownerId);
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async deleteBlog(blogId: number, ownerId?: number): Promise<boolean> {
     const result = await databaseService.executeQuery(
       `
         UPDATE "Blog"
-        SET ${updates.join(", ")},
-            published_at = CASE
-              WHEN published_at IS NULL AND ${statusParamIndex ? `$${statusParamIndex} = 'published'` : "FALSE"} THEN NOW()
-              ELSE published_at
-            END,
+        SET deleted_at = COALESCE(deleted_at, NOW()),
             updated_at = NOW()
-        WHERE blog_id = $${ownerId ? values.length - 1 : values.length}
-          ${ownerId ? `AND author_id = $${values.length}` : ""}
-        RETURNING blog_id, title, slug, excerpt, content, category, cover_asset_id, image_url, status, author_id, published_at, created_at, updated_at;
+        WHERE blog_id = $1
+          AND deleted_at IS NULL
+          ${ownerId ? "AND author_id = $2" : ""};
       `,
-      values
+      ownerId ? [blogId, ownerId] : [blogId]
     );
-    return result.rows[0] || null;
+    return Boolean(result.rowCount);
   }
 }
 
