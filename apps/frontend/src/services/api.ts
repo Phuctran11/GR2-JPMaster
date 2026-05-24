@@ -1443,6 +1443,101 @@ export const blogAPI = {
   },
 };
 
+export interface AnalyticsSummary {
+  active_courses: number;
+  completed_courses: number;
+  completed_lessons: number;
+  quiz_attempts: number;
+  jlpt_attempts: number;
+  average_quiz_score: number;
+  average_jlpt_score: number;
+  total_study_seconds: number;
+  study_seconds_this_week: number;
+  study_seconds_this_month: number;
+}
+
+export interface StudyTimePoint {
+  study_date: string;
+  duration_seconds: number;
+}
+
+export interface AnalyticsAttempt {
+  attempt_id: number;
+  quiz_id?: number;
+  exam_id?: number;
+  title: string;
+  quiz_type?: string | null;
+  jlpt_level?: string | null;
+  score: number | null;
+  total_marks: number | null;
+  status: string;
+  started_at: string;
+  submitted_at: string | null;
+}
+
+export type LearningGoalType = 'lessons_per_day' | 'quizzes_per_day' | 'study_minutes_per_day' | 'jlpt_tests_per_week';
+export type LearningGoalPeriod = 'daily' | 'weekly' | 'monthly';
+
+export interface LearningGoal {
+  goal_id: number;
+  user_id: number;
+  goal_type: LearningGoalType;
+  target_value: number;
+  period: LearningGoalPeriod;
+  start_date: string;
+  end_date: string | null;
+  is_active: boolean;
+  current_value?: number;
+  completed_today?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Achievement {
+  achievement_id: number;
+  code: string;
+  name: string;
+  description: string | null;
+  badge_icon: string | null;
+  badge_color: string | null;
+  achievement_type: string;
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum';
+  condition_key: string;
+  condition_value: number;
+  earned_at: string | null;
+  current_value: number;
+}
+
+const authJsonRequest = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
+  const response = await authenticatedFetch(`${API_BASE_URL}${path}`, options);
+  if (!response.ok) {
+    if (response.status === 401) throw new Error('Unauthorized - Please login first');
+    throw new Error(await getApiErrorMessage(response, 'Request failed'));
+  }
+  return response.json();
+};
+
+export const analyticsAPI = {
+  getSummary: () => authJsonRequest<{ data: AnalyticsSummary }>('/analytics/me/summary'),
+  getStudyTime: (range: '7d' | '30d' | '90d' = '30d') => authJsonRequest<{ data: StudyTimePoint[] }>(`/analytics/me/study-time?range=${range}`),
+  getQuizPerformance: () => authJsonRequest<{ data: AnalyticsAttempt[] }>('/analytics/me/quiz-performance'),
+  getJlptPerformance: () => authJsonRequest<{ data: AnalyticsAttempt[] }>('/analytics/me/jlpt-performance'),
+};
+
+export const goalAPI = {
+  getGoals: () => authJsonRequest<{ data: LearningGoal[] }>('/goals/me'),
+  createGoal: (payload: { goal_type: LearningGoalType; target_value: number; period: LearningGoalPeriod }) =>
+    authJsonRequest<{ message: string; data: LearningGoal }>('/goals', { method: 'POST', body: JSON.stringify(payload) }),
+  updateGoal: (goalId: number, payload: Partial<{ goal_type: LearningGoalType; target_value: number; period: LearningGoalPeriod; is_active: boolean }>) =>
+    authJsonRequest<{ message: string; data: LearningGoal }>(`/goals/${goalId}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteGoal: (goalId: number) =>
+    authJsonRequest<{ message: string }>(`/goals/${goalId}`, { method: 'DELETE' }),
+};
+
+export const achievementAPI = {
+  getMine: () => authJsonRequest<{ data: Achievement[] }>('/achievements/me'),
+};
+
 /**
  * Enrollment API endpoints
  * Handles course enrollment, access tracking, and enrollment status
@@ -1600,6 +1695,34 @@ export const enrollmentAPI = {
       }
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch next lesson');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Mark a lesson as started
+   */
+  async markLessonStarted(
+    courseId: number,
+    lessonId: number
+  ): Promise<{
+    message: string;
+    data: {
+      lesson_id: number;
+      started: boolean;
+    };
+  }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/enrollments/course/${courseId}/lessons/${lessonId}/start`, {
+      method: 'PUT',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Unauthorized - Please login first');
+      }
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to start lesson progress');
     }
 
     return response.json();

@@ -4,6 +4,7 @@ import quizModel from "../models/quiz.model.js";
 import enrollmentModel from "../models/enrollment.model.js";
 import courseModel from "../models/course.model.js";
 import certificateModel from "../models/certificate.model.js";
+import learningActivityService from "../services/learningActivity.service.js";
 
 export class QuizController {
   async startQuiz(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -123,6 +124,8 @@ export class QuizController {
           }
         }
       }
+
+      await learningActivityService.recordQuizSubmitted(req.user.user_id, Number(quizId), result.score);
 
       return res.status(201).json({
         message: result.passed ? "Quiz passed" : "Quiz submitted",
