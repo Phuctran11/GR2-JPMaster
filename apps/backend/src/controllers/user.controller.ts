@@ -7,6 +7,7 @@ import tokenService from "../services/token.service.js";
 
 type UserRole = "learner" | "owner" | "admin";
 const VALID_ROLES: UserRole[] = ["learner", "owner", "admin"];
+const MAX_AVATAR_URL_LENGTH = 2000;
 
 interface GoogleTokenInfo {
   aud?: string;
@@ -22,6 +23,31 @@ function createHttpError(message: string, status: number) {
   const error = new Error(message) as Error & { status: number };
   error.status = status;
   return error;
+}
+
+function normalizeAvatarUrl(value: unknown) {
+  if (value == null || value === "") return null;
+  if (typeof value !== "string") {
+    throw createHttpError("avatar_url must be a string", 400);
+  }
+
+  const avatarUrl = value.trim();
+  if (!avatarUrl) return null;
+  if (avatarUrl.length > MAX_AVATAR_URL_LENGTH) {
+    throw createHttpError("avatar_url is too long", 400);
+  }
+
+  try {
+    const parsed = new URL(avatarUrl);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      throw createHttpError("avatar_url must be an HTTP or HTTPS URL", 400);
+    }
+  } catch (error) {
+    if (error instanceof Error && "status" in error) throw error;
+    throw createHttpError("avatar_url must be a valid URL", 400);
+  }
+
+  return avatarUrl;
 }
 
 export class UserController {
@@ -58,7 +84,7 @@ export class UserController {
       if (!user) {
         // Create new user from Google
         const passwordHash = await passwordService.hashPassword(`google_oauth_${Date.now()}`);
-        user = await userModel.createUser(username, email, passwordHash, 'learner');
+        user = await userModel.createUser(username, email, passwordHash, 'learner', normalizeAvatarUrl(googleData.picture));
       }
 
       if (user.status !== "active") {
@@ -215,7 +241,7 @@ export class UserController {
         return res.status(401).json({ error: "User not authenticated" });
       }
 
-      const { username, email } = req.body;
+      const { username, email, avatar_url } = req.body;
       const nextUsername = typeof username === "string" ? username.trim() : "";
       const nextEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
 
@@ -228,7 +254,14 @@ export class UserController {
         return res.status(409).json({ error: "Email already exists" });
       }
 
-      const updatedUser = await userModel.updateUserProfile(req.user.user_id, nextUsername, nextEmail);
+      const currentUser = await userModel.getUserById(req.user.user_id);
+      if (!currentUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const nextAvatarUrl = avatar_url === undefined ? currentUser.avatar_url : normalizeAvatarUrl(avatar_url);
+
+      const updatedUser = await userModel.updateUserProfile(req.user.user_id, nextUsername, nextEmail, nextAvatarUrl);
       if (!updatedUser) {
         return res.status(404).json({ error: "User not found" });
       }

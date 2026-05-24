@@ -5,6 +5,7 @@ export interface User {
   username: string;
   email: string;
   password_hash: string;
+  avatar_url: string | null;
   role: "learner" | "owner" | "admin";
   status: "active" | "suspended" | "deleted";
   deleted_at: Date | null;
@@ -17,20 +18,21 @@ export class UserModel {
     username: string,
     email: string,
     passwordHash: string,
-    role: "learner" | "owner" | "admin" = "learner"
+    role: "learner" | "owner" | "admin" = "learner",
+    avatarUrl: string | null = null
   ): Promise<User> {
     const query = `
-      INSERT INTO "User" (username, email, password_hash, role, status, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, 'active', NOW(), NOW())
-      RETURNING user_id, username, email, password_hash, role, status, deleted_at, created_at, updated_at;
+      INSERT INTO "User" (username, email, password_hash, avatar_url, role, status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, 'active', NOW(), NOW())
+      RETURNING user_id, username, email, password_hash, avatar_url, role, status, deleted_at, created_at, updated_at;
     `;
-    const result = await databaseService.executeQuery(query, [username, email, passwordHash, role]);
+    const result = await databaseService.executeQuery(query, [username, email, passwordHash, avatarUrl, role]);
     return result.rows[0];
   }
 
   async getUserById(userId: number): Promise<User | null> {
     const query = `
-      SELECT user_id, username, email, password_hash, role, status, deleted_at, created_at, updated_at
+      SELECT user_id, username, email, password_hash, avatar_url, role, status, deleted_at, created_at, updated_at
       FROM "User"
       WHERE user_id = $1
         AND status <> 'deleted'
@@ -42,7 +44,7 @@ export class UserModel {
 
   async getAllUsers(limit: number = 10, offset: number = 0): Promise<User[]> {
     const query = `
-      SELECT user_id, username, email, password_hash, role, status, deleted_at, created_at, updated_at
+      SELECT user_id, username, email, password_hash, avatar_url, role, status, deleted_at, created_at, updated_at
       FROM "User"
       WHERE status <> 'deleted'
         AND deleted_at IS NULL
@@ -60,22 +62,22 @@ export class UserModel {
       WHERE user_id = $5
         AND status <> 'deleted'
         AND deleted_at IS NULL
-      RETURNING user_id, username, email, password_hash, role, status, deleted_at, created_at, updated_at;
+      RETURNING user_id, username, email, password_hash, avatar_url, role, status, deleted_at, created_at, updated_at;
     `;
     const result = await databaseService.executeQuery(query, [username, email, role, status, userId]);
     return result.rows[0] || null;
   }
 
-  async updateUserProfile(userId: number, username: string, email: string): Promise<User | null> {
+  async updateUserProfile(userId: number, username: string, email: string, avatarUrl: string | null): Promise<User | null> {
     const query = `
       UPDATE "User"
-      SET username = $1, email = $2, updated_at = NOW()
-      WHERE user_id = $3
+      SET username = $1, email = $2, avatar_url = $3, updated_at = NOW()
+      WHERE user_id = $4
         AND status = 'active'
         AND deleted_at IS NULL
-      RETURNING user_id, username, email, password_hash, role, status, deleted_at, created_at, updated_at;
+      RETURNING user_id, username, email, password_hash, avatar_url, role, status, deleted_at, created_at, updated_at;
     `;
-    const result = await databaseService.executeQuery(query, [username, email, userId]);
+    const result = await databaseService.executeQuery(query, [username, email, avatarUrl, userId]);
     return result.rows[0] || null;
   }
 
@@ -99,7 +101,7 @@ export class UserModel {
 
   async getUserByEmail(email: string): Promise<User | null> {
     const query = `
-      SELECT user_id, username, email, password_hash, role, status, deleted_at, created_at, updated_at
+      SELECT user_id, username, email, password_hash, avatar_url, role, status, deleted_at, created_at, updated_at
       FROM "User"
       WHERE email = $1
         AND status <> 'deleted'
@@ -111,7 +113,7 @@ export class UserModel {
 
   async getUserByEmailIncludingDeleted(email: string): Promise<User | null> {
     const query = `
-      SELECT user_id, username, email, password_hash, role, status, deleted_at, created_at, updated_at
+      SELECT user_id, username, email, password_hash, avatar_url, role, status, deleted_at, created_at, updated_at
       FROM "User"
       WHERE email = $1;
     `;

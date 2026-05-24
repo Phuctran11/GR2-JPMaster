@@ -22,6 +22,7 @@ interface AuthResponse {
     user_id: number;
     username: string;
     email: string;
+    avatar_url?: string | null;
     role: string;
   };
   token?: string;
@@ -31,6 +32,7 @@ export interface UserProfile {
   user_id: number;
   username: string;
   email: string;
+  avatar_url?: string | null;
   role: string;
   status?: 'active' | 'suspended' | 'deleted';
   deleted_at?: string | null;
@@ -130,7 +132,7 @@ export const userAPI = {
     return response.json();
   },
 
-  async updateMe(data: Pick<UserProfile, 'username' | 'email'>): Promise<{ message: string; data: UserProfile }> {
+  async updateMe(data: Pick<UserProfile, 'username' | 'email'> & { avatar_url?: string | null }): Promise<{ message: string; data: UserProfile }> {
     const response = await authenticatedFetch(`${API_BASE_URL}/users/me`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -605,6 +607,25 @@ export interface Purchase {
   purchase_date: string;
   price_paid: number;
   status: 'pending' | 'completed' | 'canceled';
+}
+
+export interface PaymentTransaction {
+  payment_transaction_id: number;
+  purchase_id: number;
+  course_id?: number;
+  provider?: 'payos';
+  provider_order_id?: string;
+  amount: number;
+  currency: string;
+  payment_content: string;
+  qr_image_url: string;
+  checkout_url: string | null;
+  status: 'pending' | 'paid' | 'failed' | 'canceled' | 'expired';
+  purchase_status?: Purchase['status'];
+  paid_at: string | null;
+  expired_at: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const courseAPI = {
@@ -1536,6 +1557,49 @@ export const goalAPI = {
 
 export const achievementAPI = {
   getMine: () => authJsonRequest<{ data: Achievement[] }>('/achievements/me'),
+};
+
+export const paymentAPI = {
+  async createPayOsCoursePayment(courseId: number): Promise<{
+    message: string;
+    data: {
+      payment_required: boolean;
+      purchase: Purchase;
+      transaction?: PaymentTransaction;
+      enrollment?: any;
+      course?: {
+        course_id: number;
+        title: string;
+        price: number;
+      };
+    };
+  }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/payments/courses/${courseId}/payos`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create payment');
+    }
+
+    return response.json();
+  },
+
+  async getPaymentStatus(transactionId: number): Promise<{ data: PaymentTransaction }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/payments/${transactionId}/status`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error('Unauthorized - Please login first');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch payment status');
+    }
+
+    return response.json();
+  },
 };
 
 /**

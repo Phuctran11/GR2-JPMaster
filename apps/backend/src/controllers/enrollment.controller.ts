@@ -178,11 +178,18 @@ export class EnrollmentController {
         return res.status(409).json({ error: "User already enrolled in this course" });
       }
 
+      if (Number(course.price) > 0) {
+        return res.status(402).json({
+          error: "This course requires payment. Please create a payOS payment before enrolling.",
+          payment_required: true,
+        });
+      }
+
       // 1. Create enrollment record
       const enrollment = await enrollmentModel.enrollUser(req.user.user_id, Number(course_id), "active");
 
-      // 2. Create purchase record (if course is paid)
-      const finalPrice = price_paid || Number(course.price);
+      // 2. Create purchase record for free course access
+      const finalPrice = price_paid || 0;
       const purchase = await purchaseModel.createPurchase(
         req.user.user_id,
         Number(course_id),

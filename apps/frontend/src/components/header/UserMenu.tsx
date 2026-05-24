@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../ui';
 import { useAuth } from '../../contexts/AuthContext';
@@ -6,6 +6,7 @@ import { useToastMessages } from '../../hooks/useToastMessages';
 
 export function UserMenu() {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const toastMessages = useToastMessages();
@@ -16,15 +17,41 @@ export function UserMenu() {
     navigate('/login');
   };
 
+  useEffect(() => {
+    if (!showUserMenu) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target;
+      if (target instanceof Node && menuRef.current?.contains(target)) return;
+      setShowUserMenu(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showUserMenu]);
+
   return (
-    <div className="relative">
+    <div ref={menuRef} className="relative">
       <button
         onClick={() => setShowUserMenu(!showUserMenu)}
         className="flex items-center hover:opacity-80 transition-all group"
       >
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-on-primary font-bold text-sm group-hover:shadow-lg group-hover:shadow-primary/30 transition-all">
-          {user?.username.charAt(0).toUpperCase()}
-        </div>
+        {user?.avatar_url ? (
+          <img
+            src={user.avatar_url}
+            alt={`${user.username} avatar`}
+            className="h-10 w-10 rounded-full border border-outline-variant object-cover transition-all group-hover:shadow-lg group-hover:shadow-primary/30"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-on-primary font-bold text-sm group-hover:shadow-lg group-hover:shadow-primary/30 transition-all">
+            {user?.username.charAt(0).toUpperCase()}
+          </div>
+        )}
       </button>
 
       {showUserMenu && (
