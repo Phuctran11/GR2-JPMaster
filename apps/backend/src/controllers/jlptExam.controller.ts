@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 import jlptExamModel from "../models/jlptExam.model.js";
+import learningActivityService from "../services/learningActivity.service.js";
 
 const validLevels = ["N1", "N2", "N3", "N4", "N5", "All"];
 const validSections = ["all", "vocabulary", "grammar", "reading", "listening"];
@@ -46,6 +47,7 @@ export class JlptExamController {
 
       const data = await jlptExamModel.submitExam(req.user.user_id, examId, req.body.answers);
       if (!data) return res.status(404).json({ error: "JLPT exam not found" });
+      await learningActivityService.recordJlptSubmitted(req.user.user_id, examId, data.score);
       return res.status(201).json({ message: data.passed ? "JLPT test passed" : "JLPT test submitted", data });
     } catch (error) {
       next(error);

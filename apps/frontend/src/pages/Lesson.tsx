@@ -431,6 +431,29 @@ export default function Lesson() {
     };
   }, [currentLesson]);
 
+  useEffect(() => {
+    if (!courseId || !currentLesson || currentLesson.is_completed) {
+      return;
+    }
+
+    let active = true;
+    const startLessonProgress = async () => {
+      try {
+        await enrollmentAPI.markLessonStarted(parseInt(courseId), currentLesson.lesson_id);
+      } catch (error) {
+        if (active) {
+          console.warn(error instanceof Error ? error.message : 'Failed to start lesson progress');
+        }
+      }
+    };
+
+    startLessonProgress();
+
+    return () => {
+      active = false;
+    };
+  }, [courseId, currentLesson]);
+
   const handleMarkCompleted = useCallback(async () => {
     if (!courseId || !currentLesson || actionLoading) {
       return;
@@ -440,6 +463,9 @@ export default function Lesson() {
       setActionLoading('complete');
       setActionError(null);
       const result = await enrollmentAPI.markLessonCompleted(parseInt(courseId), currentLesson.lesson_id);
+      if (!result.data.completed) {
+        throw new Error('Failed to mark lesson as completed');
+      }
       setLessons((previousLessons) =>
         previousLessons.map((lesson) =>
           lesson.lesson_id === currentLesson.lesson_id

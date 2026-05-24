@@ -4,6 +4,7 @@ import enrollmentModel from "../models/enrollment.model.js";
 import purchaseModel from "../models/purchase.model.js";
 import courseModel from "../models/course.model.js";
 import quizModel from "../models/quiz.model.js";
+import learningActivityService from "../services/learningActivity.service.js";
 
 export class EnrollmentController {
   private async getEffectiveEnrollmentStatus(
@@ -391,6 +392,45 @@ export class EnrollmentController {
   }
 
   /**
+   * Mark a lesson as started for the authenticated user
+   *
+   * @route PUT /api/enrollments/course/:courseId/lessons/:lessonId/start
+   */
+  async markLessonStarted(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      const { courseId, lessonId } = req.params;
+
+      if (!courseId || isNaN(Number(courseId)) || !lessonId || isNaN(Number(lessonId))) {
+        return res.status(400).json({ error: "Invalid course ID or lesson ID" });
+      }
+
+      const hasAccess = await enrollmentModel.checkUserCourseAccess(req.user.user_id, Number(courseId));
+      if (!hasAccess) {
+        return res.status(403).json({ error: "You are not enrolled in this course" });
+      }
+
+      const updated = await enrollmentModel.markLessonStarted(req.user.user_id, Number(courseId), Number(lessonId));
+      if (!updated) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      return res.status(200).json({
+        message: "Lesson progress started",
+        data: {
+          lesson_id: Number(lessonId),
+          started: true,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Mark a lesson as completed for the authenticated user
    *
    * @route PUT /api/enrollments/course/:courseId/lessons/:lessonId/complete
@@ -427,6 +467,10 @@ export class EnrollmentController {
       }
 
       const updated = await enrollmentModel.markLessonCompleted(req.user.user_id, Number(lessonId));
+      if (!updated) {
+        return res.status(500).json({ error: "Failed to mark lesson as completed" });
+      }
+
       const progressSummary = await courseModel.getCourseProgressSummary(req.user.user_id, Number(courseId));
       const courseCompleted = progressSummary.totalLessons > 0 && progressSummary.completedLessons === progressSummary.totalLessons;
       const finalQuiz = await quizModel.getFinalQuiz(Number(courseId), req.user.user_id);
@@ -435,6 +479,9 @@ export class EnrollmentController {
       if (courseCompleted && finalQuizPassed) {
         await enrollmentModel.updateEnrollmentStatusByUserAndCourse(req.user.user_id, Number(courseId), "completed");
       }
+
+      const lessonDurationSeconds = lesson.duration ? lesson.duration * 60 : undefined;
+      await learningActivityService.recordLessonCompleted(req.user.user_id, Number(courseId), Number(lessonId), lessonDurationSeconds);
 
       return res.status(200).json({
         message: "Lesson marked as completed",

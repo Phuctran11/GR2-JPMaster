@@ -30,6 +30,10 @@ router.get("/course/:courseId/next-lesson", authMiddleware, (req, res, next) =>
 );
 
 // Mark lesson as completed
+router.put("/course/:courseId/lessons/:lessonId/start", authMiddleware, (req, res, next) =>
+  enrollmentController.markLessonStarted(req, res, next)
+);
+
 router.put("/course/:courseId/lessons/:lessonId/complete", authMiddleware, (req, res, next) =>
   enrollmentController.markLessonCompleted(req, res, next)
 );

@@ -449,3 +449,111 @@ CREATE TABLE "UserLessonProgress" (
 
 CREATE INDEX idx_user_lesson_progress_user_status ON "UserLessonProgress"(user_id, status);
 CREATE INDEX idx_user_lesson_progress_lesson ON "UserLessonProgress"(lesson_id);
+CREATE INDEX idx_user_lesson_progress_user_completed_at ON "UserLessonProgress"(user_id, completed_at);
+CREATE INDEX idx_user_lesson_progress_user_completed ON "UserLessonProgress"(user_id, completed);
+CREATE INDEX idx_user_lesson_progress_completed_at
+    ON "UserLessonProgress"(completed_at)
+    WHERE completed = TRUE OR status = 'completed';
+
+CREATE TABLE "StudySession" (
+    session_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
+    course_id INT REFERENCES "Course"(course_id) ON DELETE SET NULL,
+    lesson_id INT REFERENCES "Lesson"(lesson_id) ON DELETE SET NULL,
+    quiz_id INT REFERENCES "Quiz"(quiz_id) ON DELETE SET NULL,
+    jlpt_exam_id INT REFERENCES "JLPTExam"(exam_id) ON DELETE SET NULL,
+    activity_type VARCHAR(30) NOT NULL CHECK (
+        activity_type IN ('lesson', 'quiz', 'jlpt_test', 'flashcard', 'review')
+    ),
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP,
+    duration_seconds INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_study_session_user_time ON "StudySession"(user_id, started_at);
+CREATE INDEX idx_study_session_user_type ON "StudySession"(user_id, activity_type);
+CREATE INDEX idx_study_session_course ON "StudySession"(course_id);
+CREATE INDEX idx_study_session_lesson ON "StudySession"(lesson_id);
+CREATE INDEX idx_study_session_quiz ON "StudySession"(quiz_id);
+CREATE INDEX idx_study_session_jlpt_exam ON "StudySession"(jlpt_exam_id);
+
+CREATE TABLE "LearningGoal" (
+    goal_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
+    goal_type VARCHAR(30) NOT NULL CHECK (
+        goal_type IN (
+            'lessons_per_day',
+            'quizzes_per_day',
+            'study_minutes_per_day',
+            'jlpt_tests_per_week'
+        )
+    ),
+    target_value INT NOT NULL CHECK (target_value > 0),
+    period VARCHAR(20) NOT NULL CHECK (period IN ('daily', 'weekly', 'monthly')),
+    start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    end_date DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_learning_goal_user_active ON "LearningGoal"(user_id, is_active);
+CREATE INDEX idx_learning_goal_user_type ON "LearningGoal"(user_id, goal_type);
+CREATE INDEX idx_learning_goal_active_window ON "LearningGoal"(user_id, goal_type, start_date, end_date)
+    WHERE is_active = TRUE;
+CREATE INDEX idx_learning_goal_user_period ON "LearningGoal"(user_id, period);
+
+CREATE TABLE "GoalProgress" (
+    progress_id SERIAL PRIMARY KEY,
+    goal_id INT NOT NULL REFERENCES "LearningGoal"(goal_id) ON DELETE CASCADE,
+    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
+    progress_date DATE NOT NULL,
+    actual_value INT DEFAULT 0 CHECK (actual_value >= 0),
+    target_value INT NOT NULL CHECK (target_value > 0),
+    completed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (goal_id, progress_date)
+);
+
+CREATE INDEX idx_goal_progress_user_date ON "GoalProgress"(user_id, progress_date);
+CREATE INDEX idx_goal_progress_goal_date ON "GoalProgress"(goal_id, progress_date);
+CREATE INDEX idx_goal_progress_completed ON "GoalProgress"(completed);
+CREATE INDEX idx_goal_progress_user_completed_date ON "GoalProgress"(user_id, completed, progress_date);
+
+CREATE TABLE "Achievement" (
+    achievement_id SERIAL PRIMARY KEY,
+    code VARCHAR(80) UNIQUE NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    description TEXT,
+    badge_icon VARCHAR(80),
+    badge_color VARCHAR(30),
+    achievement_type VARCHAR(30) NOT NULL CHECK (
+        achievement_type IN ('streak', 'lesson', 'quiz', 'score', 'time', 'goal', 'jlpt', 'course')
+    ),
+    tier VARCHAR(20) NOT NULL DEFAULT 'bronze' CHECK (
+        tier IN ('bronze', 'silver', 'gold', 'platinum')
+    ),
+    condition_key VARCHAR(80) NOT NULL,
+    condition_value INT NOT NULL CHECK (condition_value > 0),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_achievement_type ON "Achievement"(achievement_type);
+CREATE INDEX idx_achievement_tier ON "Achievement"(tier);
+CREATE INDEX idx_achievement_condition ON "Achievement"(condition_key, condition_value);
+CREATE INDEX idx_achievement_type_condition ON "Achievement"(achievement_type, condition_key, condition_value);
+
+CREATE TABLE "UserAchievement" (
+    user_achievement_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
+    achievement_id INT NOT NULL REFERENCES "Achievement"(achievement_id) ON DELETE CASCADE,
+    earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metadata JSONB,
+    UNIQUE (user_id, achievement_id)
+);
+
+CREATE INDEX idx_user_achievement_user ON "UserAchievement"(user_id);
+CREATE INDEX idx_user_achievement_achievement ON "UserAchievement"(achievement_id);
+CREATE INDEX idx_user_achievement_earned_at ON "UserAchievement"(earned_at);
