@@ -372,9 +372,30 @@ export default function Lesson() {
   );
 
   const handleAskAIAboutSelection = useCallback((selectedText: string) => {
-    setAiSelectedText(selectedText);
+    setAiSelectedText(selectedText.trim() || null);
     setIsAiAssistantOpen(true);
   }, []);
+
+  const openAiAssistantWithoutSelection = useCallback(() => {
+    setAiSelectedText(null);
+    window.getSelection()?.removeAllRanges();
+    setIsAiAssistantOpen(true);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('jpmaster:open-lesson-ai', openAiAssistantWithoutSelection);
+    return () => window.removeEventListener('jpmaster:open-lesson-ai', openAiAssistantWithoutSelection);
+  }, [openAiAssistantWithoutSelection]);
+
+  const closeAiAssistant = useCallback(() => {
+    setIsAiAssistantOpen(false);
+  }, []);
+
+  useEffect(() => {
+    setAiSelectedText(null);
+    setIsAiAssistantOpen(false);
+    window.getSelection()?.removeAllRanges();
+  }, [lessonId]);
 
   useEffect(() => {
     if (!courseId || !currentLesson) {
@@ -997,16 +1018,6 @@ export default function Lesson() {
         </main>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setIsAiAssistantOpen(true)}
-        className="fixed bottom-6 right-6 z-[80] inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-xl shadow-primary/25 transition hover:scale-105 hover:shadow-2xl"
-        title="Open AI assistant"
-        aria-label="Open AI assistant"
-      >
-        <span className="material-symbols-outlined text-[28px]">auto_awesome</span>
-      </button>
-
       {isAiAssistantOpen && (
         <div className="fixed inset-0 z-[100] flex justify-end bg-black/45 p-3 sm:p-5" role="dialog" aria-modal="true">
           <div className="flex h-full w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
@@ -1017,7 +1028,7 @@ export default function Lesson() {
               </div>
               <button
                 type="button"
-                onClick={() => setIsAiAssistantOpen(false)}
+                onClick={closeAiAssistant}
                 className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container"
                 aria-label="Close AI assistant"
               >

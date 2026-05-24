@@ -6,6 +6,7 @@ import { Heading, Text } from '../components/ui/Typography';
 import {
   achievementAPI,
   analyticsAPI,
+  assetAPI,
   enrollmentAPI,
   goalAPI,
   userAPI,
@@ -53,6 +54,39 @@ const goalTypeLabels: Record<LearningGoalType, string> = {
   quizzes_per_day: 'Quizzes per day',
   study_minutes_per_day: 'Study minutes per day',
   jlpt_tests_per_week: 'JLPT tests per week',
+};
+
+const getGoalVisualState = (goal: LearningGoal) => {
+  if (!goal.is_active) {
+    return {
+      label: 'Disabled',
+      icon: 'pause_circle',
+      card: 'border-outline-variant bg-surface-container-low opacity-75',
+      badge: 'border-outline-variant bg-surface text-on-surface-variant',
+      iconShell: 'bg-outline-variant/35 text-on-surface-variant',
+      progress: 'bg-outline-variant',
+    };
+  }
+
+  if (goal.completed_today) {
+    return {
+      label: 'Completed',
+      icon: 'check_circle',
+      card: 'border-emerald-300 bg-emerald-50 shadow-sm',
+      badge: 'border-emerald-300 bg-emerald-100 text-emerald-800',
+      iconShell: 'bg-emerald-600 text-white',
+      progress: 'bg-emerald-600',
+    };
+  }
+
+  return {
+    label: 'In progress',
+    icon: 'radio_button_unchecked',
+    card: 'border-amber-300 bg-amber-50 shadow-sm',
+    badge: 'border-amber-300 bg-amber-100 text-amber-800',
+    iconShell: 'bg-amber-500 text-on-surface',
+    progress: 'bg-amber-500',
+  };
 };
 
 const formatMinutes = (seconds: number) => {
@@ -146,8 +180,10 @@ export default function Profile() {
   const [enrollments, setEnrollments] = useState<EnrolledCourse[]>([]);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [studyTime, setStudyTime] = useState<StudyTimePoint[]>([]);
@@ -188,6 +224,7 @@ export default function Profile() {
         setProfile(profileResult.data);
         setUsername(profileResult.data.username);
         setEmail(profileResult.data.email);
+        setAvatarUrl(profileResult.data.avatar_url ?? '');
         setEnrollments(enrollmentResult.data);
         setSummary(summaryResult.data);
         setStudyTime(studyTimeResult.data);
@@ -219,36 +256,71 @@ export default function Profile() {
     return achievementTracks.filter((track) => track.key === achievementFilter);
   }, [achievementFilter, achievementTracks]);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const saveProfile = async (avatarUrlOverride?: string | null) => {
     const nextUsername = username.trim();
     const nextEmail = email.trim().toLowerCase();
+    const nextAvatarUrl = avatarUrlOverride === undefined ? avatarUrl.trim() || null : avatarUrlOverride;
 
     if (!nextUsername || !nextEmail) {
       addToast('Username and email are required', 'error');
-      return;
+      return null;
     }
+
+    const result = await userAPI.updateMe({
+      username: nextUsername,
+      email: nextEmail,
+      avatar_url: nextAvatarUrl,
+    });
+
+    setProfile(result.data);
+    setUsername(result.data.username);
+    setEmail(result.data.email);
+    setAvatarUrl(result.data.avatar_url ?? '');
+    updateUser({
+      user_id: result.data.user_id,
+      username: result.data.username,
+      email: result.data.email,
+      avatar_url: result.data.avatar_url ?? null,
+      role: result.data.role,
+    });
+
+    return result.data;
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
     try {
       setSaving(true);
-      const result = await userAPI.updateMe({
-        username: nextUsername,
-        email: nextEmail,
-      });
-
-      setProfile(result.data);
-      setUsername(result.data.username);
-      setEmail(result.data.email);
-      updateUser({
-        user_id: result.data.user_id,
-        username: result.data.username,
-        email: result.data.email,
-        role: result.data.role,
-      });
-      addToast('Profile updated successfully', 'success');
+      const updated = await saveProfile();
+      if (updated) addToast('Profile updated successfully', 'success');
     } catch (error) {
       addToast(error instanceof Error ? error.message : 'Failed to update profile', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (file: File) => {
+    try {
+      setAvatarUploading(true);
+      const uploaded = await assetAPI.upload({ file, media_kind: 'image', scope: 'avatars' });
+      const updated = await saveProfile(uploaded.data.secure_url);
+      if (updated) addToast('Avatar updated successfully', 'success');
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : 'Failed to upload avatar', 'error');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    try {
+      setSaving(true);
+      const updated = await saveProfile(null);
+      if (updated) addToast('Avatar removed', 'success');
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : 'Failed to remove avatar', 'error');
     } finally {
       setSaving(false);
     }
@@ -315,9 +387,17 @@ export default function Profile() {
               <aside className="lg:col-span-4">
                 <Card className="overflow-hidden border border-outline-variant bg-surface">
                   <div className="bg-gradient-to-br from-primary to-secondary p-8 text-on-primary">
-                    <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white/40 bg-white/15 text-display-md font-bold shadow-xl">
-                      {profile.username.charAt(0).toUpperCase()}
-                    </div>
+                    {profile.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt={`${profile.username} avatar`}
+                        className="mb-5 h-24 w-24 rounded-full border-4 border-white/40 bg-white/15 object-cover shadow-xl"
+                      />
+                    ) : (
+                      <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white/40 bg-white/15 text-display-md font-bold shadow-xl">
+                        {profile.username.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <Heading level="h1" size="headline-lg" className="text-on-primary">
                       {profile.username}
                     </Heading>
@@ -370,6 +450,59 @@ export default function Profile() {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                      <label className="mb-2 block text-label-lg font-bold text-on-surface">
+                        Avatar
+                      </label>
+                      <div className="flex flex-col gap-4 rounded-xl border border-outline-variant bg-surface-container-low p-4 sm:flex-row sm:items-center">
+                        {avatarUrl ? (
+                          <img
+                            src={avatarUrl}
+                            alt="Avatar preview"
+                            className="h-20 w-20 shrink-0 rounded-full border border-outline-variant bg-surface object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-outline-variant bg-surface text-headline-md font-bold text-primary">
+                            {username.trim().charAt(0).toUpperCase() || 'U'}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1 space-y-3">
+                          <input
+                            value={avatarUrl}
+                            onChange={(event) => setAvatarUrl(event.target.value)}
+                            className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none transition-colors focus:border-primary"
+                            placeholder="https://example.com/avatar.jpg"
+                          />
+                          <div className="flex flex-wrap items-center gap-2">
+                            <label className={`inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-label-md font-bold text-on-primary hover:bg-primary/90 ${avatarUploading ? 'cursor-wait opacity-70' : 'cursor-pointer'}`}>
+                              <span className="material-symbols-outlined text-[18px]">{avatarUploading ? 'hourglass_empty' : 'upload'}</span>
+                              {avatarUploading ? 'Uploading...' : 'Upload image'}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                disabled={avatarUploading}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  if (file) void handleAvatarUpload(file);
+                                  event.currentTarget.value = '';
+                                }}
+                              />
+                            </label>
+                            {avatarUrl && (
+                              <button
+                                type="button"
+                                onClick={handleRemoveAvatar}
+                                disabled={saving || avatarUploading}
+                                className="rounded-lg border border-outline-variant px-4 py-2 text-label-md font-bold text-error hover:bg-error/10"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div>
                       <label htmlFor="username" className="mb-2 block text-label-lg font-bold text-on-surface">
                         Username
@@ -531,23 +664,41 @@ export default function Profile() {
                       <Button type="submit">Add Goal</Button>
                     </form>
                     <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                      {goals.map((goal) => (
-                        <div key={goal.goal_id} className={`rounded-xl border p-4 ${goal.is_active ? 'border-primary/25 bg-primary/5' : 'border-outline-variant bg-surface-container-low opacity-70'}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <h3 className="text-title-md font-bold text-on-surface">{goalTypeLabels[goal.goal_type]}</h3>
-                              <p className="text-body-md text-on-surface-variant">{goal.current_value ?? 0} / {goal.target_value} {goal.period}</p>
+                      {goals.map((goal) => {
+                        const visualState = getGoalVisualState(goal);
+                        const progressPercent = Math.min(100, ((goal.current_value ?? 0) / goal.target_value) * 100);
+
+                        return (
+                          <div key={goal.goal_id} className={`rounded-xl border p-4 transition-colors ${visualState.card}`}>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h3 className="text-title-md font-bold text-on-surface">{goalTypeLabels[goal.goal_type]}</h3>
+                                  <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-label-sm font-black uppercase ${visualState.badge}`}>
+                                    <span className="material-symbols-outlined text-[14px]">{visualState.icon}</span>
+                                    {visualState.label}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-body-md text-on-surface-variant">
+                                  {goal.current_value ?? 0} / {goal.target_value} {goal.period}
+                                </p>
+                              </div>
+                              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${visualState.iconShell}`}>
+                                <span className="material-symbols-outlined text-[22px]">{visualState.icon}</span>
+                              </span>
                             </div>
-                            {goal.completed_today && <span className="material-symbols-outlined text-primary">check_circle</span>}
+                            <div className="mt-4 h-2.5 rounded-full bg-surface">
+                              <div className={`h-full rounded-full ${visualState.progress}`} style={{ width: `${progressPercent}%` }} />
+                            </div>
+                            <div className="mt-3 flex items-center justify-between gap-3">
+                              <p className="text-label-md font-semibold text-on-surface-variant">{Math.round(progressPercent)}% complete</p>
+                              {goal.is_active && (
+                                <button type="button" className="text-label-md font-semibold text-error hover:underline" onClick={() => handleDisableGoal(goal.goal_id)}>Disable</button>
+                              )}
+                            </div>
                           </div>
-                          <div className="mt-4 h-2 rounded-full bg-surface-container">
-                            <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, ((goal.current_value ?? 0) / goal.target_value) * 100)}%` }} />
-                          </div>
-                          {goal.is_active && (
-                            <button type="button" className="mt-3 text-label-md font-semibold text-error" onClick={() => handleDisableGoal(goal.goal_id)}>Disable</button>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </Card>
                 )}

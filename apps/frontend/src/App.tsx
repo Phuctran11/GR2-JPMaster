@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { ToastContainer } from './components/Toast';
+import { JapaneseDictionaryWidget } from './components/JapaneseDictionaryWidget';
 import { Suspense, lazy } from 'react';
 
 const Homepage = lazy(() => import('./pages/Homepage'));
@@ -29,6 +30,7 @@ function App() {
       <ToastProvider>
         <BrowserRouter>
           <ToastContainer />
+          <JapaneseDictionaryWidget />
           <Suspense fallback={
             <div className="min-h-screen flex flex-col bg-background">
               <div className="mx-auto my-20 text-center">

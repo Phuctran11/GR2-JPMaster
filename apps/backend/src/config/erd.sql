@@ -3,6 +3,7 @@ CREATE TABLE "User" (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    avatar_url TEXT,
     role VARCHAR(20) NOT NULL CHECK (role IN ('learner', 'owner', 'admin')),
     status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'deleted')),
     deleted_at TIMESTAMP,
@@ -394,6 +395,35 @@ CREATE TABLE "Purchase" (
 CREATE INDEX idx_purchase_user ON "Purchase"(user_id);
 CREATE INDEX idx_purchase_course ON "Purchase"(course_id);
 CREATE INDEX idx_purchase_status ON "Purchase"(status);
+CREATE INDEX idx_purchase_user_course_status ON "Purchase"(user_id, course_id, status);
+
+CREATE TABLE "PaymentTransaction" (
+    payment_transaction_id SERIAL PRIMARY KEY,
+    purchase_id INT NOT NULL REFERENCES "Purchase"(purchase_id) ON DELETE CASCADE,
+    provider VARCHAR(30) NOT NULL CHECK (provider IN ('payos')),
+    provider_order_id VARCHAR(100) UNIQUE NOT NULL,
+    order_code BIGINT UNIQUE,
+    provider_payment_link_id VARCHAR(120),
+    amount NUMERIC(12, 2) NOT NULL,
+    currency VARCHAR(10) DEFAULT 'VND',
+    payment_content VARCHAR(100) NOT NULL,
+    qr_image_url TEXT NOT NULL,
+    checkout_url TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (
+        status IN ('pending', 'paid', 'failed', 'canceled', 'expired')
+    ),
+    paid_at TIMESTAMP,
+    expired_at TIMESTAMP,
+    raw_response JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_payment_transaction_purchase ON "PaymentTransaction"(purchase_id);
+CREATE INDEX idx_payment_transaction_provider_order ON "PaymentTransaction"(provider, provider_order_id);
+CREATE INDEX idx_payment_transaction_order_code ON "PaymentTransaction"(order_code);
+CREATE INDEX idx_payment_transaction_status ON "PaymentTransaction"(status);
+CREATE INDEX idx_payment_transaction_expired_at ON "PaymentTransaction"(expired_at);
 
 CREATE TABLE "CourseEnrollment" (
     enrollment_id SERIAL PRIMARY KEY,

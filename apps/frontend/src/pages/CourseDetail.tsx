@@ -3,11 +3,30 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Header, Footer, Button, Card, Container, Breadcrumbs } from '../components';
 import { ImageCard } from '../components/ui';
 import { Heading, Text } from '../components/ui/Typography';
-import { courseAPI, enrollmentAPI, quizAPI, ratingAPI, type Course, type Lesson, type Quiz } from '../services/api';
+import { courseAPI, enrollmentAPI, paymentAPI, quizAPI, ratingAPI, type Course, type Lesson, type PaymentTransaction, type Quiz } from '../services/api';
 import { RatingForm } from '../components/cards/RatingForm';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { getCourseLessonCount } from '../utils/course';
+
+declare global {
+  interface Window {
+    PayOSCheckout?: {
+      usePayOS: (config: {
+        RETURN_URL: string;
+        ELEMENT_ID: string;
+        CHECKOUT_URL: string;
+        embedded: boolean;
+        onSuccess?: (event: unknown) => void;
+        onCancel?: (event: unknown) => void;
+        onExit?: (event: unknown) => void;
+      }) => {
+        open: () => void;
+        exit: () => void;
+      };
+    };
+  }
+}
 
 interface CourseModule {
   id: number;
@@ -137,6 +156,13 @@ const formatLessonDuration = (durationMinutes?: number | null) => {
   return durationMinutes < 60 ? `${durationMinutes} min` : formatCourseDuration(durationMinutes);
 };
 
+const formatVnd = (amount: number) =>
+  new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(amount);
+
 function ReviewItem({ review, isUser }: { review: ReviewCard; isUser?: boolean }) {
   const getInitials = (username: string | undefined) => (username || 'U').substring(0, 2).toUpperCase();
   const colors = ['bg-primary-fixed', 'bg-secondary-fixed', 'bg-tertiary-fixed'];
@@ -197,6 +223,10 @@ export default function CourseDetail() {
   const [enrollmentStatus, setEnrollmentStatus] = useState<'active' | 'completed' | 'dropped' | null>(null);
   const [userRating, setUserRating] = useState<ReviewCard | null>(null);
   const [finalQuiz, setFinalQuiz] = useState<Quiz | null>(null);
+  const [paymentTransaction, setPaymentTransaction] = useState<PaymentTransaction | null>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
+  const [payOsEmbeddedError, setPayOsEmbeddedError] = useState<string | null>(null);
 
   const fetchReviews = useCallback(async () => {
     if (!courseId) return;
@@ -273,6 +303,7 @@ export default function CourseDetail() {
   const allLessonsCompleted = Boolean(course?.lessons?.length) && firstUnfinishedLessonIndex === -1;
   const finalQuizPassed = Boolean(finalQuiz?.has_passed || finalQuiz?.latest_attempt?.passed);
   const shouldShowFinalTestButton = effectiveEnrollmentStatus === 'active' && allLessonsCompleted && finalQuiz && !finalQuizPassed;
+  const paymentTransactionId = paymentTransaction?.payment_transaction_id;
 
   const handleEnroll = async () => {
     if (!user) {
@@ -285,15 +316,120 @@ export default function CourseDetail() {
 
     try {
       setEnrolling(true);
-      await enrollmentAPI.enrollCourse(parseInt(courseId));
-      showToast('Successfully enrolled in course!', 'success');
-      navigate('/courses');
+      if (Number(course.price) > 0) {
+        const payment = await paymentAPI.createPayOsCoursePayment(parseInt(courseId));
+        if (payment.data.payment_required && payment.data.transaction) {
+          setPaymentTransaction(payment.data.transaction);
+          setPaymentModalOpen(true);
+          showToast('Scan the payOS QR code to complete payment', 'info');
+          return;
+        }
+      } else {
+        await enrollmentAPI.enrollCourse(parseInt(courseId));
+        showToast('Successfully enrolled in course!', 'success');
+        navigate('/courses');
+      }
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Failed to enroll', 'error');
     } finally {
       setEnrolling(false);
     }
   };
+
+  const refreshPaymentStatus = useCallback(async () => {
+    if (!paymentTransactionId) return;
+
+    try {
+      setCheckingPayment(true);
+      const result = await paymentAPI.getPaymentStatus(paymentTransactionId);
+      setPaymentTransaction(result.data);
+      if (result.data.status === 'paid' || result.data.purchase_status === 'completed') {
+        showToast('Payment confirmed. Course access is active.', 'success');
+        setPaymentModalOpen(false);
+        setEnrollmentStatus('active');
+        navigate('/courses');
+      }
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Failed to check payment status', 'error');
+    } finally {
+      setCheckingPayment(false);
+    }
+  }, [navigate, paymentTransactionId, showToast]);
+
+  useEffect(() => {
+    if (!paymentModalOpen || !paymentTransaction || paymentTransaction.status !== 'pending') return;
+
+    const intervalId = window.setInterval(() => {
+      refreshPaymentStatus();
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, [paymentModalOpen, paymentTransaction?.status, paymentTransactionId, refreshPaymentStatus]);
+
+  useEffect(() => {
+    if (!paymentModalOpen || !paymentTransaction?.checkout_url) return;
+
+    let cancelled = false;
+    const containerId = 'payos-checkout-container';
+
+    const loadPayOsScript = () =>
+      new Promise<void>((resolve, reject) => {
+        if (window.PayOSCheckout) {
+          resolve();
+          return;
+        }
+
+        const existingScript = document.querySelector<HTMLScriptElement>('script[src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"]');
+        if (existingScript) {
+          existingScript.addEventListener('load', () => resolve(), { once: true });
+          existingScript.addEventListener('error', () => reject(new Error('Failed to load payOS checkout')), { once: true });
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js';
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load payOS checkout'));
+        document.body.appendChild(script);
+      });
+
+    const mountPayOs = async () => {
+      try {
+        setPayOsEmbeddedError(null);
+        await loadPayOsScript();
+        if (cancelled || !window.PayOSCheckout) return;
+
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = '';
+
+        const checkout = window.PayOSCheckout.usePayOS({
+          RETURN_URL: window.location.href,
+          ELEMENT_ID: containerId,
+          CHECKOUT_URL: paymentTransaction.checkout_url || '',
+          embedded: true,
+          onSuccess: () => {
+            refreshPaymentStatus();
+          },
+          onCancel: () => {
+            refreshPaymentStatus();
+          },
+          onExit: () => {
+            refreshPaymentStatus();
+          },
+        });
+        checkout.open();
+      } catch (error) {
+        if (!cancelled) setPayOsEmbeddedError(error instanceof Error ? error.message : 'Failed to load payOS checkout');
+      }
+    };
+
+    mountPayOs();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [paymentModalOpen, paymentTransaction?.checkout_url, refreshPaymentStatus]);
 
   const handleGetStarted = async () => {
     if (!courseId) return;
@@ -648,6 +784,101 @@ export default function CourseDetail() {
         </section>
 
       </main>
+      {paymentModalOpen && paymentTransaction && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 p-2 sm:p-4">
+          <div className="max-h-[calc(100vh-1rem)] w-full max-w-6xl overflow-y-auto overflow-x-hidden rounded-xl border border-outline-variant bg-surface shadow-2xl sm:max-h-[calc(100vh-2rem)]">
+            <div className="flex items-start justify-between gap-3 border-b border-outline-variant bg-surface-container-low p-4 sm:p-5">
+              <div className="min-w-0">
+                <p className="text-label-md font-black uppercase tracking-wide text-primary">payOS Payment</p>
+                <h2 className="mt-1 truncate text-title-lg font-bold text-on-surface sm:text-headline-sm">{course.title}</h2>
+                <p className="mt-1 text-body-sm text-on-surface-variant sm:text-body-md">
+                  Scan the QR code with your banking app or open the payOS checkout link.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPaymentModalOpen(false)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container"
+                aria-label="Close payment dialog"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(430px,640px)_minmax(300px,360px)] lg:justify-center sm:p-5">
+              <div className="overflow-hidden rounded-xl border border-outline-variant bg-white">
+                <div
+                  id="payos-checkout-container"
+                  className="h-[520px] min-h-[420px] w-full overflow-hidden sm:h-[560px] lg:h-[600px] [&_iframe]:h-full [&_iframe]:min-h-[420px] [&_iframe]:w-full sm:[&_iframe]:min-h-[560px] lg:[&_iframe]:min-h-[600px]"
+                />
+                {payOsEmbeddedError && (
+                  <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900">
+                    <p className="font-bold">Embedded checkout unavailable</p>
+                    <p className="mt-1 text-body-md">{payOsEmbeddedError}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+                    <p className="text-label-md text-on-surface-variant">Amount</p>
+                    <p className="mt-1 text-title-lg font-bold text-primary">{formatVnd(paymentTransaction.amount)}</p>
+                  </div>
+                  <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+                    <p className="text-label-md text-on-surface-variant">Status</p>
+                    <p className="mt-1 text-title-sm font-bold uppercase text-primary">{paymentTransaction.status}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+                  <p className="text-label-md text-on-surface-variant">Transfer content</p>
+                  <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                    <code className="min-w-0 break-all rounded-md bg-surface px-3 py-2 text-label-lg font-bold text-on-surface">
+                      {paymentTransaction.payment_content}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard.writeText(paymentTransaction.payment_content)}
+                      className="inline-flex h-10 items-center gap-1 rounded-md border border-outline-variant bg-surface px-3 text-label-md font-bold text-primary hover:border-primary"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                      Copy
+                    </button>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-emerald-900">
+                  <p className="text-title-sm font-bold">Automatic activation</p>
+                  <p className="mt-1 text-body-sm">
+                    Course access is activated automatically after payOS sends a verified payment webhook to the system.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                  <Button type="button" size="sm" className="min-h-10 rounded-md px-3 text-label-md" onClick={refreshPaymentStatus} disabled={checkingPayment}>
+                    {checkingPayment ? 'Checking...' : 'Check payment status'}
+                  </Button>
+                  {paymentTransaction.checkout_url && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      className="min-h-10 rounded-md px-3 text-label-md"
+                      onClick={() => window.open(paymentTransaction.checkout_url || undefined, '_blank', 'noopener,noreferrer')}
+                    >
+                      Open checkout
+                    </Button>
+                  )}
+                  <Button type="button" size="sm" variant="secondary" className="min-h-10 rounded-md px-3 text-label-md" onClick={() => setPaymentModalOpen(false)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );
