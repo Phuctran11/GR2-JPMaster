@@ -446,6 +446,7 @@ export interface LessonNoteFilters {
   question_id?: number;
   pinned?: boolean | 'all';
   search?: string;
+  sort_order?: 'newest' | 'oldest';
   limit?: number;
   offset?: number;
 }
@@ -629,11 +630,18 @@ export interface PaymentTransaction {
 }
 
 export const courseAPI = {
-  async getAllCourses(limit = 10, offset = 0, withLessons = false): Promise<{ data: Course[]; count: number }> {
+  async getAllCourses(
+    limit = 10,
+    offset = 0,
+    withLessons = false,
+    filters: { level?: string; sort?: string } = {}
+  ): Promise<{ data: Course[]; count: number; total_count?: number }> {
     const params = new URLSearchParams({
       limit: String(limit),
       offset: String(offset),
       ...(withLessons && { withLessons: 'true' }),
+      ...(filters.level && { level: filters.level }),
+      ...(filters.sort && { sort: filters.sort }),
     });
 
     const response = await fetch(`${API_BASE_URL}/courses?${params}`, {
@@ -765,10 +773,12 @@ export const quizAPI = {
 };
 
 export const jlptExamAPI = {
-  async getExams(filters: { level?: string; section_type?: string } = {}): Promise<{ data: JlptExamSummary[]; count: number }> {
+  async getExams(filters: { level?: string; section_type?: string; limit?: number; offset?: number } = {}): Promise<{ data: JlptExamSummary[]; count: number; total_count?: number }> {
     const params = new URLSearchParams();
     if (filters.level && filters.level !== 'All') params.set('level', filters.level);
     if (filters.section_type && filters.section_type !== 'all') params.set('section_type', filters.section_type);
+    if (filters.limit !== undefined) params.set('limit', String(filters.limit));
+    if (filters.offset !== undefined) params.set('offset', String(filters.offset));
 
     const response = await fetch(`${API_BASE_URL}/jlpt-exams?${params}`, {
       method: 'GET',
@@ -819,13 +829,14 @@ export const certificateAPI = {
 };
 
 export const lessonNoteAPI = {
-  async getMyNotes(filters: LessonNoteFilters = {}): Promise<{ data: LessonNote[]; count: number }> {
+  async getMyNotes(filters: LessonNoteFilters = {}): Promise<{ data: LessonNote[]; count: number; total_count?: number; counts_by_type?: Array<{ note_type: LessonNoteType; count: number }> }> {
     const params = new URLSearchParams();
     if (filters.note_type && filters.note_type !== 'all') params.set('note_type', filters.note_type);
     if (filters.lesson_id) params.set('lesson_id', String(filters.lesson_id));
     if (filters.question_id) params.set('question_id', String(filters.question_id));
     if (filters.pinned !== undefined && filters.pinned !== 'all') params.set('pinned', String(filters.pinned));
     if (filters.search?.trim()) params.set('search', filters.search.trim());
+    if (filters.sort_order) params.set('sort_order', filters.sort_order);
     params.set('limit', String(filters.limit ?? 20));
     params.set('offset', String(filters.offset ?? 0));
 
@@ -913,7 +924,10 @@ export const lessonNoteAPI = {
 };
 
 export const flashcardAPI = {
-  async getCollections(limit = 20, offset = 0): Promise<{ data: FlashcardCollection[]; count: number }> {
+  async getCollections(
+    limit = 20,
+    offset = 0
+  ): Promise<{ data: FlashcardCollection[]; count: number; total_count?: number; total_cards?: number }> {
     const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
     const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections?${params}`, {
       method: 'GET',
@@ -928,7 +942,10 @@ export const flashcardAPI = {
     return response.json();
   },
 
-  async getPublicCollections(limit = 20, offset = 0): Promise<{ data: FlashcardCollection[]; count: number }> {
+  async getPublicCollections(
+    limit = 20,
+    offset = 0
+  ): Promise<{ data: FlashcardCollection[]; count: number; total_count?: number }> {
     const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
     const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections/public?${params}`, {
       method: 'GET',
@@ -1012,7 +1029,11 @@ export const flashcardAPI = {
     return response.json();
   },
 
-  async getCollectionCards(collectionId: number, limit = 50, offset = 0): Promise<{ data: Flashcard[]; count: number }> {
+  async getCollectionCards(
+    collectionId: number,
+    limit = 50,
+    offset = 0
+  ): Promise<{ data: Flashcard[]; count: number; total_count?: number }> {
     const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
     const response = await authenticatedFetch(`${API_BASE_URL}/flashcards/collections/${collectionId}/cards?${params}`, {
       method: 'GET',
@@ -1130,6 +1151,7 @@ export type AdminBlogStatus = 'draft' | 'published' | 'archived';
 export type AdminJlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
 export type AdminSectionType = 'vocabulary' | 'grammar' | 'reading' | 'listening';
 export type AdminSortOrder = 'desc' | 'asc';
+export type AdminPaymentStatus = PaymentTransaction['status'] | 'all';
 
 export interface AdminStats {
   totals: {
@@ -1137,12 +1159,50 @@ export interface AdminStats {
     courses: number;
     lessons: number;
     tests: number;
+    jlptTests: number;
+    enrollments: number;
     blogs: number;
+    quizAttempts: number;
+    jlptAttempts: number;
+    paidPayments: number;
+    pendingPayments: number;
+    revenueTotal: number;
+    revenueLast30Days: number;
   };
   usersByRole: Array<{ role: AdminRole; count: number }>;
   testsByType: Array<{ quiz_type: AdminQuizType | null; count: number }>;
+  jlptByLevel: Array<{ jlpt_level: AdminJlptLevel | null; count: number }>;
+  paymentsByStatus: Array<{ status: PaymentTransaction['status']; count: number; amount: number }>;
+  revenueByDay: Array<{ revenue_date: string; revenue: number; paid_count: number }>;
+  activityByDay: Array<{ activity_date: string; enrollments: number; quiz_attempts: number; jlpt_attempts: number; new_users: number }>;
   recentUsers: Array<Pick<UserProfile, 'user_id' | 'username' | 'email' | 'role' | 'status' | 'created_at'>>;
   recentCourses: Array<Pick<Course, 'course_id' | 'title' | 'price' | 'level' | 'created_at'>>;
+}
+
+export interface AdminPayment {
+  payment_transaction_id: number;
+  purchase_id: number;
+  provider: 'payos';
+  provider_order_id: string;
+  order_code: number | null;
+  provider_payment_link_id: string | null;
+  amount: number;
+  currency: string;
+  payment_content: string;
+  qr_image_url: string;
+  checkout_url: string | null;
+  status: PaymentTransaction['status'];
+  paid_at: string | null;
+  expired_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id: number;
+  username: string;
+  email: string;
+  course_id: number;
+  course_title: string;
+  price_paid: number;
+  purchase_status: 'pending' | 'completed' | 'canceled';
 }
 
 export interface AdminCourse extends Course {
@@ -1341,7 +1401,7 @@ export const adminAPI = {
   getStats: () => adminRequest<{ data: AdminStats }>('/stats'),
 
   getUsers: (filters: { search?: string; role?: AdminRole | 'all'; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
-    adminRequest<{ data: UserProfile[]; count: number }>(`/users?${adminParams({ limit: 50, ...filters })}`),
+    adminRequest<{ data: UserProfile[]; count: number; total_count?: number }>(`/users?${adminParams({ limit: 50, ...filters })}`),
   createUser: (payload: { username: string; email: string; password: string; role: AdminRole }) =>
     adminRequest<{ message: string; data: UserProfile }>('/users', { method: 'POST', body: JSON.stringify(payload) }),
   updateUser: (userId: number, payload: { username: string; email: string; role: AdminRole; status: AdminUserStatus }) =>
@@ -1350,7 +1410,7 @@ export const adminAPI = {
     adminRequest<{ message: string }>(`/users/${userId}`, { method: 'DELETE' }),
 
   getCourses: (filters: { search?: string; level?: string; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
-    adminRequest<{ data: AdminCourse[]; count: number }>(`/courses?${adminParams({ limit: 50, ...filters })}`),
+    adminRequest<{ data: AdminCourse[]; count: number; total_count?: number }>(`/courses?${adminParams({ limit: 50, ...filters })}`),
   uploadAsset: (payload: { file: File; media_kind: AdminMediaKind; scope: string }) => {
     const formData = new FormData();
     formData.append('file', payload.file);
@@ -1378,7 +1438,7 @@ export const adminAPI = {
     adminRequest<{ message: string }>(`/lessons/${lessonId}`, { method: 'DELETE' }),
 
   getTests: (filters: { search?: string; quiz_type?: AdminQuizType | 'all'; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
-    adminRequest<{ data: AdminTest[]; count: number }>(`/tests?${adminParams({ limit: 50, ...filters })}`),
+    adminRequest<{ data: AdminTest[]; count: number; total_count?: number }>(`/tests?${adminParams({ limit: 50, ...filters })}`),
   createTest: (payload: { title: string; description?: string | null; quiz_type: AdminQuizType; lesson_id?: number | null; course_id?: number | null; passing_score: number; total_marks: number; time_limit_minutes?: number | null; created_by?: number }) =>
     adminRequest<{ message: string; data: AdminTest }>('/tests', { method: 'POST', body: JSON.stringify(payload) }),
   updateTest: (quizId: number, payload: Partial<{ title: string; description: string | null; quiz_type: AdminQuizType; lesson_id: number | null; course_id: number | null; passing_score: number; total_marks: number; time_limit_minutes: number | null }>) =>
@@ -1397,7 +1457,7 @@ export const adminAPI = {
     adminRequest<{ message: string }>(`/tests/${quizId}/questions/${questionId}`, { method: 'DELETE' }),
 
   getJlptExams: (filters: { search?: string; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
-    adminRequest<{ data: AdminJlptExam[]; count: number }>(`/jlpt-exams?${adminParams({ limit: 50, ...filters })}`),
+    adminRequest<{ data: AdminJlptExam[]; count: number; total_count?: number }>(`/jlpt-exams?${adminParams({ limit: 50, ...filters })}`),
   createJlptExam: (payload: { title: string; jlpt_level: AdminJlptLevel; year?: number | null; duration_minutes?: number | null; sections: AdminJlptSectionPayload[] }) =>
     adminRequest<{ message: string; data: AdminJlptExam }>('/jlpt-exams', { method: 'POST', body: JSON.stringify(payload) }),
   updateJlptExam: (examId: number, payload: Partial<{ title: string; jlpt_level: AdminJlptLevel; year: number | null; duration_minutes: number | null }>) =>
@@ -1434,17 +1494,20 @@ export const adminAPI = {
     adminRequest<{ message: string }>(`/jlpt-sections/${sectionId}/questions/${questionId}`, { method: 'DELETE' }),
 
   getBlogs: (filters: { search?: string; status?: AdminBlogStatus | 'all'; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
-    adminRequest<{ data: AdminBlog[]; count: number }>(`/blogs?${adminParams({ limit: 50, ...filters })}`),
+    adminRequest<{ data: AdminBlog[]; count: number; total_count?: number }>(`/blogs?${adminParams({ limit: 50, ...filters })}`),
   createBlog: (payload: { title: string; slug?: string; excerpt?: string | null; content?: string | null; category?: string | null; category_name?: string | null; tags?: string[]; cover_asset_id?: number | null; image_url?: string | null; video_asset_id?: number | null; video_url?: string | null; status: AdminBlogStatus }) =>
     adminRequest<{ message: string; data: AdminBlog }>('/blogs', { method: 'POST', body: JSON.stringify(payload) }),
   updateBlog: (blogId: number, payload: Partial<{ title: string; slug: string; excerpt: string | null; content: string | null; category: string | null; category_name: string | null; tags: string[]; cover_asset_id: number | null; image_url: string | null; video_asset_id: number | null; video_url: string | null; status: AdminBlogStatus }>) =>
     adminRequest<{ message: string; data: AdminBlog }>(`/blogs/${blogId}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteBlog: (blogId: number) =>
     adminRequest<{ message: string }>(`/blogs/${blogId}`, { method: 'DELETE' }),
+
+  getPayments: (filters: { search?: string; status?: AdminPaymentStatus; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
+    adminRequest<{ data: AdminPayment[]; count: number; total_count?: number }>(`/payments?${adminParams({ limit: 50, ...filters })}`),
 };
 
 export const blogAPI = {
-  async getBlogs(filters: { search?: string; category?: string; tag?: string; published_after?: string; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}): Promise<{ data: Blog[]; count: number }> {
+  async getBlogs(filters: { search?: string; category?: string; tag?: string; published_after?: string; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}): Promise<{ data: Blog[]; count: number; total_count?: number }> {
     const params = adminParams({ limit: 20, ...filters });
     const response = await fetch(`${API_BASE_URL}/blogs?${params}`);
     if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch blogs'));
@@ -1639,7 +1702,7 @@ export const enrollmentAPI = {
     status: 'active' | 'completed' | 'dropped',
     limit = 10,
     offset = 0
-  ): Promise<{ data: EnrolledCourse[]; count: number; status: string }> {
+  ): Promise<{ data: EnrolledCourse[]; count: number; total_count?: number; status: string }> {
     const params = new URLSearchParams({
       limit: String(limit),
       offset: String(offset),
@@ -1863,6 +1926,20 @@ export const ratingAPI = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch top-rated courses');
+    }
+
+    return response.json();
+  },
+
+  async getLearnerFeedbackTestimonials(): Promise<{ data: any[]; count: number }> {
+    const response = await fetch(`${API_BASE_URL}/ratings/feedback/learner`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch learner feedback');
     }
 
     return response.json();

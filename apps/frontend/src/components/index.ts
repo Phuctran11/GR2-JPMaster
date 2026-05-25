@@ -6,3 +6,4 @@ export { Card, GlassCard, Section, Container, Badge, Stat, Avatar, Icon } from '
 export { AuthLayout } from './AuthLayout';
 export { SocialLogin } from './SocialLogin';
 export { Breadcrumbs, type BreadcrumbItem } from './Breadcrumbs';
+export { Pagination } from './Pagination';

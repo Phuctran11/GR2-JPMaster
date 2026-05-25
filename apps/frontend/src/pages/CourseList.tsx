@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Header, Footer, Card, Container, Section, Breadcrumbs } from '../components';
+import { Header, Footer, Card, Container, Section, Breadcrumbs, Pagination } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
 import { MyLearningCard } from '../components/cards';
 import { enrollmentAPI, type EnrolledCourse } from '../services/api';
@@ -10,29 +10,41 @@ export default function CourseList() {
   const navigate = useNavigate();
   const toastMessages = useToastMessages();
   const [activeStatus, setActiveStatus] = useState<'active' | 'completed'>('active');
+  const [page, setPage] = useState(1);
   const [courses, setCourses] = useState<EnrolledCourse[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pageSize = 5;
 
   useEffect(() => {
+    let active = true;
+
     const fetchCourses = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await enrollmentAPI.getMyCourses();
+        const response = await enrollmentAPI.getMyCoursesByStatus(activeStatus, pageSize, (page - 1) * pageSize);
+        if (!active) return;
         setCourses(response.data);
+        setTotalCount(response.total_count ?? response.count);
       } catch (err) {
+        if (!active) return;
         const errorMessage = err instanceof Error ? err.message : 'Failed to load courses';
         setError(errorMessage);
         toastMessages.error(errorMessage);
         setCourses([]);
+        setTotalCount(0);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     fetchCourses();
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [activeStatus, page, toastMessages]);
 
   const handleOpenCourseDetail = (courseId: number) => {
     navigate(`/courses/${courseId}`);
@@ -73,7 +85,14 @@ export default function CourseList() {
     return 'Not Started';
   };
 
-  const visibleCourses = courses.filter((enrollment) => getEffectiveStatus(enrollment) === activeStatus);
+  useEffect(() => {
+    setPage(1);
+  }, [activeStatus]);
+
+  useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil(totalCount / pageSize));
+    if (page > maxPage) setPage(maxPage);
+  }, [page, totalCount]);
 
   const breadcrumbs = [
     { label: 'Home', path: '/' },
@@ -105,7 +124,7 @@ export default function CourseList() {
                       <button
                         key={status}
                         type="button"
-                        onClick={() => setActiveStatus(status)}
+                          onClick={() => setActiveStatus(status)}
                         className={`rounded-full px-4 py-2 text-label-md font-semibold transition-colors border ${
                           activeStatus === status
                             ? 'bg-primary text-on-primary border-primary'
@@ -138,7 +157,7 @@ export default function CourseList() {
                     Loading courses...
                   </Text>
                 </div>
-              ) : visibleCourses.length === 0 ? (
+              ) : courses.length === 0 ? (
                 <Card className="p-8 text-center border border-outline-variant">
                   <Text variant="body-lg" color="on-surface-variant">
                     No courses found. Start exploring and enroll in a course!
@@ -146,7 +165,7 @@ export default function CourseList() {
                 </Card>
               ) : (
                 <div className="flex flex-col gap-gutter">
-                  {visibleCourses.map((enrollment) => {
+                  {courses.map((enrollment) => {
                     const effectiveStatus = getEffectiveStatus(enrollment);
                     const needsFinalTest = effectiveStatus === 'active' && (enrollment.progress_percent ?? 0) >= 99.99;
 
@@ -167,18 +186,9 @@ export default function CourseList() {
                     </div>
                     );
                   })}
+                  <Pagination page={page} pageSize={pageSize} itemCount={courses.length} totalCount={totalCount} onPageChange={setPage} className="mt-5" />
                 </div>
               )}
-            </div>
-            <div className="mb-section-gap">
-              <Card className="p-8 border border-outline-variant">
-                <Heading level="h3" size="headline-md" className="mb-3">
-                  What these tags do
-                </Heading>
-                <Text variant="body-md" color="on-surface-variant">
-                  Use the status chips above to switch between courses that are still in progress and courses you have completed.
-                </Text>
-              </Card>
             </div>
           </Container>
         </Section>

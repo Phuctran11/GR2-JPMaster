@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { PrimaryButton, OutlineButton } from '../Button';
+import { PrimaryButton } from '../Button';
 import { Badge, Stat, Container, AvatarGroup } from '../ui';
 import { Heading, Text } from '../ui/Typography';
 
@@ -19,12 +19,6 @@ function HeroContent() {
       </Text>
       <div className="flex flex-wrap gap-stack-md pt-4">
         <PrimaryButton onClick={() => navigate('/explore')}>Explore Now</PrimaryButton>
-        <OutlineButton className="group flex items-center gap-3">
-          View Syllabus
-          <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
-            arrow_forward
-          </span>
-        </OutlineButton>
       </div>
       <div className="flex items-center gap-8 pt-8">
         <Stat value="10k+" label="Scholars" />

@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
+import { logger } from "../utils/logger.js";
 
-export interface ApiError extends Error {
+type HttpError = Error & {
   status?: number;
   statusCode?: number;
-}
+};
 
 const getNestedErrorMessage = (err: unknown) => {
   if (err instanceof Error) return err.message;
@@ -33,16 +34,16 @@ const getNestedHttpCode = (err: unknown) => {
   return undefined;
 };
 
-export const errorHandler = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: HttpError, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof multer.MulterError) {
     const status = err.code === "LIMIT_FILE_SIZE" ? 413 : 400;
     const message = err.code === "LIMIT_FILE_SIZE" ? "Uploaded file is too large" : err.message;
 
-    console.error("[ERROR] Status:", status);
-    console.error("[ERROR] Message:", message);
+    logger.error("Request failed", { context: "error.middleware", status, error: message });
 
     return res.status(status).json({
-      error: {
+      error: message,
+      details: {
         status,
         message,
         timestamp: new Date().toISOString(),
@@ -54,17 +55,22 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
   const nestedHttpCode = getNestedHttpCode(err);
   const isTimeoutError = /timeout|request timeout/i.test(nestedMessage);
   const status = err.status || err.statusCode || (isTimeoutError || nestedHttpCode === 499 ? 504 : 500);
-  const message = nestedMessage || err.message || "Internal server error";
+  const rawMessage = nestedMessage || err.message || "Internal server error";
+  const message = process.env.NODE_ENV === "production" && status >= 500 ? "Internal server error" : rawMessage;
 
-  console.error("[ERROR] Status:", status);
-  console.error("[ERROR] Message:", message);
-  console.error("[ERROR] Stack:", err.stack);
-  if ("code" in err) console.error("[ERROR] Code:", (err as ApiError & { code?: unknown }).code);
-  if ("cause" in err) console.error("[ERROR] Cause:", (err as ApiError & { cause?: unknown }).cause);
-  if ("errors" in err) console.error("[ERROR] Errors:", (err as ApiError & { errors?: unknown }).errors);
+  logger.error("Request failed", {
+    context: "error.middleware",
+    status,
+    error: rawMessage,
+    stack: err.stack,
+    code: "code" in err ? (err as HttpError & { code?: unknown }).code : undefined,
+    cause: "cause" in err ? (err as HttpError & { cause?: unknown }).cause : undefined,
+    errors: "errors" in err ? (err as HttpError & { errors?: unknown }).errors : undefined,
+  });
 
   res.status(status).json({
-    error: {
+    error: message,
+    details: {
       status,
       message,
       timestamp: new Date().toISOString(),
@@ -74,7 +80,8 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
 
 export const notFoundHandler = (req: Request, res: Response) => {
   res.status(404).json({
-    error: {
+    error: "Route not found",
+    details: {
       status: 404,
       message: "Route not found",
       path: req.path,

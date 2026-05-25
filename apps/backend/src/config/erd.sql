@@ -91,6 +91,7 @@ CREATE INDEX idx_blog_category ON "Blog"(category_id);
 CREATE INDEX idx_blog_cover_asset ON "Blog"(cover_asset_id);
 CREATE INDEX idx_blog_video_asset ON "Blog"(video_asset_id);
 CREATE INDEX idx_blog_deleted_at ON "Blog"(deleted_at);
+CREATE INDEX idx_blog_public_published ON "Blog"(status, deleted_at, published_at DESC);
 
 CREATE TABLE "BlogTag" (
     tag_id SERIAL PRIMARY KEY,
@@ -132,6 +133,8 @@ CREATE INDEX idx_lesson_video_asset ON "Lesson"(video_asset_id);
 CREATE INDEX idx_lesson_audio_asset ON "Lesson"(audio_asset_id);
 CREATE INDEX idx_lesson_deleted_at ON "Lesson"(deleted_at);
 CREATE INDEX idx_lesson_course_order ON "Lesson"(course_id, order_index);
+CREATE INDEX idx_lesson_active_course ON "Lesson"(course_id)
+WHERE deleted_at IS NULL;
 
 CREATE TABLE "FlashcardCollection" (
     collection_id SERIAL PRIMARY KEY,
@@ -231,6 +234,8 @@ CREATE INDEX idx_question_image_asset ON "Question"(image_asset_id);
 CREATE INDEX idx_question_audio_asset ON "Question"(audio_asset_id);
 CREATE INDEX idx_question_created_by ON "Question"(created_by);
 CREATE INDEX idx_question_jlpt_section ON "Question"(jlpt_level, section_type);
+CREATE INDEX idx_question_auto_jlpt_bank ON "Question"(section_type, jlpt_level, difficulty_level, created_by, question_id)
+WHERE deleted_at IS NULL;
 CREATE INDEX idx_question_reading_passage ON "Question"(reading_passage_id);
 
 CREATE TABLE "LessonNote" (
@@ -313,6 +318,8 @@ CREATE TABLE "QuizAttempt" (
 CREATE INDEX idx_quiz_attempt_user_quiz ON "QuizAttempt"(user_id, quiz_id);
 CREATE INDEX idx_quiz_attempt_user_jlpt_exam ON "QuizAttempt"(user_id, jlpt_exam_id);
 CREATE INDEX idx_quiz_attempt_status ON "QuizAttempt"(status);
+CREATE INDEX idx_quiz_attempt_user_quiz_status_submitted
+ON "QuizAttempt"(user_id, quiz_id, status, submitted_at DESC, attempt_id DESC);
 
 CREATE TABLE "UserAnswer" (
     user_answer_id SERIAL PRIMARY KEY,
@@ -374,6 +381,8 @@ CREATE TABLE "JLPTSectionQuestion" (
 CREATE INDEX idx_jlpt_section_question_deleted_at ON "JLPTSectionQuestion"(deleted_at);
 CREATE INDEX idx_jlpt_section_question_section_order ON "JLPTSectionQuestion"(section_id, order_index);
 CREATE INDEX idx_jlpt_section_question_question ON "JLPTSectionQuestion"(question_id);
+CREATE INDEX idx_jlpt_section_question_active_question ON "JLPTSectionQuestion"(question_id, section_id)
+WHERE deleted_at IS NULL;
 
 ALTER TABLE "QuizAttempt"
 ADD CONSTRAINT fk_quiz_attempt_jlpt_exam
@@ -463,6 +472,7 @@ CREATE TABLE "CourseRating" (
     UNIQUE (course_id, user_id),
     FOREIGN KEY (user_id, course_id) REFERENCES "CourseEnrollment"(user_id, course_id)
 );
+CREATE INDEX idx_course_rating_course_created ON "CourseRating"(course_id, created_at DESC);
 
 CREATE TABLE "UserLessonProgress" (
     user_lesson_progress_id SERIAL PRIMARY KEY,

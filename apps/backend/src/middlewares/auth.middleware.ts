@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import tokenService from '../services/token.service.js';
-import userModel from '../models/user.model.js';
+import tokenService from '../services/users/token.service.js';
+import userModel from '../models/users/user.model.js';
 
 export interface AuthenticatedRequest extends Request {
   user?: {

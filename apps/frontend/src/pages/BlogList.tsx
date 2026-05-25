@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Header, Footer, Breadcrumbs } from '../components';
+import { Header, Footer, Breadcrumbs, Pagination } from '../components';
 import { Heading } from '../components/ui/Typography';
 import { BlogFilterBar } from '../components/sections/BlogFilterBar';
 import { BlogCard, FeaturedBlogCard } from '../components/cards';
@@ -65,8 +65,11 @@ export default function BlogList() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All Topics');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pageSize = 9;
 
   const breadcrumbs = [
     { label: 'Home', path: '/' },
@@ -80,17 +83,19 @@ export default function BlogList() {
         setLoading(true);
         const selectedCategory = category === 'All Topics' ? undefined : category;
         const [blogResult, categoryResult] = await Promise.all([
-          blogAPI.getBlogs({ search, category: selectedCategory, published_after: getPublishedAfter(timeFilter), limit: 24 }),
+          blogAPI.getBlogs({ search, category: selectedCategory, published_after: getPublishedAfter(timeFilter), limit: pageSize, offset: (page - 1) * pageSize }),
           blogAPI.getCategories(),
         ]);
         if (!active) return;
         setBlogs(blogResult.data);
+        setTotalCount(blogResult.total_count ?? blogResult.count);
         setCategories(categoryResult.data);
         setError(null);
       } catch (err) {
         if (!active) return;
         setError(err instanceof Error ? err.message : 'Failed to load blogs');
         setBlogs([]);
+        setTotalCount(0);
       } finally {
         if (active) setLoading(false);
       }
@@ -100,7 +105,16 @@ export default function BlogList() {
       active = false;
       window.clearTimeout(timer);
     };
+  }, [search, category, timeFilter, page]);
+
+  useEffect(() => {
+    setPage(1);
   }, [search, category, timeFilter]);
+
+  useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil(totalCount / pageSize));
+    if (page > maxPage) setPage(maxPage);
+  }, [page, totalCount]);
 
   const categoryOptions = useMemo(() => ['All Topics', ...categories.map((item) => item.name)], [categories]);
   const [featuredPost, ...posts] = blogs;
@@ -130,7 +144,7 @@ export default function BlogList() {
               </p>
               <div className="mt-stack-lg grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-3">
                 <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
-                  <p className="text-headline-md font-bold">{blogs.length}</p>
+                  <p className="text-headline-md font-bold">{totalCount}</p>
                   <p className="text-label-md text-white/80">Articles</p>
                 </div>
                 <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
@@ -156,7 +170,7 @@ export default function BlogList() {
             </div>
             {!loading && !error && (
               <p className="text-body-md text-on-surface-variant">
-                Showing {blogs.length} {blogs.length === 1 ? 'article' : 'articles'}
+                Showing {blogs.length} of {totalCount} {totalCount === 1 ? 'article' : 'articles'}
                 {category !== 'All Topics' ? ` in ${category}` : ''}
               </p>
             )}
@@ -225,6 +239,7 @@ export default function BlogList() {
                   ))}
                 </div>
               )}
+              <Pagination page={page} pageSize={pageSize} itemCount={blogs.length} totalCount={totalCount} onPageChange={setPage} className="mt-section-gap" />
             </>
           )}
         </section>
