@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { lessonNoteAPI, type LessonNote } from '../../services/api';
 import { useToastMessages } from '../../hooks/useToastMessages';
+import { InteractiveHoverCard } from '../ui';
 
 interface NoteCardProps {
   note: LessonNote;
@@ -48,10 +49,10 @@ const noteTypeStyles: Record<LessonNote['note_type'], { icon: string; badge: str
   },
   ai_summary: {
     icon: 'auto_awesome',
-    badge: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    badge: 'bg-success-container text-on-success-container border-success/40',
     accent: 'bg-emerald-600',
-    soft: 'bg-emerald-50 text-emerald-900 border-emerald-100',
-    title: 'text-emerald-800',
+    soft: 'bg-success-container text-on-success-container border-emerald-100',
+    title: 'text-on-success-container',
   },
 };
 
@@ -111,119 +112,121 @@ export function NoteCard({ note, onChanged, onDeleted }: NoteCardProps) {
 
   return (
     <>
-    <article
-      role="button"
-      tabIndex={0}
-      onClick={() => setIsDetailOpen(true)}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          setIsDetailOpen(true);
-        }
-      }}
-      className={`relative cursor-pointer overflow-hidden rounded-xl border bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${note.is_pinned ? 'border-primary/40 ring-2 ring-primary/10' : 'border-outline-variant'}`}
-    >
-      <div className={`absolute inset-y-0 left-0 w-1.5 ${typeStyle.accent}`} />
+    <InteractiveHoverCard className="group rounded-xl" tone={note.is_pinned ? 'primary' : 'secondary'} maxTilt={5}>
+      <article
+        role="button"
+        tabIndex={0}
+        onClick={() => setIsDetailOpen(true)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            setIsDetailOpen(true);
+          }
+        }}
+        className={`relative cursor-pointer overflow-hidden rounded-xl border bg-surface p-5 text-left shadow-sm transition ${note.is_pinned ? 'border-primary/40 ring-2 ring-primary/10' : 'border-outline-variant'}`}
+      >
+        <div className={`absolute inset-y-0 left-0 w-1.5 ${typeStyle.accent}`} />
 
-      <div className="flex flex-col gap-3 pl-1 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-label-sm font-bold ${typeStyle.badge}`}>
-              <span className="material-symbols-outlined text-[16px]">{typeStyle.icon}</span>
-              {noteTypeLabels[note.note_type]}
-            </span>
-            {note.is_pinned && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary-fixed px-3 py-1 text-label-sm font-bold text-on-primary-fixed">
-                <span className="material-symbols-outlined text-[16px]">push_pin</span>
-                Pinned
+        <div className="flex flex-col gap-3 pl-1 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-label-sm font-bold ${typeStyle.badge}`}>
+                <span className="material-symbols-outlined text-[16px]">{typeStyle.icon}</span>
+                {noteTypeLabels[note.note_type]}
               </span>
-            )}
-            {note.video_timestamp_seconds != null && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-3 py-1 text-label-sm font-bold text-on-surface-variant">
-                <span className="material-symbols-outlined text-[16px]">schedule</span>
-                {formatTimestamp(note.video_timestamp_seconds)}
-              </span>
-            )}
+              {note.is_pinned && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary-fixed px-3 py-1 text-label-sm font-bold text-on-primary-fixed">
+                  <span className="material-symbols-outlined text-[16px]">push_pin</span>
+                  Pinned
+                </span>
+              )}
+              {note.video_timestamp_seconds != null && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-surface-container px-3 py-1 text-label-sm font-bold text-on-surface-variant">
+                  <span className="material-symbols-outlined text-[16px]">schedule</span>
+                  {formatTimestamp(note.video_timestamp_seconds)}
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-body-sm text-on-surface-variant">Created {formatDateTime(note.created_at)}</p>
           </div>
-          <p className="mt-2 text-body-sm text-on-surface-variant">Created {formatDateTime(note.created_at)}</p>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePin}
+              aria-pressed={note.is_pinned}
+              className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border transition ${
+                note.is_pinned
+                  ? 'border-primary bg-primary text-on-primary'
+                  : 'border-outline-variant bg-surface text-on-surface-variant hover:border-primary hover:text-primary'
+              }`}
+              title={note.is_pinned ? 'Unpin note' : 'Pin note'}
+            >
+              <span className="material-symbols-outlined text-[20px]">{note.is_pinned ? 'check_circle' : 'radio_button_unchecked'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-surface text-on-surface-variant hover:border-error/40 hover:text-on-error-container"
+              title="Delete note"
+            >
+              <span className="material-symbols-outlined text-[20px]">delete</span>
+            </button>
+          </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={handlePin}
-            aria-pressed={note.is_pinned}
-            className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border transition ${
-              note.is_pinned
-                ? 'border-primary bg-primary text-on-primary'
-                : 'border-outline-variant bg-white text-on-surface-variant hover:border-primary hover:text-primary'
-            }`}
-            title={note.is_pinned ? 'Unpin note' : 'Pin note'}
-          >
-            <span className="material-symbols-outlined text-[20px]">{note.is_pinned ? 'check_circle' : 'radio_button_unchecked'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-white text-on-surface-variant hover:border-red-300 hover:text-red-700"
-            title="Delete note"
-          >
-            <span className="material-symbols-outlined text-[20px]">delete</span>
-          </button>
-        </div>
-      </div>
 
-      {highlightedText && (
-        isHighlightNote ? (
-          <div className={`mt-4 rounded-lg border px-4 py-3 text-body-md font-semibold leading-7 ${typeStyle.soft}`}>
-            <span className={`mb-2 block text-label-sm font-bold uppercase tracking-wide ${typeStyle.title}`}>
-              Highlighted text
-            </span>
-            <span className="rounded px-1 py-0.5" style={{ backgroundColor: '#fde047', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone' }}>
+        {highlightedText && (
+          isHighlightNote ? (
+            <div className={`mt-4 rounded-lg border px-4 py-3 text-body-md font-semibold leading-7 ${typeStyle.soft}`}>
+              <span className={`mb-2 block text-label-sm font-bold uppercase tracking-wide ${typeStyle.title}`}>
+                Highlighted text
+              </span>
+              <span className="rounded px-1 py-0.5" style={{ backgroundColor: '#fde047', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone' }}>
+                {highlightedText}
+              </span>
+            </div>
+          ) : (
+            <blockquote className={`mt-4 rounded-lg border-l-4 px-4 py-3 text-body-md ${typeStyle.soft}`}>
               {highlightedText}
-            </span>
-          </div>
-        ) : (
-          <blockquote className={`mt-4 rounded-lg border-l-4 px-4 py-3 text-body-md ${typeStyle.soft}`}>
-            {highlightedText}
-          </blockquote>
-        )
-      )}
-
-      {note.question_text && (
-        <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50 px-4 py-3 text-body-sm text-violet-900">
-          <span className="mb-1 block text-label-sm font-bold uppercase tracking-wide text-violet-800">Question</span>
-          {note.question_text}
-        </div>
-      )}
-
-      {shouldShowNoteContent && (
-        <p className="mt-4 line-clamp-6 whitespace-pre-line text-body-md leading-7 text-on-surface">{note.note_content}</p>
-      )}
-
-      <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-outline-variant pt-4 text-body-sm text-on-surface-variant">
-        {lessonHref ? (
-          <Link to={lessonHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
-            <span className="material-symbols-outlined text-[18px]">school</span>
-            {note.lesson_title || `Lesson ${note.lesson_id}`}
-          </Link>
-        ) : finalTestHref ? (
-          <Link to={finalTestHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
-            <span className="material-symbols-outlined text-[18px]">assignment</span>
-            Final test question
-          </Link>
-        ) : courseHref && !note.lesson_id ? (
-          <Link to={courseHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
-            <span className="material-symbols-outlined text-[18px]">school</span>
-            Course question
-          </Link>
-        ) : note.lesson_id ? (
-          <span>Lesson {note.lesson_id}</span>
-        ) : (
-          <span>Final test question</span>
+            </blockquote>
+          )
         )}
-        {note.course_title && <span>{note.course_title}</span>}
-      </div>
-    </article>
+
+        {note.question_text && (
+          <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50 px-4 py-3 text-body-sm text-violet-900">
+            <span className="mb-1 block text-label-sm font-bold uppercase tracking-wide text-violet-800">Question</span>
+            {note.question_text}
+          </div>
+        )}
+
+        {shouldShowNoteContent && (
+          <p className="mt-4 line-clamp-6 whitespace-pre-line text-body-md leading-7 text-on-surface">{note.note_content}</p>
+        )}
+
+        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-outline-variant pt-4 text-body-sm text-on-surface-variant">
+          {lessonHref ? (
+            <Link to={lessonHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+              <span className="material-symbols-outlined text-[18px]">school</span>
+              {note.lesson_title || `Lesson ${note.lesson_id}`}
+            </Link>
+          ) : finalTestHref ? (
+            <Link to={finalTestHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+              <span className="material-symbols-outlined text-[18px]">assignment</span>
+              Final test question
+            </Link>
+          ) : courseHref && !note.lesson_id ? (
+            <Link to={courseHref} onClick={stopOpeningDetail} className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+              <span className="material-symbols-outlined text-[18px]">school</span>
+              Course question
+            </Link>
+          ) : note.lesson_id ? (
+            <span>Lesson {note.lesson_id}</span>
+          ) : (
+            <span>Final test question</span>
+          )}
+          {note.course_title && <span>{note.course_title}</span>}
+        </div>
+      </article>
+    </InteractiveHoverCard>
 
     {isDetailOpen && (
       <div
@@ -233,7 +236,7 @@ export function NoteCard({ note, onChanged, onDeleted }: NoteCardProps) {
         onClick={() => setIsDetailOpen(false)}
       >
         <section
-          className="max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-2xl"
+          className="max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-xl bg-surface shadow-2xl"
           onClick={(event) => event.stopPropagation()}
         >
           <header className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">

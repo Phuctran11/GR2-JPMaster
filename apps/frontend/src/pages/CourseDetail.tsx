@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Header, Footer, Breadcrumbs } from '../components';
+import { MotionSectionFrame } from '../components/ui';
 import {
   CourseContentSection,
   CourseHeroSection,
@@ -125,48 +126,56 @@ export default function CourseDetail() {
       <Header />
       <Breadcrumbs items={breadcrumbs} />
       <main className="flex-1">
-        <CourseHeroSection
-          course={course}
-          enrollmentStatus={enrollmentStatus}
-          effectiveEnrollmentStatus={effectiveEnrollmentStatus}
-          enrolling={enrolling}
-          shouldShowFinalTestButton={Boolean(shouldShowFinalTestButton)}
-          onEnroll={handleEnroll}
-          onGetStarted={handleGetStarted}
-          onTakeFinalTest={handleTakeFinalTest}
-          onViewCertificate={handleViewCertificate}
-        />
-        <CourseContentSection
-          course={course}
-          modules={modules}
-          firstUnfinishedLessonIndex={firstUnfinishedLessonIndex}
-          finalQuiz={finalQuiz}
-          enrollmentStatus={enrollmentStatus}
-          shouldShowFinalTestButton={Boolean(shouldShowFinalTestButton)}
-          finalQuizPassed={finalQuizPassed}
-          allLessonsCompleted={allLessonsCompleted}
-          onSelectLesson={(lessonId) => navigate(`/courses/${courseId}/lessons/${lessonId}`)}
-          onTakeFinalTest={handleTakeFinalTest}
-        />
-        {enrollmentStatus && user && (
-          <CourseRatingSection
-            courseId={parseInt(courseId)}
-            userRating={userRating}
-            loading={loading}
-            onSuccess={(newRating) => {
-              setUserRating(newRating || null);
-              showToast('Your review has been submitted successfully!', 'success');
-              fetchReviews();
-            }}
-            onError={(error) => showToast(error, 'error')}
+        <MotionSectionFrame index={0} preset="hero">
+          <CourseHeroSection
+            course={course}
+            enrollmentStatus={enrollmentStatus}
+            effectiveEnrollmentStatus={effectiveEnrollmentStatus}
+            enrolling={enrolling}
+            shouldShowFinalTestButton={Boolean(shouldShowFinalTestButton)}
+            onEnroll={handleEnroll}
+            onGetStarted={handleGetStarted}
+            onTakeFinalTest={handleTakeFinalTest}
+            onViewCertificate={handleViewCertificate}
           />
+        </MotionSectionFrame>
+        <MotionSectionFrame index={1}>
+          <CourseContentSection
+            course={course}
+            modules={modules}
+            firstUnfinishedLessonIndex={firstUnfinishedLessonIndex}
+            finalQuiz={finalQuiz}
+            enrollmentStatus={enrollmentStatus}
+            shouldShowFinalTestButton={Boolean(shouldShowFinalTestButton)}
+            finalQuizPassed={finalQuizPassed}
+            allLessonsCompleted={allLessonsCompleted}
+            onSelectLesson={(lessonId) => navigate(`/courses/${courseId}/lessons/${lessonId}`)}
+            onTakeFinalTest={handleTakeFinalTest}
+          />
+        </MotionSectionFrame>
+        {enrollmentStatus && user && (
+          <MotionSectionFrame index={2} preset="sweep">
+            <CourseRatingSection
+              courseId={parseInt(courseId)}
+              userRating={userRating}
+              loading={loading}
+              onSuccess={(newRating) => {
+                setUserRating(newRating || null);
+                showToast('Your review has been submitted successfully!', 'success');
+                fetchReviews();
+              }}
+              onError={(error) => showToast(error, 'error')}
+            />
+          </MotionSectionFrame>
         )}
-        <CourseReviewsSection
-          orderedReviews={orderedReviews}
-          averageRating={averageRating}
-          user={user}
-          highlightedRatingId={targetRatingId}
-        />
+        <MotionSectionFrame index={3}>
+          <CourseReviewsSection
+            orderedReviews={orderedReviews}
+            averageRating={averageRating}
+            user={user}
+            highlightedRatingId={targetRatingId}
+          />
+        </MotionSectionFrame>
       </main>
       {paymentModalOpen && paymentTransaction && (
         <CoursePaymentModal

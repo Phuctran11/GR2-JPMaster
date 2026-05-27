@@ -169,7 +169,7 @@ export function AIAssistantPanel({
             type="button"
             onClick={() => askAI(action.mode)}
             disabled={Boolean(loadingMode)}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant bg-white px-4 py-3 text-label-md font-bold text-on-surface transition hover:border-primary hover:text-primary disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface px-4 py-3 text-label-md font-bold text-on-surface transition hover:border-primary hover:text-primary disabled:opacity-50"
           >
             <Icon name={action.icon} size="sm" />
             {loadingMode === action.mode ? 'Generating...' : action.label}
@@ -182,7 +182,7 @@ export function AIAssistantPanel({
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
           rows={3}
-          className="min-h-[96px] w-full resize-y rounded-lg border border-outline-variant bg-white px-4 py-3 outline-none focus:border-primary"
+          className="min-h-[96px] w-full resize-y rounded-lg border border-outline-variant bg-surface px-4 py-3 outline-none focus:border-primary"
           placeholder={context.type === 'flashcard' ? 'Ask AI anything about this word...' : 'Ask AI about the lesson content or grammar...'}
         />
         <Button
@@ -195,7 +195,7 @@ export function AIAssistantPanel({
         </Button>
       </div>
 
-      {error && <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-body-md text-red-700">{error}</p>}
+      {error && <p className="mt-4 rounded-lg bg-error-container px-4 py-3 text-body-md text-on-error-container">{error}</p>}
 
       {answer && (
         <div className="mt-5 rounded-lg border border-outline-variant bg-surface-container-low px-4 py-4">
@@ -204,7 +204,7 @@ export function AIAssistantPanel({
             <button
               type="button"
               onClick={copyAnswer}
-              className="inline-flex items-center gap-1 rounded-lg border border-outline-variant bg-white px-3 py-2 text-label-sm font-bold text-on-surface-variant hover:border-primary hover:text-primary"
+              className="inline-flex items-center gap-1 rounded-lg border border-outline-variant bg-surface px-3 py-2 text-label-sm font-bold text-on-surface-variant hover:border-primary hover:text-primary"
             >
               <Icon name={copied ? 'check' : 'content_copy'} size="sm" />
               {copied ? 'Copied' : 'Copy'}

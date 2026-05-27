@@ -12,7 +12,7 @@ export function QuizFocusResultBanner({
   onRetake: () => void;
 }) {
   return (
-    <section className={`rounded-xl border p-5 ${result.passed ? 'border-emerald-300 bg-emerald-50 text-emerald-900' : 'border-red-300 bg-red-50 text-red-800'}`}>
+    <section className={`rounded-xl border p-5 ${result.passed ? 'border-success/40 bg-success-container text-on-success-container' : 'border-error/40 bg-error-container text-on-error-container'}`}>
       <h2 className="text-headline-sm font-bold">
         {result.passed ? 'Passed' : 'Not passed'} - {result.score.toFixed(2)}%
       </h2>

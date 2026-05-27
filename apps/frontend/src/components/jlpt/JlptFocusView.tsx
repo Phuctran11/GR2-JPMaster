@@ -53,13 +53,13 @@ export function JlptFocusView({
       <Container className="py-6 md:py-8">
         <div className="mx-auto max-w-4xl space-y-5">
           {phase === 'section' && (
-            <section className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900">
+            <section className="rounded-xl border border-warning/40 bg-warning-container p-4 text-on-warning-container">
               Focus mode is locked. Finish this section to continue. Answered {activeSectionAnsweredCount}/{activeSection?.questions.length ?? 0}.
             </section>
           )}
 
           {phase === 'submitted' && result && (
-            <section className={`rounded-xl border p-5 ${result.passed ? 'border-emerald-300 bg-emerald-50 text-emerald-900' : 'border-red-300 bg-red-50 text-red-800'}`}>
+            <section className={`rounded-xl border p-5 ${result.passed ? 'border-success/40 bg-success-container text-on-success-container' : 'border-error/40 bg-error-container text-on-error-container'}`}>
               <h2 className="text-headline-sm font-bold">{result.passed ? 'Passed' : 'Not passed'} - {result.score.toFixed(2)}%</h2>
               <p className="mt-1 text-body-md">{result.earned_marks}/{result.total_marks} marks</p>
               <button type="button" onClick={resetTest} className="mt-4 rounded-lg bg-primary px-5 py-3 font-bold text-on-primary">
@@ -83,7 +83,7 @@ export function JlptFocusView({
           ))}
 
           {phase === 'section' && (
-            <section className="sticky bottom-4 z-20 rounded-lg border border-outline-variant bg-white p-4 shadow-lg">
+            <section className="sticky bottom-4 z-20 rounded-lg border border-outline-variant bg-surface p-4 shadow-lg">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <p className="text-body-md text-on-surface-variant">
                   Total answered {totalAnsweredCount}/{questions.length}

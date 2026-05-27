@@ -4,6 +4,7 @@ interface ProgressBarProps {
   variant?: 'default' | 'secondary';
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  showIndicator?: boolean;
 }
 
 export function ProgressBar({
@@ -11,7 +12,8 @@ export function ProgressBar({
   showLabel = true,
   variant = 'default',
   size = 'md',
-  className = ''
+  className = '',
+  showIndicator = true
 }: ProgressBarProps) {
   const sizeClasses = {
     sm: 'h-1',
@@ -36,10 +38,10 @@ export function ProgressBar({
       )}
       <div className={`w-full ${sizeClasses[size]} bg-surface-container-high rounded-full overflow-hidden`}>
         <div
-          className={`${sizeClasses[size]} ${variantClasses[variant]} rounded-full transition-all duration-300`}
+          className={`relative ${sizeClasses[size]} ${variantClasses[variant]} rounded-full transition-all duration-300`}
           style={{ width: `${clampedValue}%` }}
         >
-          {size !== 'sm' && (
+          {showIndicator && size !== 'sm' && (
             <div className="absolute -right-1 -top-1 w-3 h-3 bg-secondary-fixed-dim rounded-full shadow-sm"></div>
           )}
         </div>

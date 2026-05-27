@@ -18,7 +18,7 @@ export function QuizFocusHeader({
   onExit: () => void;
 }) {
   return (
-    <div className="sticky top-0 z-10 border-b border-outline-variant bg-white/95 backdrop-blur">
+    <div className="sticky top-0 z-10 border-b border-outline-variant bg-surface/95 backdrop-blur">
       <Container>
         <div className="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
           <div>
@@ -29,7 +29,7 @@ export function QuizFocusHeader({
             <p className="mt-1 text-body-sm text-on-surface-variant">{courseTitle}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <div className={`rounded-xl border px-4 py-3 font-bold ${remainingSeconds <= 60 ? 'border-red-300 bg-red-50 text-red-700' : 'border-primary/20 bg-primary-fixed text-on-primary-fixed'}`}>
+            <div className={`rounded-xl border px-4 py-3 font-bold ${remainingSeconds <= 60 ? 'border-error/40 bg-error-container text-on-error-container' : 'border-primary/20 bg-primary-fixed text-on-primary-fixed'}`}>
               <span className="mr-2 align-middle material-symbols-outlined text-[20px]">timer</span>
               {formatQuizFocusTime(remainingSeconds)}
             </div>

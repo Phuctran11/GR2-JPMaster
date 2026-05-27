@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header, Footer, Card, Container, Section, Breadcrumbs, Pagination } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
+import { MotionSectionFrame } from '../components/ui';
 import { MyLearningCard } from '../components/cards';
 import { enrollmentAPI, type EnrolledCourse } from '../services/api';
 import { useToastMessages } from '../hooks/useToastMessages';
@@ -71,10 +72,6 @@ export default function CourseList() {
     navigate(`/courses/${courseId}/certificate`);
   };
 
-  const handleTakeFinalTest = (courseId: number) => {
-    navigate(`/courses/${courseId}/final-test`);
-  };
-
   const getEffectiveStatus = (enrollment: EnrolledCourse): 'active' | 'completed' | 'dropped' => {
     return enrollment.status;
   };
@@ -107,7 +104,8 @@ export default function CourseList() {
         <Section bgColor="light">
           <Container>
             <div className="mb-section-gap">
-              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-stack-lg">
+              <MotionSectionFrame index={0} preset="hero" className="mb-stack-lg">
+                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
                   <Heading level="h1" size="display-lg" className="flex items-center gap-3">
                     <span className="w-1.5 h-8 bg-secondary-fixed rounded-full"></span>
@@ -137,13 +135,16 @@ export default function CourseList() {
                   })}
                 </div>
               </div>
+              </MotionSectionFrame>
 
-              <div className="flex items-center justify-between mb-stack-lg">
-                <Heading level="h2" size="headline-lg" className="flex items-center gap-3">
-                  <span className="w-1.5 h-8 bg-secondary-fixed rounded-full"></span>
-                  {activeStatus === 'active' ? 'In Progress' : 'Completed'} Courses
-                </Heading>
-              </div>
+              <MotionSectionFrame index={1} preset="sweep" className="mb-stack-lg">
+                <div className="flex items-center justify-between">
+                  <Heading level="h2" size="headline-lg" className="flex items-center gap-3">
+                    <span className="w-1.5 h-8 bg-secondary-fixed rounded-full"></span>
+                    {activeStatus === 'active' ? 'In Progress' : 'Completed'} Courses
+                  </Heading>
+                </div>
+              </MotionSectionFrame>
 
               {error && (
                 <Card className="p-4 bg-error-container text-error border border-error mb-stack-lg">
@@ -164,7 +165,7 @@ export default function CourseList() {
                   </Text>
                 </Card>
               ) : (
-                <div className="flex flex-col gap-gutter">
+                <MotionSectionFrame index={2} className="flex flex-col gap-gutter">
                   {courses.map((enrollment) => {
                     const effectiveStatus = getEffectiveStatus(enrollment);
                     const needsFinalTest = effectiveStatus === 'active' && (enrollment.progress_percent ?? 0) >= 99.99;
@@ -180,14 +181,13 @@ export default function CourseList() {
                         image={enrollment.course.image_url}
                         onClick={handleOpenCourseDetail}
                         onGetStarted={handleGetStarted}
-                        onTakeFinalTest={handleTakeFinalTest}
                         onViewCertificate={handleViewCertificate}
                       />
                     </div>
                     );
                   })}
                   <Pagination page={page} pageSize={pageSize} itemCount={courses.length} totalCount={totalCount} onPageChange={setPage} className="mt-5" />
-                </div>
+                </MotionSectionFrame>
               )}
             </div>
           </Container>

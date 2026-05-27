@@ -147,7 +147,7 @@ export function NoteComposer({
   };
 
   return (
-    <section className={compact ? 'space-y-3' : 'rounded-xl border border-outline-variant bg-white p-5 shadow-sm'}>
+    <section className={compact ? 'space-y-3' : 'rounded-xl border border-outline-variant bg-surface p-5 shadow-sm'}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-label-md font-bold uppercase tracking-wide text-primary">{typeLabels[noteType]}</p>
@@ -184,7 +184,7 @@ export function NoteComposer({
               if (parsed != null) setTimestampSeconds(parsed);
             }}
             onBlur={() => setTimestampInput(formatTimestamp(parseTimestamp(timestampInput) ?? 0) ?? '00:00:00')}
-            className="w-full rounded-lg border border-outline-variant bg-white px-4 py-3 text-body-md text-on-surface outline-none focus:border-primary"
+            className="w-full rounded-lg border border-outline-variant bg-surface px-4 py-3 text-body-md text-on-surface outline-none focus:border-primary"
             placeholder="00:01:23"
           />
         </label>
@@ -194,11 +194,11 @@ export function NoteComposer({
         value={content}
         onChange={(event) => setContent(event.target.value)}
         rows={compact ? 3 : 4}
-        className="w-full resize-y rounded-lg border border-outline-variant bg-white px-4 py-3 text-body-md text-on-surface outline-none focus:border-primary"
+        className="w-full resize-y rounded-lg border border-outline-variant bg-surface px-4 py-3 text-body-md text-on-surface outline-none focus:border-primary"
         placeholder={placeholder}
       />
 
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-body-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-lg bg-error-container px-3 py-2 text-body-sm text-on-error-container">{error}</p>}
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         {existingNote && (
@@ -206,7 +206,7 @@ export function NoteComposer({
             type="button"
             onClick={handleDelete}
             disabled={saving}
-            className="rounded-lg border border-red-200 bg-white px-4 py-2 font-bold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg border border-error/40 bg-surface px-4 py-2 font-bold text-on-error-container hover:bg-error-container disabled:cursor-not-allowed disabled:opacity-50"
           >
             Delete
           </button>
@@ -215,7 +215,7 @@ export function NoteComposer({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-outline-variant bg-white px-4 py-2 font-bold text-on-surface"
+            className="rounded-lg border border-outline-variant bg-surface px-4 py-2 font-bold text-on-surface"
           >
             Cancel
           </button>

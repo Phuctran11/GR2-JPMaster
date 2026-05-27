@@ -25,10 +25,10 @@ export function NotesResults({
         <span>{pinnedCount} pinned in results</span>
       </div>
 
-      {error && <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-red-700">{error}</p>}
+      {error && <p className="mb-4 rounded-lg bg-error-container px-4 py-3 text-on-error-container">{error}</p>}
 
       {!loading && notes.length === 0 ? (
-        <section className="rounded-xl border border-dashed border-outline-variant bg-white p-8 text-center text-on-surface-variant">
+        <section className="rounded-xl border border-dashed border-outline-variant bg-surface p-8 text-center text-on-surface-variant">
           No notes match the current filters.
         </section>
       ) : (

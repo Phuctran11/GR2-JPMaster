@@ -26,7 +26,7 @@ export function JlptSectionSubmitDialog({
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="jlpt-section-submit-title">
-      <section className="w-full max-w-md rounded-xl border border-outline-variant bg-white p-6 shadow-xl">
+      <section className="w-full max-w-md rounded-xl border border-outline-variant bg-surface p-6 shadow-xl">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-fixed text-on-primary-fixed">
             <span className="material-symbols-outlined text-[28px]">assignment_turned_in</span>
@@ -57,7 +57,7 @@ export function JlptSectionSubmitDialog({
             <strong className="text-on-surface">{formatTime(remainingSeconds)}</strong>
           </div>
           {unansweredCount > 0 && (
-            <p className="text-amber-800">
+            <p className="text-on-warning-container">
               {unansweredCount} question{unansweredCount === 1 ? '' : 's'} still unanswered.
             </p>
           )}
@@ -67,7 +67,7 @@ export function JlptSectionSubmitDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-outline-variant bg-white px-5 py-3 font-bold text-on-surface"
+            className="rounded-lg border border-outline-variant bg-surface px-5 py-3 font-bold text-on-surface"
           >
             Back to questions
           </button>

@@ -54,7 +54,7 @@ export function QuizQuestionItem({
               value={answer.answerText}
               onChange={(event) => onTextAnswer(question.question_id, event.target.value)}
               disabled={isSubmitted}
-              className="mt-4 w-full rounded-lg border border-outline-variant bg-white px-4 py-3 outline-none focus:border-primary"
+              className="mt-4 w-full rounded-lg border border-outline-variant bg-surface px-4 py-3 outline-none focus:border-primary"
               placeholder="Type your answer"
             />
           ) : (
@@ -69,13 +69,13 @@ export function QuizQuestionItem({
               labelClassName={({ checked, wasSelected, isCorrectOption }) => {
                 const optionStateClass = result
                   ? isCorrectOption
-                    ? 'border-emerald-400 bg-emerald-50 text-emerald-900'
+                    ? 'border-success/40 bg-success-container text-on-success-container'
                     : wasSelected
-                      ? 'border-red-300 bg-red-50 text-red-800'
-                      : 'border-outline-variant bg-white opacity-75'
+                      ? 'border-error/40 bg-error-container text-on-error-container'
+                      : 'border-outline-variant bg-surface opacity-75'
                   : checked
                     ? 'border-primary bg-primary-fixed/40'
-                    : 'border-outline-variant bg-white hover:border-primary';
+                    : 'border-outline-variant bg-surface hover:border-primary';
 
                 return `flex items-start gap-3 rounded-lg border px-4 py-3 transition ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} ${optionStateClass}`;
               }}

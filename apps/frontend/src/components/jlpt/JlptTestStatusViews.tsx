@@ -18,7 +18,7 @@ export function JlptUnavailableView({
 }) {
   return (
     <main className="fixed inset-0 z-[70] flex items-center justify-center bg-surface-container-low p-6">
-      <section className="max-w-xl rounded-xl border border-outline-variant bg-white p-6 text-center shadow-lg">
+      <section className="max-w-xl rounded-xl border border-outline-variant bg-surface p-6 text-center shadow-lg">
         <h1 className="text-headline-md font-bold text-on-surface">JLPT test unavailable</h1>
         <p className="mt-2 text-on-surface-variant">{message}</p>
         <button type="button" onClick={onBack} className="mt-5 rounded-lg bg-primary px-5 py-3 font-bold text-on-primary">
@@ -40,7 +40,7 @@ export function JlptIntroView({
 }) {
   return (
     <main className="fixed inset-0 z-[70] flex items-center justify-center overflow-y-auto bg-surface-container-low p-6">
-      <section className="w-full max-w-2xl rounded-xl border border-outline-variant bg-white p-6 shadow-lg">
+      <section className="w-full max-w-2xl rounded-xl border border-outline-variant bg-surface p-6 shadow-lg">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-fixed text-on-primary-fixed">
           <span className="material-symbols-outlined text-[30px]">assignment</span>
         </div>
@@ -61,7 +61,7 @@ export function JlptIntroView({
           ))}
         </div>
 
-        <div className="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-4 text-body-md text-amber-900">
+        <div className="mt-5 rounded-lg border border-warning/40 bg-warning-container p-4 text-body-md text-on-warning-container">
           Each section has its own timer. Between sections, you get a 2-minute break. Once focus mode starts, submit the test before leaving.
         </div>
 
@@ -69,7 +69,7 @@ export function JlptIntroView({
           <button type="button" onClick={onStart} className="rounded-lg bg-primary px-6 py-3 font-bold text-on-primary">
             Start test
           </button>
-          <button type="button" onClick={onBack} className="rounded-lg border border-outline-variant bg-white px-6 py-3 font-bold text-on-surface">
+          <button type="button" onClick={onBack} className="rounded-lg border border-outline-variant bg-surface px-6 py-3 font-bold text-on-surface">
             Back to tests
           </button>
         </div>
@@ -89,7 +89,7 @@ export function JlptBreakView({
 }) {
   return (
     <main className="fixed inset-0 z-[70] flex items-center justify-center bg-surface-container-low p-6">
-      <section className="w-full max-w-xl rounded-xl border border-outline-variant bg-white p-6 text-center shadow-lg">
+      <section className="w-full max-w-xl rounded-xl border border-outline-variant bg-surface p-6 text-center shadow-lg">
         <p className="text-label-md font-bold uppercase text-primary">Break time</p>
         <h1 className="mt-2 text-headline-md font-bold text-on-surface">{formatTime(remainingSeconds)}</h1>
         <p className="mt-3 text-body-md text-on-surface-variant">

@@ -13,7 +13,7 @@ export function PublicCollectionsSection({
   onOpen: (collectionId: number) => void;
 }) {
   return (
-    <section className="rounded-xl border border-outline-variant bg-white p-stack-lg shadow-sm">
+    <section className="rounded-xl border border-outline-variant bg-surface p-stack-lg shadow-sm">
       <div className="mb-stack-lg flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-label-md font-bold uppercase tracking-wide text-secondary">Reference Collections</p>

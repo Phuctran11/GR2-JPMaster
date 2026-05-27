@@ -7,7 +7,7 @@ export function QuizFocusStartView({
 }) {
   return (
     <main className="fixed inset-0 z-[70] flex items-center justify-center bg-surface-container-low p-6">
-      <section className="w-full max-w-xl rounded-xl border border-outline-variant bg-white p-6 text-center shadow-lg">
+      <section className="w-full max-w-xl rounded-xl border border-outline-variant bg-surface p-6 text-center shadow-lg">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-fixed text-on-primary-fixed">
           <span className="material-symbols-outlined text-[30px]">assignment</span>
         </div>
@@ -26,7 +26,7 @@ export function QuizFocusStartView({
           <button
             type="button"
             onClick={onBack}
-            className="rounded-lg border border-outline-variant bg-white px-5 py-3 font-bold text-on-surface"
+            className="rounded-lg border border-outline-variant bg-surface px-5 py-3 font-bold text-on-surface"
           >
             Back to course
           </button>
@@ -53,7 +53,7 @@ export function QuizFocusUnavailableView({
 }) {
   return (
     <main className="fixed inset-0 z-[70] flex items-center justify-center bg-surface-container-low p-6">
-      <section className="max-w-xl rounded-xl border border-outline-variant bg-white p-6 text-center shadow-lg">
+      <section className="max-w-xl rounded-xl border border-outline-variant bg-surface p-6 text-center shadow-lg">
         <h1 className="text-headline-md font-bold text-on-surface">Quiz unavailable</h1>
         <p className="mt-2 text-on-surface-variant">{message}</p>
         <button type="button" onClick={onBack} className="mt-5 rounded-lg bg-primary px-5 py-3 font-bold text-on-primary">

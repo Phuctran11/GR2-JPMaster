@@ -60,20 +60,29 @@ export function useCourseDetailData({
         setFinalQuiz(null);
 
         if (user) {
-          const enrollmentResult = await enrollmentAPI.getMyCourses(100, 0);
-          const enrolledCourse = enrollmentResult.data.find((item) => item.course_id === parseInt(courseId));
+          try {
+            const enrolledCourseResult = await enrollmentAPI.getEnrolledCourseDetail(parseInt(courseId));
+            const enrolledCourse = enrolledCourseResult.data;
+            const status =
+              enrolledCourse.enrollment_status === 'active' ||
+              enrolledCourse.enrollment_status === 'completed' ||
+              enrolledCourse.enrollment_status === 'dropped'
+                ? enrolledCourse.enrollment_status
+                : 'active';
 
-          if (enrolledCourse) {
-            setEnrollmentStatus(enrolledCourse.status);
+            setEnrollmentStatus(status);
             setCourse((currentCourse) => currentCourse
               ? {
                 ...currentCourse,
-                lessons: enrolledCourse.course.lessons ?? currentCourse.lessons,
+                ...enrolledCourse,
+                lessons: enrolledCourse.lessons ?? currentCourse.lessons,
               }
-              : currentCourse);
+              : enrolledCourse);
 
             const finalQuizResult = await quizAPI.getFinalQuiz(parseInt(courseId));
             setFinalQuiz(finalQuizResult.data);
+          } catch {
+            // Public course detail still renders for users who are not enrolled.
           }
         }
       } catch (error) {

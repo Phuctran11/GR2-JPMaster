@@ -58,7 +58,13 @@ export function NewsletterSection() {
                 {errors.email && <p className="px-4 pb-2 text-left text-label-sm font-semibold text-white">{getFieldError(errors.email)}</p>}
                 {isSubmitSuccessful && !errors.email && <p className="px-4 pb-2 text-left text-label-sm font-semibold text-white">Thanks for signing up.</p>}
               </div>
-              <Button type="submit">Sign Up</Button>
+              <Button
+                type="submit"
+                variant="secondary"
+                className="shrink-0 border border-white/20 shadow-lg shadow-black/10 hover:bg-secondary hover:text-on-secondary"
+              >
+                Sign Up
+              </Button>
             </form>
 
             <p className="text-[10px] text-white/50 uppercase tracking-[0.3em] font-bold">

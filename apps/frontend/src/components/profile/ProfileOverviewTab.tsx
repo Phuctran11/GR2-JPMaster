@@ -169,11 +169,11 @@ export function ProfileOverviewTab({
                   </div>
                 </div>
                 <div className="mb-4 grid grid-cols-2 gap-3 text-label-md">
-                  <div className="rounded-xl bg-white/70 p-3">
+                  <div className="rounded-xl bg-surface/70 p-3">
                     <p className="font-bold text-on-surface-variant">Progress</p>
                     <p className="text-primary font-bold">{enrollment.progress_percent ?? 100}%</p>
                   </div>
-                  <div className="rounded-xl bg-white/70 p-3">
+                  <div className="rounded-xl bg-surface/70 p-3">
                     <p className="font-bold text-on-surface-variant">Enrolled</p>
                     <p className="text-primary font-bold">{formatDate(enrollment.enrollment_date)}</p>
                   </div>

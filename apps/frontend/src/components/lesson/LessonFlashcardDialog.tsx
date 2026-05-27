@@ -26,7 +26,7 @@ export function LessonFlashcardDialog({
 }) {
   return (
     <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-surface shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">
           <div className="min-w-0">
             <p className="text-label-md font-bold uppercase tracking-wide text-primary">Save Flashcard</p>
@@ -52,7 +52,7 @@ export function LessonFlashcardDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Front <span className="text-error">Required</span></span>
               <textarea
-                className="min-h-28 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                className="min-h-28 w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 value={draft.frontText}
                 onChange={(event) => onUpdateDraft({ frontText: event.target.value })}
               />
@@ -60,7 +60,7 @@ export function LessonFlashcardDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Back <span className="text-error">Required</span></span>
               <textarea
-                className="min-h-28 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                className="min-h-28 w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 value={draft.backText}
                 onChange={(event) => onUpdateDraft({ backText: event.target.value })}
               />
@@ -71,7 +71,7 @@ export function LessonFlashcardDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Reading <span className="font-normal text-on-surface-variant">Optional</span></span>
               <input
-                className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 value={draft.reading}
                 onChange={(event) => onUpdateDraft({ reading: event.target.value })}
                 placeholder="Kana, romaji, or pronunciation note"
@@ -80,7 +80,7 @@ export function LessonFlashcardDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Tags <span className="font-normal text-on-surface-variant">Optional</span></span>
               <input
-                className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 value={draft.tags}
                 onChange={(event) => onUpdateDraft({ tags: event.target.value })}
                 placeholder="Comma separated tags"
@@ -91,7 +91,7 @@ export function LessonFlashcardDialog({
           <label className="block">
             <span className="mb-1 block text-label-md font-bold text-on-surface">Example sentence <span className="font-normal text-on-surface-variant">Optional</span></span>
             <textarea
-              className="min-h-24 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+              className="min-h-24 w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
               value={draft.exampleSentence}
               onChange={(event) => onUpdateDraft({ exampleSentence: event.target.value })}
             />
@@ -101,7 +101,7 @@ export function LessonFlashcardDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Image URL <span className="font-normal text-on-surface-variant">Optional</span></span>
               <input
-                className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 value={draft.imageUrl}
                 onChange={(event) => onUpdateDraft({ imageUrl: event.target.value })}
                 placeholder="https://..."
@@ -124,7 +124,7 @@ export function LessonFlashcardDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Audio URL <span className="font-normal text-on-surface-variant">Optional</span></span>
               <input
-                className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 value={draft.audioUrl}
                 onChange={(event) => onUpdateDraft({ audioUrl: event.target.value })}
                 placeholder="https://..."
@@ -183,7 +183,7 @@ export function LessonFlashcardDialog({
                 <label className="block">
                   <span className="mb-1 block text-label-md font-bold text-on-surface">Collection title <span className="text-error">Required</span></span>
                   <input
-                    className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                     value={draft.newCollectionTitle}
                     onChange={(event) => onUpdateDraft({ newCollectionTitle: event.target.value })}
                   />
@@ -191,7 +191,7 @@ export function LessonFlashcardDialog({
                 <label className="block">
                   <span className="mb-1 block text-label-md font-bold text-on-surface">Description <span className="font-normal text-on-surface-variant">Optional</span></span>
                   <textarea
-                    className="min-h-20 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    className="min-h-20 w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                     value={draft.newCollectionDescription}
                     onChange={(event) => onUpdateDraft({ newCollectionDescription: event.target.value })}
                   />
@@ -199,7 +199,7 @@ export function LessonFlashcardDialog({
                 <label className="block">
                   <span className="mb-1 block text-label-md font-bold text-on-surface">Visibility <span className="text-error">Required</span></span>
                   <select
-                    className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                     value={draft.newCollectionVisibility}
                     onChange={(event) => onUpdateDraft({ newCollectionVisibility: event.target.value as 'private' | 'public' })}
                   >

@@ -6,6 +6,7 @@ import {
   CourseExploreHero,
   CourseFilterSidebar,
 } from '../components/courseExplore';
+import { MotionSectionFrame } from '../components/ui';
 import { useToast } from '../contexts/ToastContext';
 import { useCourseExploreData } from '../hooks/course/useCourseExploreData';
 import { DEFAULT_COURSE_LEVEL, DEFAULT_COURSE_SORT } from '../components/courseExplore/courseExploreUtils';
@@ -64,29 +65,35 @@ export default function CourseExplore() {
       <main className="flex-1">
         <Section bgColor="light">
           <Container>
-            <CourseExploreHero />
+            <MotionSectionFrame index={0} preset="hero">
+              <CourseExploreHero />
+            </MotionSectionFrame>
 
             <div className="mb-section-gap space-y-6">
-              <CourseFilterSidebar
-                level={level}
-                sort={sort}
-                onLevelChange={setLevel}
-                onSortChange={setSort}
-              />
+              <MotionSectionFrame index={1} preset="sweep">
+                <CourseFilterSidebar
+                  level={level}
+                  sort={sort}
+                  onLevelChange={setLevel}
+                  onSortChange={setSort}
+                />
+              </MotionSectionFrame>
 
-              <CourseExploreGrid
-                courses={courses}
-                totalCount={totalCount}
-                onCourseClick={handleCourseClick}
-              />
-              <Pagination
-                page={page}
-                pageSize={pageSize}
-                itemCount={courses.length}
-                totalCount={totalCount}
-                onPageChange={setPage}
-                className="mt-6"
-              />
+              <MotionSectionFrame index={2}>
+                <CourseExploreGrid
+                  courses={courses}
+                  totalCount={totalCount}
+                  onCourseClick={handleCourseClick}
+                />
+                <Pagination
+                  page={page}
+                  pageSize={pageSize}
+                  itemCount={courses.length}
+                  totalCount={totalCount}
+                  onPageChange={setPage}
+                  className="mt-6"
+                />
+              </MotionSectionFrame>
             </div>
           </Container>
         </Section>

@@ -18,11 +18,11 @@ const paymentStatusOptions: Array<{ value: AdminPaymentStatus; label: string }> 
 ];
 
 const statusClass: Record<Exclude<AdminPaymentStatus, 'all'>, string> = {
-  pending: 'border-amber-200 bg-amber-50 text-amber-800',
-  paid: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  failed: 'border-rose-200 bg-rose-50 text-rose-800',
-  canceled: 'border-slate-200 bg-slate-50 text-slate-700',
-  expired: 'border-orange-200 bg-orange-50 text-orange-800',
+  pending: 'border-warning/40 bg-warning-container text-on-warning-container',
+  paid: 'border-success/40 bg-success-container text-on-success-container',
+  failed: 'border-error/40 bg-error-container text-on-error-container',
+  canceled: 'border-outline-variant bg-surface-container-high text-on-surface-variant',
+  expired: 'border-warning/40 bg-warning-container text-on-warning-container',
 };
 
 const formatDateTime = (value: string | null) => value ? new Date(value).toLocaleString('vi-VN') : '-';

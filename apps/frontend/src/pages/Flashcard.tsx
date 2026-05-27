@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Header, Footer, Card, Container, Section, Breadcrumbs, Pagination } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
+import { MotionSectionFrame } from '../components/ui';
 import {
   CollectionDialog,
   FlashcardCollectionStats,
@@ -48,7 +49,8 @@ export default function Flashcard() {
       <main className="flex-1">
         <Section bgColor="light">
           <Container>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-section-gap gap-stack-lg">
+            <MotionSectionFrame index={0} preset="hero" className="mb-section-gap">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-lg">
               <div>
                 <Heading level="h1" size="display-lg" className="mb-2">
                   My Flashcards
@@ -62,36 +64,41 @@ export default function Flashcard() {
                 collectionCount={collectionTotalCount}
               />
             </div>
+            </MotionSectionFrame>
 
             {loading ? (
               <Card className="p-stack-lg text-center">Loading flashcard collections...</Card>
             ) : (
               <div className="space-y-section-gap">
-                <MyCollectionsSection
-                  collections={collections}
-                  onCreate={openCreateDialog}
-                  onEdit={openEditDialog}
-                  onOpen={(collectionId) => navigate(`/flashcards/${collectionId}`)}
-                />
-                <Pagination
-                  page={collectionsPage}
-                  pageSize={collectionPageSize}
-                  itemCount={collections.length}
-                  totalCount={collectionTotalCount}
-                  onPageChange={setCollectionsPage}
-                />
-                <PublicCollectionsSection
-                  collections={publicCollections}
-                  totalCount={publicCollectionTotalCount}
-                  onOpen={(collectionId) => navigate(`/flashcards/${collectionId}`)}
-                />
-                <Pagination
-                  page={publicCollectionsPage}
-                  pageSize={publicCollectionPageSize}
-                  itemCount={publicCollections.length}
-                  totalCount={publicCollectionTotalCount}
-                  onPageChange={setPublicCollectionsPage}
-                />
+                <MotionSectionFrame index={1}>
+                  <MyCollectionsSection
+                    collections={collections}
+                    onCreate={openCreateDialog}
+                    onEdit={openEditDialog}
+                    onOpen={(collectionId) => navigate(`/flashcards/${collectionId}`)}
+                  />
+                  <Pagination
+                    page={collectionsPage}
+                    pageSize={collectionPageSize}
+                    itemCount={collections.length}
+                    totalCount={collectionTotalCount}
+                    onPageChange={setCollectionsPage}
+                  />
+                </MotionSectionFrame>
+                <MotionSectionFrame index={2}>
+                  <PublicCollectionsSection
+                    collections={publicCollections}
+                    totalCount={publicCollectionTotalCount}
+                    onOpen={(collectionId) => navigate(`/flashcards/${collectionId}`)}
+                  />
+                  <Pagination
+                    page={publicCollectionsPage}
+                    pageSize={publicCollectionPageSize}
+                    itemCount={publicCollections.length}
+                    totalCount={publicCollectionTotalCount}
+                    onPageChange={setPublicCollectionsPage}
+                  />
+                </MotionSectionFrame>
               </div>
             )}
           </Container>

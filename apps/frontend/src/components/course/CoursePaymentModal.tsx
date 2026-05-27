@@ -39,13 +39,13 @@ export function CoursePaymentModal({
         </div>
 
         <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(430px,640px)_minmax(300px,360px)] lg:justify-center sm:p-5">
-          <div className="overflow-hidden rounded-xl border border-outline-variant bg-white">
+          <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface">
             <div
               id="payos-checkout-container"
               className="h-[520px] min-h-[420px] w-full overflow-hidden sm:h-[560px] lg:h-[600px] [&_iframe]:h-full [&_iframe]:min-h-[420px] [&_iframe]:w-full sm:[&_iframe]:min-h-[560px] lg:[&_iframe]:min-h-[600px]"
             />
             {embeddedError && (
-              <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900">
+              <div className="rounded-xl border border-warning/40 bg-warning-container p-4 text-on-warning-container">
                 <p className="font-bold">Embedded checkout unavailable</p>
                 <p className="mt-1 text-body-md">{embeddedError}</p>
               </div>
@@ -81,7 +81,7 @@ export function CoursePaymentModal({
               </div>
             </div>
 
-            <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-emerald-900">
+            <div className="rounded-lg border border-success/40 bg-success-container p-3 text-on-success-container">
               <p className="text-title-sm font-bold">Automatic activation</p>
               <p className="mt-1 text-body-sm">
                 Course access is activated automatically after payOS sends a verified payment webhook to the system.

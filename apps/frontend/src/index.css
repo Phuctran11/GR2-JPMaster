@@ -5,6 +5,123 @@
 @tailwind components;
 @tailwind utilities;
 
+:root,
+html[data-theme='light'] {
+  color-scheme: light;
+  --color-on-tertiary-container: 243 148 97;
+  --color-inverse-surface: 47 48 54;
+  --color-surface-container-lowest: 255 255 255;
+  --color-secondary-fixed-dim: 249 189 34;
+  --color-on-secondary: 255 255 255;
+  --color-inverse-primary: 182 196 255;
+  --color-on-background: 26 27 33;
+  --color-tertiary-fixed: 255 219 203;
+  --color-outline: 117 118 130;
+  --color-primary-container: 30 58 138;
+  --color-on-secondary-container: 111 81 0;
+  --color-on-secondary-fixed: 38 26 0;
+  --color-primary-fixed: 220 225 255;
+  --color-primary-fixed-dim: 182 196 255;
+  --color-error: 186 26 26;
+  --color-secondary-container: 255 195 41;
+  --color-tertiary-fixed-dim: 255 182 145;
+  --color-on-error-container: 147 0 10;
+  --color-on-secondary-fixed-variant: 92 67 0;
+  --color-on-primary-container: 144 168 255;
+  --color-surface-bright: 250 248 255;
+  --color-surface-dim: 218 217 225;
+  --color-surface: 250 248 255;
+  --color-error-container: 255 218 214;
+  --color-on-primary: 255 255 255;
+  --color-surface-variant: 227 225 233;
+  --color-secondary: 121 89 0;
+  --color-surface-container: 238 237 244;
+  --color-on-primary-fixed-variant: 38 65 145;
+  --color-surface-container-low: 244 243 250;
+  --color-on-surface: 26 27 33;
+  --color-tertiary-container: 110 44 0;
+  --color-on-primary-fixed: 0 22 78;
+  --color-outline-variant: 197 197 211;
+  --color-on-surface-variant: 68 70 81;
+  --color-background: 250 248 255;
+  --color-surface-tint: 64 89 170;
+  --color-on-tertiary-fixed-variant: 119 50 5;
+  --color-inverse-on-surface: 241 240 247;
+  --color-primary: 0 35 111;
+  --color-secondary-fixed: 255 223 159;
+  --color-surface-container-high: 233 231 239;
+  --color-on-tertiary: 255 255 255;
+  --color-on-tertiary-fixed: 52 17 0;
+  --color-surface-container-highest: 227 225 233;
+  --color-tertiary: 75 28 0;
+  --color-on-error: 255 255 255;
+  --color-success: 4 120 87;
+  --color-success-container: 209 250 229;
+  --color-on-success-container: 6 78 59;
+  --color-warning: 180 83 9;
+  --color-warning-container: 254 243 199;
+  --color-on-warning-container: 120 53 15;
+  --primary-rgb: 0, 35, 111;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --color-on-tertiary-container: 255 182 145;
+  --color-inverse-surface: 227 225 233;
+  --color-surface-container-lowest: 10 11 15;
+  --color-secondary-fixed-dim: 249 189 34;
+  --color-on-secondary: 45 32 0;
+  --color-inverse-primary: 0 35 111;
+  --color-on-background: 232 232 239;
+  --color-tertiary-fixed: 255 219 203;
+  --color-outline: 145 146 158;
+  --color-primary-container: 37 58 115;
+  --color-on-secondary-container: 255 224 166;
+  --color-on-secondary-fixed: 38 26 0;
+  --color-primary-fixed: 220 225 255;
+  --color-primary-fixed-dim: 182 196 255;
+  --color-error: 255 180 171;
+  --color-secondary-container: 94 68 0;
+  --color-tertiary-fixed-dim: 255 182 145;
+  --color-on-error-container: 255 218 214;
+  --color-on-secondary-fixed-variant: 92 67 0;
+  --color-on-primary-container: 220 225 255;
+  --color-surface-bright: 47 48 55;
+  --color-surface-dim: 17 18 24;
+  --color-surface: 17 18 24;
+  --color-error-container: 147 0 10;
+  --color-on-primary: 7 25 72;
+  --color-surface-variant: 68 70 81;
+  --color-secondary: 255 203 84;
+  --color-surface-container: 31 32 39;
+  --color-on-primary-fixed-variant: 38 65 145;
+  --color-surface-container-low: 24 25 32;
+  --color-on-surface: 232 232 239;
+  --color-tertiary-container: 110 44 0;
+  --color-on-primary-fixed: 0 22 78;
+  --color-outline-variant: 72 74 86;
+  --color-on-surface-variant: 199 198 211;
+  --color-background: 13 14 20;
+  --color-surface-tint: 182 196 255;
+  --color-on-tertiary-fixed-variant: 119 50 5;
+  --color-inverse-on-surface: 26 27 33;
+  --color-primary: 182 196 255;
+  --color-secondary-fixed: 255 223 159;
+  --color-surface-container-high: 38 39 47;
+  --color-on-tertiary: 52 17 0;
+  --color-on-tertiary-fixed: 52 17 0;
+  --color-surface-container-highest: 49 50 59;
+  --color-tertiary: 255 182 145;
+  --color-on-error: 105 0 5;
+  --color-success: 52 211 153;
+  --color-success-container: 6 78 59;
+  --color-on-success-container: 209 250 229;
+  --color-warning: 251 191 36;
+  --color-warning-container: 120 53 15;
+  --color-on-warning-container: 254 243 199;
+  --primary-rgb: 182, 196, 255;
+}
+
 * {
   @apply box-border;
 }
@@ -20,7 +137,7 @@ html {
 
 @layer components {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-md border border-white/30;
+    @apply bg-surface/75 backdrop-blur-md border border-outline-variant/50;
   }
 
   .blob {
@@ -45,6 +162,14 @@ html {
   }
 
   .testimonial-slider::-webkit-scrollbar {
+    display: none;
+  }
+
+  .flashcard-review-track {
+    scrollbar-width: none;
+  }
+
+  .flashcard-review-track::-webkit-scrollbar {
     display: none;
   }
 

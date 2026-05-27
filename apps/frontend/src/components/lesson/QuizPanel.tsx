@@ -64,7 +64,7 @@ export function QuizPanel({
   const quizLabel = titlePrefix.toLowerCase().includes('final') ? 'final test' : 'quiz';
 
   return (
-    <section className="rounded-xl border border-outline-variant bg-white p-5 shadow-sm">
+    <section className="rounded-xl border border-outline-variant bg-surface p-5 shadow-sm">
       <QuizPanelHeader
         quiz={quiz}
         titlePrefix={titlePrefix}
@@ -96,7 +96,7 @@ export function QuizPanel({
         ))}
       </div>
 
-      {error && <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-red-700">{error}</p>}
+      {error && <p className="mt-4 rounded-lg bg-error-container px-4 py-3 text-on-error-container">{error}</p>}
 
       {showSubmitConfirm && (
         <QuizSubmitConfirmDialog

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { SearchBar, NavigationMenu, UserMenu, MobileMenu, AuthActions } from './header/';
+import { SearchBar, NavigationMenu, UserMenu, MobileMenu, AuthActions, ThemeToggle } from './header/';
 
 export function Header() {
   const location = useLocation();
@@ -49,6 +49,7 @@ export function Header() {
 
         {/* Right Section - Actions */}
         <div className="flex items-center gap-2 md:gap-3">
+          <ThemeToggle className="hidden sm:inline-flex" />
           {user ? (
             <>
               <UserMenu />
@@ -56,7 +57,7 @@ export function Header() {
               <div className="lg:hidden">
                 <button
                   onClick={() => setShowMobileMenu(!showMobileMenu)}
-                  className="p-2 hover:bg-surface-container rounded-lg transition-colors"
+                  className="p-2 hover:bg-surface-container rounded-lg text-on-surface transition-colors"
                 >
                   {showMobileMenu ? '✕' : '☰'}
                 </button>

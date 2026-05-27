@@ -35,7 +35,7 @@ export function IconButton({
     <button className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`} {...props}>
       <Icon name={icon} size={size} />
       {badge !== undefined && badge > 0 && (
-        <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+        <span className="absolute top-1 right-1 bg-error text-on-error text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
           {badge > 9 ? '9+' : badge}
         </span>
       )}

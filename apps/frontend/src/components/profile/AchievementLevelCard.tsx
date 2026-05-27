@@ -53,22 +53,22 @@ export function AchievementLevelCard({ track }: { track: AchievementTrack }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-label-md font-black uppercase tracking-wide text-on-surface-variant">{track.title}</p>
-              <h3 className="mt-1 truncate text-title-lg font-bold text-on-surface">{achievement.name}</h3>
+              <p className={`text-label-md font-black uppercase tracking-wide ${earned ? styles.label : 'text-on-surface-variant'}`}>{track.title}</p>
+              <h3 className="mt-1 truncate text-title-lg font-bold text-on-surface [html[data-theme='dark']_&]:text-white">{achievement.name}</h3>
             </div>
-            <span className={`rounded-full bg-surface px-2 py-1 text-label-sm font-black uppercase ${earned ? styles.label : 'text-on-surface-variant'}`}>
+            <span className={`rounded-full bg-surface px-2 py-1 text-label-sm font-black uppercase shadow-sm [html[data-theme='dark']_&]:bg-black/55 ${earned ? styles.label : 'text-on-surface-variant'}`}>
               {achievement.tier}
             </span>
           </div>
-          <p className="mt-1 text-body-md text-on-surface-variant">{achievement.description}</p>
+          <p className="mt-1 text-body-md text-on-surface-variant [html[data-theme='dark']_&]:text-slate-200/90">{achievement.description}</p>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-label-md">
-            <span className="font-semibold text-on-surface-variant">Level {levelIndex + 1} / {track.items.length}</span>
+            <span className="font-semibold text-on-surface-variant [html[data-theme='dark']_&]:text-slate-200">Level {levelIndex + 1} / {track.items.length}</span>
             <span className={earned ? styles.label : 'font-semibold text-primary'}>
               {Math.min(achievement.current_value, achievement.condition_value)} / {achievement.condition_value}
             </span>
           </div>
-          <div className="mt-2 h-2 rounded-full bg-surface shadow-inner">
-            <div className={`h-full rounded-full transition-all ${earned ? styles.accent : 'bg-gradient-to-r from-outline-variant via-primary/55 to-primary/75'}`} style={{ width: `${earned ? 100 : progressPercent}%` }} />
+          <div className="mt-2 h-2 rounded-full bg-surface shadow-inner ring-1 ring-outline-variant/50 [html[data-theme='dark']_&]:bg-black/40 [html[data-theme='dark']_&]:ring-white/10">
+            <div className={`h-full rounded-full shadow-sm transition-all ${earned ? styles.accent : 'bg-gradient-to-r from-outline-variant via-primary/55 to-primary/75'}`} style={{ width: `${earned ? 100 : progressPercent}%` }} />
           </div>
           <p className={`mt-2 text-label-md font-semibold ${earned ? styles.label : 'text-on-surface-variant'}`}>
             {earned ? `Earned ${formatDate(achievement.earned_at || undefined)}` : `${Math.min(achievement.current_value, achievement.condition_value)} / ${achievement.condition_value} to unlock`}
@@ -80,7 +80,7 @@ export function AchievementLevelCard({ track }: { track: AchievementTrack }) {
                 type="button"
                 onClick={() => setLevelIndex(index)}
                 className={`h-2 flex-1 rounded-full transition-colors ${
-                  index === levelIndex ? styles.accent : item.earned_at ? 'bg-primary/40' : 'bg-outline-variant'
+                  index === levelIndex ? styles.accent : item.earned_at ? "bg-primary/40 [html[data-theme='dark']_&]:bg-slate-300/45" : "bg-outline-variant [html[data-theme='dark']_&]:bg-white/14"
                 }`}
                 aria-label={`View ${item.tier} level`}
               />

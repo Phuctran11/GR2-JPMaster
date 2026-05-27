@@ -154,7 +154,7 @@ export default function Lesson() {
           }
         >
           {isStudyMode && (
-            <div className="sticky top-0 z-20 border-b border-outline-variant bg-white/95 backdrop-blur">
+            <div className="sticky top-0 z-20 border-b border-outline-variant bg-surface/95 backdrop-blur">
               <Container className="max-w-none px-margin-mobile py-3 md:px-margin-desktop">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
@@ -164,7 +164,7 @@ export default function Lesson() {
                   <button
                     type="button"
                     onClick={handleToggleStudyMode}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant bg-white px-4 py-2 font-bold text-on-surface hover:border-primary hover:text-primary"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface px-4 py-2 font-bold text-on-surface hover:border-primary hover:text-primary"
                   >
                     <span className="material-symbols-outlined text-[18px]">visibility_off</span>
                     Exit study mode
@@ -257,7 +257,7 @@ export default function Lesson() {
                 />
               )}
                 {quizLoading && (
-                  <section className="rounded-xl border border-outline-variant bg-white p-5 text-on-surface-variant shadow-sm">
+                  <section className="rounded-xl border border-outline-variant bg-surface p-5 text-on-surface-variant shadow-sm">
                     Loading quizzes...
                   </section>
                 )}
@@ -265,13 +265,13 @@ export default function Lesson() {
                 {lessonQuiz && (
                   <section className={`rounded-xl border p-5 shadow-sm ${
                     lessonQuizPassed
-                      ? 'border-emerald-300 bg-emerald-50'
-                      : 'border-amber-300 bg-amber-50'
+                      ? 'border-success/40 bg-success-container'
+                      : 'border-warning/40 bg-warning-container'
                   }`}>
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                       <div>
                         <p className={`text-label-md font-bold uppercase tracking-wide ${
-                          lessonQuizPassed ? 'text-emerald-800' : 'text-amber-800'
+                          lessonQuizPassed ? 'text-on-success-container' : 'text-on-warning-container'
                         }`}>
                           {lessonQuizPassed ? 'Lesson quiz passed' : 'Lesson quiz required'}
                         </p>
@@ -304,7 +304,7 @@ export default function Lesson() {
                 }
               >
                 {actionError && (
-                  <p className="mb-3 rounded-lg bg-red-50 px-4 py-3 text-red-700">{actionError}</p>
+                  <p className="mb-3 rounded-lg bg-error-container px-4 py-3 text-on-error-container">{actionError}</p>
                 )}
                 <LessonActions
                   isCompleted={Boolean(currentLesson.is_completed)}

@@ -98,7 +98,7 @@ export function RatingForm({ courseId, userRating, onSuccess, onError, disabled 
   };
 
   return (
-    <Card className="bg-white p-8 border border-outline-variant">
+    <Card className="bg-surface p-8 border border-outline-variant">
       <Heading level="h3" size="headline-md" className="text-on-surface mb-2">
         {isEditing ? 'Update Your Review' : 'Share Your Review'}
       </Heading>

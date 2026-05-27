@@ -13,8 +13,8 @@ export function QuizLatestAttemptBanner({
     <div
       className={`mt-4 rounded-lg border p-4 ${
         requirementSatisfied
-          ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
-          : 'border-amber-300 bg-amber-50 text-amber-900'
+          ? 'border-success/40 bg-success-container text-on-success-container'
+          : 'border-warning/40 bg-warning-container text-on-warning-container'
       }`}
     >
       <div className="flex items-center gap-2 font-bold">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Header, Footer, Container, Breadcrumbs } from '../components';
 import { Pagination } from '../components/Pagination';
+import { MotionSectionFrame } from '../components/ui';
 import { NotesFilterPanel, NotesHero, NotesResults } from '../components/notes';
 import { useNotesData } from '../hooks/notes/useNotesData';
 import { useNotesFilters } from '../hooks/notes/useNotesFilters';
@@ -50,44 +51,50 @@ export default function Notes() {
 
       <main className="flex-1 bg-surface-container-low py-10 md:py-12">
         <Container>
-          <NotesHero
-            noteCount={totalCount}
-            totalPinnedCount={totalPinnedCount}
-            countsByType={countsByType}
-            activeNoteType={noteType}
-            onSelectType={setNoteType}
-          />
-          <NotesFilterPanel
-            search={search}
-            noteType={noteType}
-            pinned={pinned}
-            sortOrder={sortOrder}
-            hasActiveFilters={hasActiveFilters}
-            onSearchChange={setSearch}
-            onNoteTypeChange={setNoteType}
-            onPinnedChange={setPinned}
-            onSortOrderChange={setSortOrder}
-            onClearFilters={clearFilters}
-          />
-          <NotesResults
-            notes={notes}
-            loading={loading}
-            error={error}
-            pinnedCount={pinnedCount}
-            totalCount={totalCount}
-            onNoteChanged={handleNoteChanged}
-            onNoteDeleted={handleNoteDeleted}
-          />
-          {!loading && !error && notes.length > 0 && (
-            <Pagination
-              page={page}
-              pageSize={pageSize}
-              itemCount={notes.length}
-              totalCount={totalCount}
-              onPageChange={setPage}
-              className="mt-6"
+          <MotionSectionFrame index={0} preset="hero">
+            <NotesHero
+              noteCount={totalCount}
+              totalPinnedCount={totalPinnedCount}
+              countsByType={countsByType}
+              activeNoteType={noteType}
+              onSelectType={setNoteType}
             />
-          )}
+          </MotionSectionFrame>
+          <MotionSectionFrame index={1} preset="sweep">
+            <NotesFilterPanel
+              search={search}
+              noteType={noteType}
+              pinned={pinned}
+              sortOrder={sortOrder}
+              hasActiveFilters={hasActiveFilters}
+              onSearchChange={setSearch}
+              onNoteTypeChange={setNoteType}
+              onPinnedChange={setPinned}
+              onSortOrderChange={setSortOrder}
+              onClearFilters={clearFilters}
+            />
+          </MotionSectionFrame>
+          <MotionSectionFrame index={2}>
+            <NotesResults
+              notes={notes}
+              loading={loading}
+              error={error}
+              pinnedCount={pinnedCount}
+              totalCount={totalCount}
+              onNoteChanged={handleNoteChanged}
+              onNoteDeleted={handleNoteDeleted}
+            />
+            {!loading && !error && notes.length > 0 && (
+              <Pagination
+                page={page}
+                pageSize={pageSize}
+                itemCount={notes.length}
+                totalCount={totalCount}
+                onPageChange={setPage}
+                className="mt-6"
+              />
+            )}
+          </MotionSectionFrame>
         </Container>
       </main>
 

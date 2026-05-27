@@ -57,7 +57,7 @@ export function QuestionOptionList({
             />
             <span className="flex-1 text-body-md">{option.option_text}</span>
             {result && showSelectedBadge && wasSelected && (
-              <span className="rounded-full bg-white/70 px-2 py-1 text-label-sm font-bold">
+              <span className="rounded-full bg-surface/70 px-2 py-1 text-label-sm font-bold">
                 Your answer
               </span>
             )}
