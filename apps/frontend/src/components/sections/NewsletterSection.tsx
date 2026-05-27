@@ -1,8 +1,28 @@
+import { useForm } from 'react-hook-form';
 import { Button } from '../Button';
 import { Section } from '../ui';
 import { Heading, Text } from '../ui/Typography';
+import { formRules, getFieldError } from '../../utils/formValidation';
+
+type NewsletterFormValues = {
+  email: string;
+};
 
 export function NewsletterSection() {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitSuccessful },
+  } = useForm<NewsletterFormValues>({
+    defaultValues: { email: '' },
+    mode: 'onBlur',
+  });
+
+  const onSubmit = () => {
+    reset();
+  };
+
   return (
     <Section bgColor="light" className="px-margin-desktop">
       <div className="max-w-[1280px] mx-auto relative group">
@@ -27,12 +47,17 @@ export function NewsletterSection() {
             </Text>
 
             {/* Newsletter Form */}
-            <form className="mt-12 flex flex-col sm:flex-row gap-4 max-w-lg mx-auto bg-white/10 p-2 rounded-2xl backdrop-blur-md border border-white/20">
-              <input
-                className="flex-1 px-6 py-4 rounded-xl bg-transparent text-white border-none focus:ring-0 placeholder:text-white/50 outline-none"
-                placeholder="Your academic email"
-                type="email"
-              />
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-12 flex flex-col sm:flex-row gap-4 max-w-lg mx-auto bg-white/10 p-2 rounded-2xl backdrop-blur-md border border-white/20">
+              <div className="flex-1">
+                <input
+                  className="w-full px-6 py-4 rounded-xl bg-transparent text-white border-none focus:ring-0 placeholder:text-white/50 outline-none"
+                  placeholder="Your academic email"
+                  type="email"
+                  {...register('email', formRules.email<NewsletterFormValues>())}
+                />
+                {errors.email && <p className="px-4 pb-2 text-left text-label-sm font-semibold text-white">{getFieldError(errors.email)}</p>}
+                {isSubmitSuccessful && !errors.email && <p className="px-4 pb-2 text-left text-label-sm font-semibold text-white">Thanks for signing up.</p>}
+              </div>
               <Button type="submit">Sign Up</Button>
             </form>
 

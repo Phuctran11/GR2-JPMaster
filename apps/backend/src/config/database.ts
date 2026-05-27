@@ -1,7 +1,6 @@
+import "./env.js";
 import { Pool } from "pg";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { logger } from "../utils/logger.js";
 
 const pool = new Pool({
   user: process.env.DB_USER || "postgres",
@@ -12,7 +11,7 @@ const pool = new Pool({
 });
 
 pool.on("error", (err) => {
-  console.error("Unexpected error on idle client", err);
+  logger.error("Unexpected error on idle database client", { context: "database", error: err });
 });
 
 export default pool;

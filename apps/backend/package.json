@@ -8,6 +8,8 @@
     "dev": "nodemon --watch src --exec node --loader ts-node/esm src/app.ts",
     "build": "tsc",
     "start": "node dist/app.js",
+    "test:regression": "tsc -p tsconfig.json --outDir dist-test && node --test \"dist-test/**/*.grading.test.js\" \"dist-test/**/*.regression.test.js\"",
+    "test:integration": "tsc -p tsconfig.json --outDir dist-test && node --test \"dist-test/**/*.integration.test.js\"",
     "test:course": "node --loader ts-node/esm test-course.ts",
     "test:flashcard": "node --loader ts-node/esm test-flashcard.ts",
     "lint": "eslint .",

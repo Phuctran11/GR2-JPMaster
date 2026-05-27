@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../ui';
 import { courseAPI, type Course } from '../../services/api';
 
+type SearchFormValues = {
+  query: string;
+};
+
 export function SearchBar() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Course[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+  const { register, handleSubmit, reset, watch, setValue } = useForm<SearchFormValues>({
+    defaultValues: { query: '' },
+  });
+  const searchQuery = watch('query');
 
   // Search courses by title
   useEffect(() => {
@@ -39,24 +47,23 @@ export function SearchBar() {
     return () => clearTimeout(debounceTimer);
   }, [searchQuery]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
+  const handleSearch = (values: SearchFormValues) => {
+    if (values.query.trim()) {
       setShowSearchResults(false);
-      setSearchQuery('');
+      reset();
     }
   };
 
   const handleCourseClick = (courseId: number) => {
     navigate(`/courses/${courseId}`, { state: { from: '/explore' } });
     setShowSearchResults(false);
-    setSearchQuery('');
+    reset();
   };
 
   return (
     <div className="relative flex-1 md:flex-none max-w-xs md:max-w-sm">
       <form
-        onSubmit={handleSearch}
+        onSubmit={handleSubmit(handleSearch)}
         className="flex items-center bg-gradient-to-r from-surface-container to-surface-container-high rounded-full px-3 md:px-4 py-1.5 border-2 border-outline-variant/50 focus-within:border-primary focus-within:shadow-md focus-within:shadow-primary/20 transition-all duration-300"
       >
         <div className="text-primary">
@@ -66,15 +73,14 @@ export function SearchBar() {
           className="bg-transparent border-none focus:ring-0 text-label-md px-2 md:px-2 py-1 outline-none w-full placeholder:text-on-surface-variant/60 font-inter"
           placeholder="Search courses..."
           type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          {...register('query')}
           onFocus={() => searchQuery.trim().length > 0 && setShowSearchResults(true)}
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => {
-              setSearchQuery('');
+              setValue('query', '');
               setSearchResults([]);
               setShowSearchResults(false);
             }}

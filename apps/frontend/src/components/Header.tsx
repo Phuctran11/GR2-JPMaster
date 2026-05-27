@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { SearchBar, NavigationMenu, NotificationBell, UserMenu, MobileMenu, AuthActions } from './header/';
+import { SearchBar, NavigationMenu, UserMenu, MobileMenu, AuthActions } from './header/';
 
 export function Header() {
   const location = useLocation();
@@ -51,7 +51,6 @@ export function Header() {
         <div className="flex items-center gap-2 md:gap-3">
           {user ? (
             <>
-              <NotificationBell />
               <UserMenu />
               {/* Mobile Menu Toggle - handled in AuthActions equivalent */}
               <div className="lg:hidden">

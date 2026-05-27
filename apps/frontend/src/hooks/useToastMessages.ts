@@ -1,9 +1,10 @@
 import { useToast } from '../contexts/ToastContext';
+import { useMemo } from 'react';
 
 export const useToastMessages = () => {
   const { addToast } = useToast();
 
-  return {
+  return useMemo(() => ({
     // Auth messages
     loginSuccess: () => addToast('Welcome back! You are now logged in.', 'success', 2500),
     loginError: (error?: string) => addToast(error || 'Login failed. Please check your credentials.', 'error'),
@@ -21,5 +22,5 @@ export const useToastMessages = () => {
     error: (message: string) => addToast(message, 'error'),
     info: (message: string) => addToast(message, 'info', 3000),
     warning: (message: string) => addToast(message, 'warning', 3000),
-  };
+  }), [addToast]);
 };

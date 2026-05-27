@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { ratingAPI } from '../../services/api';
 import { Card } from '../ui';
 import { Heading, Text } from '../ui/Typography';
 import { Button } from '../Button';
+import { getFieldError, validationMessages } from '../../utils/formValidation';
 
 interface UserRating {
   rating_id: number;
@@ -21,40 +23,52 @@ interface RatingFormProps {
   disabled?: boolean;
 }
 
+type RatingFormValues = {
+  rating: number;
+  review: string;
+};
+
 export function RatingForm({ courseId, userRating, onSuccess, onError, disabled = false }: RatingFormProps) {
-  const [rating, setRating] = useState<number>(userRating?.rating || 0);
-  const [review, setReview] = useState<string>(userRating?.review || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const isEditing = !!userRating;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<RatingFormValues>({
+    defaultValues: {
+      rating: userRating?.rating || 0,
+      review: userRating?.review || '',
+    },
+    mode: 'onBlur',
+  });
 
-  // Sync internal state when parent-provided userRating changes
+  const rating = watch('rating');
+  const review = watch('review');
+
   useEffect(() => {
-    setRating(userRating?.rating || 0);
-    setReview(userRating?.review || '');
-  }, [userRating]);
+    reset({
+      rating: userRating?.rating || 0,
+      review: userRating?.review || '',
+    });
+  }, [reset, userRating]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (rating === 0) {
-      onError?.('Please select a rating');
-      return;
-    }
-
+  const onSubmit = async (values: RatingFormValues) => {
     try {
       setIsSubmitting(true);
       if (isEditing && userRating) {
-        const res = await ratingAPI.updateRating(userRating.rating_id, rating, review || undefined);
+        const res = await ratingAPI.updateRating(userRating.rating_id, values.rating, values.review || undefined);
         const updated = res.data as UserRating;
-        setRating(updated.rating);
-        setReview(updated.review || '');
+        reset({ rating: updated.rating, review: updated.review || '' });
         onSuccess?.(updated);
       } else {
-        const res = await ratingAPI.createRating(courseId, rating, review || undefined);
+        const res = await ratingAPI.createRating(courseId, values.rating, values.review || undefined);
         const created = res.data as UserRating;
-        setRating(created.rating);
-        setReview(created.review || '');
+        reset({ rating: created.rating, review: created.review || '' });
         onSuccess?.(created);
       }
     } catch (error) {
@@ -74,8 +88,7 @@ export function RatingForm({ courseId, userRating, onSuccess, onError, disabled 
     try {
       setIsSubmitting(true);
       await ratingAPI.deleteRating(userRating.rating_id);
-      setRating(0);
-      setReview('');
+      reset({ rating: 0, review: '' });
       onSuccess?.(null);
     } catch (error) {
       onError?.(error instanceof Error ? error.message : 'Failed to delete rating');
@@ -95,7 +108,16 @@ export function RatingForm({ courseId, userRating, onSuccess, onError, disabled 
           : 'Help other students by sharing your experience with this course'}
       </Text>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <input
+          type="hidden"
+          {...register('rating', {
+            required: validationMessages.required('Rating'),
+            valueAsNumber: true,
+            min: { value: 1, message: validationMessages.min('Rating', 1) },
+            max: { value: 5, message: 'Rating must be at most 5' },
+          })}
+        />
         {/* Star Rating */}
         <div>
           <label className="block text-label-lg font-bold text-on-surface mb-3">
@@ -106,7 +128,7 @@ export function RatingForm({ courseId, userRating, onSuccess, onError, disabled 
               <button
                 key={star}
                 type="button"
-                onClick={() => setRating(star)}
+                onClick={() => setValue('rating', star, { shouldDirty: true, shouldValidate: true })}
                 onMouseEnter={() => setHoverRating(star)}
                 onMouseLeave={() => setHoverRating(0)}
                 disabled={disabled || isSubmitting}
@@ -129,6 +151,7 @@ export function RatingForm({ courseId, userRating, onSuccess, onError, disabled 
               {rating} out of 5 stars
             </p>
           )}
+          {errors.rating && <p className="mt-2 text-label-md font-semibold text-error">{getFieldError(errors.rating)}</p>}
         </div>
 
         {/* Review Text */}
@@ -138,8 +161,12 @@ export function RatingForm({ courseId, userRating, onSuccess, onError, disabled 
           </label>
           <textarea
             id="review"
-            value={review}
-            onChange={(e) => setReview(e.target.value)}
+            {...register('review', {
+              maxLength: {
+                value: 500,
+                message: validationMessages.maxLength('Review', 500),
+              },
+            })}
             placeholder="Share your thoughts about this course..."
             disabled={disabled || isSubmitting}
             maxLength={500}
@@ -147,8 +174,9 @@ export function RatingForm({ courseId, userRating, onSuccess, onError, disabled 
             rows={4}
           />
           <p className="text-label-sm text-on-surface-variant mt-2">
-            {review.length}/500 characters
+            {(review || '').length}/500 characters
           </p>
+          {errors.review && <p className="mt-2 text-label-md font-semibold text-error">{getFieldError(errors.review)}</p>}
         </div>
 
         {/* Submit Button */}

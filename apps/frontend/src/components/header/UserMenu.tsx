@@ -75,18 +75,6 @@ export function UserMenu() {
           <button
             onClick={() => {
               setShowUserMenu(false);
-              navigate('/settings');
-            }}
-            className="block w-full text-left px-4 py-3 text-label-md text-on-surface hover:bg-primary/10 transition-all duration-200 flex items-center gap-2 border-t border-outline-variant/30 group"
-          >
-            <div className="text-on-surface-variant group-hover:text-primary transition-colors">
-              <Icon name="settings" size="md" />
-            </div>
-            <span className="group-hover:text-primary transition-colors">Settings</span>
-          </button>
-          <button
-            onClick={() => {
-              setShowUserMenu(false);
               handleLogout();
             }}
             className="block w-full text-left px-4 py-3 text-label-md text-error hover:bg-error/10 transition-all duration-200 flex items-center gap-2 border-t border-outline-variant/30 group"

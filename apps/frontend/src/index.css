@@ -34,4 +34,52 @@ html {
   .fill-1 {
     font-variation-settings: 'FILL' 1;
   }
+
+  .testimonial-slider {
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    cursor: grab;
+    scrollbar-width: none;
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  .testimonial-slider::-webkit-scrollbar {
+    display: none;
+  }
+
+  .testimonial-slider-track {
+    animation-name: testimonial-marquee;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+
+  .testimonial-slider:hover .testimonial-slider-track,
+  .testimonial-slider:focus-within .testimonial-slider-track,
+  .testimonial-slider.is-dragging .testimonial-slider-track {
+    animation-play-state: paused;
+  }
+
+  .testimonial-slider.is-dragging {
+    cursor: grabbing;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .testimonial-slider-track {
+      animation: none;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+  }
+}
+
+@keyframes testimonial-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }

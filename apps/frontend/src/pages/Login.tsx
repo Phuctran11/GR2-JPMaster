@@ -1,13 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Input, Button, PasswordInput, Breadcrumbs, Header, Footer } from '../components';
 import { authAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { useForm } from '../hooks/useForm';
-import { validators } from '../utils/validators';
+import { useForm } from 'react-hook-form';
+import { formRules, getFieldError } from '../utils/formValidation';
 import { AuthLayout } from '../components/AuthLayout';
 import { SocialLogin } from '../components/SocialLogin';
+
+type LoginFormValues = {
+  email: string;
+  password: string;
+};
 
 function LoginForm() {
   const navigate = useNavigate();
@@ -15,21 +20,19 @@ function LoginForm() {
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const { formData, errors, handleChange, validate } = useForm({
-    initialValues: { email: '', password: '' },
-    onValidate: (values) => ({
-      email: validators.email(values.email),
-      password: validators.password(values.password),
-    }),
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    defaultValues: { email: '', password: '' },
+    mode: 'onBlur',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
+  const onSubmit = async (values: LoginFormValues) => {
     setLoading(true);
     try {
-      const response = await authAPI.login(formData as any);
+      const response = await authAPI.login(values);
       if (!response.token) {
         throw new Error('Login response did not include an authentication token');
       }
@@ -44,26 +47,24 @@ function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-[400px] space-y-stack-md">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[400px] space-y-stack-md">
       <Input
         id="email"
         label="Email"
         type="email"
         placeholder="your@email.com"
-        value={formData.email}
-        onChange={handleChange}
+        {...register('email', formRules.email<LoginFormValues>())}
         disabled={loading}
-        error={errors.email}
+        error={getFieldError(errors.email)}
       />
 
       <PasswordInput
         id="password"
         label="Password"
         placeholder="••••••••"
-        value={formData.password}
-        onChange={handleChange}
+        {...register('password', formRules.password<LoginFormValues>())}
         disabled={loading}
-        error={errors.password}
+        error={getFieldError(errors.password)}
       />
 
       <div className="flex justify-end">
@@ -72,7 +73,7 @@ function LoginForm() {
         </a>
       </div>
 
-      <Button onClick={handleSubmit} className="w-full uppercase tracking-widest" disabled={loading}>
+      <Button type="submit" className="w-full uppercase tracking-widest" disabled={loading}>
         {loading ? 'Signing in...' : 'Sign In'}
       </Button>
 
@@ -94,10 +95,25 @@ function LoginForm() {
 }
 
 export default function Login() {
+  const { loading, isAuthenticated } = useAuth();
   const breadcrumbs = [
     { label: 'Home', path: '/' },
     { label: 'Login' },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="mx-auto my-20 text-center">
+          <p className="text-on-surface-variant">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">

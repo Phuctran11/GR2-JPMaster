@@ -4,39 +4,43 @@ import { Input, Button, GlassCard, Icon, PasswordInput, Breadcrumbs, Header, Foo
 import { Heading, Text } from '../components/ui/Typography';
 import { authAPI } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
-import { useForm } from '../hooks/useForm';
-import { validators } from '../utils/validators';
+import { useForm } from 'react-hook-form';
+import { formRules, getFieldError, sameAs } from '../utils/formValidation';
+
+type SignupFormValues = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
 
 function SignupForm() {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const { formData, errors, handleChange, validate } = useForm({
-    initialValues: {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<SignupFormValues>({
+    defaultValues: {
       name: '',
       email: '',
       password: '',
       confirmPassword: '',
     },
-    onValidate: (values) => ({
-      name: validators.name(values.name),
-      email: validators.email(values.email),
-      password: validators.password(values.password),
-      confirmPassword: validators.confirmPassword(values.password, values.confirmPassword),
-    }),
+    mode: 'onBlur',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
+  const onSubmit = async (values: SignupFormValues) => {
     setLoading(true);
     try {
       await authAPI.signup({
-        username: formData.name,
-        email: formData.email,
-        password: formData.password,
+        username: values.name.trim(),
+        email: values.email.trim().toLowerCase(),
+        password: values.password,
       });
       addToast('Account created successfully. Please log in.', 'success');
       navigate('/login', { replace: true });
@@ -48,16 +52,15 @@ function SignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-stack-md w-full">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-stack-md w-full">
       <Input
         id="name"
         label="Full Name"
         type="text"
         placeholder="John Doe"
-        value={formData.name}
-        onChange={handleChange}
+        {...register('name', formRules.required<SignupFormValues>('Full name'))}
         disabled={loading}
-        error={errors.name}
+        error={getFieldError(errors.name)}
       />
 
       <Input
@@ -65,10 +68,9 @@ function SignupForm() {
         label="Email"
         type="email"
         placeholder="student@example.com"
-        value={formData.email}
-        onChange={handleChange}
+        {...register('email', formRules.email<SignupFormValues>())}
         disabled={loading}
-        error={errors.email}
+        error={getFieldError(errors.email)}
       />
 
       {/* Password Grid */}
@@ -76,18 +78,18 @@ function SignupForm() {
         <PasswordInput
           id="password"
           label="Password"
-          value={formData.password}
-          onChange={handleChange}
+          {...register('password', formRules.password<SignupFormValues>())}
           disabled={loading}
-          error={errors.password}
+          error={getFieldError(errors.password)}
         />
         <PasswordInput
           id="confirmPassword"
           label="Confirm Password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
+          {...register('confirmPassword', {
+            validate: sameAs(watch('password'), 'Password'),
+          })}
           disabled={loading}
-          error={errors.confirmPassword}
+          error={getFieldError(errors.confirmPassword)}
         />
       </div>
 
