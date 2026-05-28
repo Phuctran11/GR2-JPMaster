@@ -1,12 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { ToastContainer } from './components/Toast';
 import { JapaneseDictionaryWidget } from './components/JapaneseDictionaryWidget';
 import { ThemeTransitionOverlay } from './components/ThemeTransitionOverlay';
-import { MotionFrame } from './components/ui';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useLayoutEffect } from 'react';
 import type { ReactNode } from 'react';
 
 const Homepage = lazy(() => import('./pages/Homepage'));
@@ -30,18 +29,26 @@ const Signup = lazy(() => import('./pages/Signup'));
 
 function PageMotion({
   children,
-  direction = 'up',
-  preset = 'lift',
+  direction: _direction = 'up',
+  preset: _preset = 'lift',
 }: {
   children: ReactNode;
   direction?: 'up' | 'down' | 'left' | 'right' | 'up-left' | 'up-right' | 'down-left' | 'down-right' | 'none';
   preset?: 'soft' | 'hero' | 'lift' | 'sweep' | 'pop';
 }) {
-  return (
-    <MotionFrame preset={preset} direction={direction} duration={0.24} viewportAmount={0.02}>
-      {children}
-    </MotionFrame>
-  );
+  return <>{children}</>;
+}
+
+function RouteScrollReset() {
+  const { pathname } = useLocation();
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollLeft = 0;
+    document.body.scrollLeft = 0;
+  }, [pathname]);
+
+  return null;
 }
 
 function App() {
@@ -50,6 +57,7 @@ function App() {
       <AuthProvider>
         <ToastProvider>
           <BrowserRouter>
+            <RouteScrollReset />
             <ThemeTransitionOverlay />
             <ToastContainer />
             <JapaneseDictionaryWidget />
@@ -62,19 +70,19 @@ function App() {
             }>
               <Routes>
                 <Route path="/" element={<Homepage />} />
-                <Route path="/courses" element={<PageMotion direction="up-right"><CourseList /></PageMotion>} />
+                <Route path="/courses" element={<CourseList />} />
                 <Route path="/explore" element={<PageMotion direction="up-left"><CourseExplore /></PageMotion>} />
                 <Route path="/courses/:id" element={<PageMotion direction="right" preset="sweep"><CourseDetail /></PageMotion>} />
                 <Route path="/courses/:id/certificate" element={<PageMotion direction="up" preset="pop"><Certification /></PageMotion>} />
                 <Route path="/courses/:id/lessons/:lessonId" element={<PageMotion direction="left" preset="soft"><Lesson /></PageMotion>} />
-                <Route path="/courses/:id/lessons/:lessonId/quiz" element={<PageMotion direction="up" preset="soft"><QuizFocus /></PageMotion>} />
-                <Route path="/courses/:id/final-test" element={<PageMotion direction="up" preset="soft"><QuizFocus /></PageMotion>} />
+                <Route path="/courses/:id/lessons/:lessonId/quiz" element={<QuizFocus />} />
+                <Route path="/courses/:id/final-test" element={<QuizFocus />} />
                 <Route path="/profile" element={<PageMotion direction="down-right"><Profile /></PageMotion>} />
                 <Route path="/flashcards" element={<PageMotion direction="up-left"><Flashcard /></PageMotion>} />
                 <Route path="/flashcards/:id" element={<PageMotion direction="right" preset="sweep"><FlashcardDetail /></PageMotion>} />
                 <Route path="/notes" element={<PageMotion direction="down-left" preset="pop"><Notes /></PageMotion>} />
                 <Route path="/tests" element={<PageMotion direction="up-right"><TestList /></PageMotion>} />
-                <Route path="/tests/:examId" element={<PageMotion direction="left" preset="soft"><JlptTest /></PageMotion>} />
+                <Route path="/tests/:examId" element={<JlptTest />} />
                 <Route path="/admin" element={<PageMotion direction="up" preset="soft"><AdminDashboard /></PageMotion>} />
                 <Route path="/blog" element={<PageMotion direction="up-left"><BlogList /></PageMotion>} />
                 <Route path="/blog/:id" element={<PageMotion direction="right" preset="sweep"><BlogDetail /></PageMotion>} />

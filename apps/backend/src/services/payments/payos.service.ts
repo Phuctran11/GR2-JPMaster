@@ -30,6 +30,23 @@ type PayOsPaymentResponse = {
   signature?: string;
 };
 
+type PayOsPaymentLinkInfoResponse = {
+  code: string;
+  desc: string;
+  data?: {
+    id?: string;
+    orderCode?: number;
+    amount?: number;
+    amountPaid?: number;
+    amountRemaining?: number;
+    status?: string;
+    createdAt?: string;
+    canceledAt?: string;
+    transactions?: unknown;
+  };
+  signature?: string;
+};
+
 const getRequiredEnv = (key: string) => {
   const value = process.env[key]?.trim();
   if (!value) {
@@ -90,6 +107,23 @@ export class PayOsService {
     const payload = (await response.json()) as PayOsPaymentResponse;
     if (!response.ok || payload.code !== "00" || !payload.data?.checkoutUrl) {
       throw new Error(payload.desc || "Failed to create payOS payment link");
+    }
+
+    return payload;
+  }
+
+  async getPaymentLinkInformation(id: number | string) {
+    const response = await fetch(`https://api-merchant.payos.vn/v2/payment-requests/${id}`, {
+      method: "GET",
+      headers: {
+        "x-client-id": getRequiredEnv("PAYOS_CLIENT_ID"),
+        "x-api-key": getRequiredEnv("PAYOS_API_KEY"),
+      },
+    });
+
+    const payload = (await response.json()) as PayOsPaymentLinkInfoResponse;
+    if (!response.ok || payload.code !== "00" || !payload.data) {
+      throw new Error(payload.desc || "Failed to get payOS payment link information");
     }
 
     return payload;

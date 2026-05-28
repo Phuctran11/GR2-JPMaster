@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { enrollmentAPI, type Lesson as LessonData } from '../../services/api';
 import type { LessonItem } from '../../components/lesson';
 
+const canAccessLesson = (lesson?: LessonData) => Boolean(lesson && lesson.is_accessible !== false && !lesson.is_locked);
+
 export function useLessonData({ courseId, lessonId }: { courseId?: string; lessonId?: string }) {
   const [lessons, setLessons] = useState<LessonData[]>([]);
   const [courseName, setCourseName] = useState<string>('');
@@ -38,14 +40,15 @@ export function useLessonData({ courseId, lessonId }: { courseId?: string; lesso
   }, [courseId]);
 
   const firstUnfinishedIndex = useMemo(() => lessons.findIndex((lesson) => !lesson.is_completed), [lessons]);
+  const firstAccessibleIndex = useMemo(() => lessons.findIndex(canAccessLesson), [lessons]);
 
   const currentLessonIndex = useMemo(() => {
     const currentId = Number(lessonId);
     const paramIndex = lessons.findIndex((lesson) => lesson.lesson_id === currentId);
-    if (paramIndex >= 0) return paramIndex;
-    if (firstUnfinishedIndex >= 0) return firstUnfinishedIndex;
-    return lessons.length > 0 ? 0 : -1;
-  }, [lessonId, lessons, firstUnfinishedIndex]);
+    if (paramIndex >= 0 && canAccessLesson(lessons[paramIndex])) return paramIndex;
+    if (firstUnfinishedIndex >= 0 && canAccessLesson(lessons[firstUnfinishedIndex])) return firstUnfinishedIndex;
+    return firstAccessibleIndex >= 0 ? firstAccessibleIndex : -1;
+  }, [lessonId, lessons, firstUnfinishedIndex, firstAccessibleIndex]);
 
   const currentLesson = currentLessonIndex >= 0 ? lessons[currentLessonIndex] : undefined;
 
@@ -57,7 +60,7 @@ export function useLessonData({ courseId, lessonId }: { courseId?: string; lesso
         ? 'current'
         : lesson.is_completed
           ? 'completed'
-          : index === firstUnfinishedIndex
+          : canAccessLesson(lesson) && index === firstUnfinishedIndex
             ? 'unlocked'
             : 'locked',
   }));

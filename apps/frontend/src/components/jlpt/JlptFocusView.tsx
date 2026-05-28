@@ -40,7 +40,7 @@ export function JlptFocusView({
   if (!exam) return null;
 
   return (
-    <main className="fixed inset-0 z-[70] overflow-y-auto bg-surface-container-low">
+    <main id="jlpt-focus-scroll" className="fixed inset-0 z-[70] overflow-y-auto bg-surface-container-low">
       <JlptTestHeader
         exam={exam}
         phase={phase}

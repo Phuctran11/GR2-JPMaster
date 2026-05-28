@@ -83,7 +83,7 @@ export function CourseContentSection({
                       module={module}
                       lesson={lesson}
                       isCurrent={hasLessonAccess && !lesson?.is_completed && index === firstUnfinishedLessonIndex}
-                      canPlay={hasLessonAccess}
+                      canPlay={hasLessonAccess && lesson?.is_accessible !== false && !lesson?.is_locked}
                       onPlay={() => {
                         if (lesson?.lesson_id) {
                           onSelectLesson(lesson.lesson_id);

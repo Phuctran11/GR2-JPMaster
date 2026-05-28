@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header, Footer, Card, Container, Section, Breadcrumbs, Pagination } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
@@ -17,6 +17,12 @@ export default function CourseList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const pageSize = 5;
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollLeft = 0;
+    document.body.scrollLeft = 0;
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -101,7 +107,7 @@ export default function CourseList() {
       <Header />
       <Breadcrumbs items={breadcrumbs} />
       <main className="flex-1">
-        <Section bgColor="light">
+        <Section bgColor="light" className="overflow-visible">
           <Container>
             <div className="mb-section-gap">
               <MotionSectionFrame index={0} preset="hero" className="mb-stack-lg">

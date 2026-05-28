@@ -8,6 +8,7 @@ export class UserModel {
   createUser = userAuthModel.createUser.bind(userAuthModel);
   getUserByEmail = userAuthModel.getUserByEmail.bind(userAuthModel);
   getUserByEmailIncludingDeleted = userAuthModel.getUserByEmailIncludingDeleted.bind(userAuthModel);
+  getUserByUsernameIncludingDeleted = userAuthModel.getUserByUsernameIncludingDeleted.bind(userAuthModel);
 
   getUserById = userPublicModel.getUserById.bind(userPublicModel);
   getAllUsers = userPublicModel.getAllUsers.bind(userPublicModel);

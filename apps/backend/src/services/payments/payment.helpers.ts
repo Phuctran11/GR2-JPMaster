@@ -40,7 +40,11 @@ export const buildPayOsRedirectUrl = (envKey: "PAYOS_RETURN_URL" | "PAYOS_CANCEL
   return configuredUrl;
 };
 
-export const createPayOsOrderCode = () => Date.now() * 1000 + Math.floor(Math.random() * 1000);
+export const createPayOsOrderCode = () => {
+  const timestampPart = Date.now() % 1_000_000_000;
+  const randomPart = Math.floor(Math.random() * 1000);
+  return timestampPart * 1000 + randomPart;
+};
 
 export const getPaymentExpireMinutes = () => {
   const configuredMinutes = Number(process.env.PAYOS_PAYMENT_EXPIRE_MINUTES || 30);

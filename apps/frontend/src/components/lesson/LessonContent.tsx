@@ -1,4 +1,5 @@
-import { useState, type RefObject } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import type { Lesson as LessonData, LessonNote } from '../../services/api';
 import { Heading, Text } from '../ui/Typography';
 
@@ -198,24 +199,96 @@ export function LessonContent({
       return;
     }
 
-    const rect = range.getBoundingClientRect();
+    const rect = Array.from(range.getClientRects()).at(-1) ?? range.getBoundingClientRect();
+    if (!rect || (rect.width === 0 && rect.height === 0)) {
+      setSelectionMenu(null);
+      return;
+    }
+
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
     setSelectionMenu({
       text: selectedText,
-      x: rect.left + rect.width / 2,
+      x: Math.min(Math.max(rect.left + rect.width / 2, 112), viewportWidth - 112),
       y: Math.max(12, rect.top - 12),
     });
   };
 
-  return (
-    <article
-      ref={articleRef}
-      onMouseUp={handleSelection}
-      onKeyUp={handleSelection}
-      className={`overflow-hidden rounded-xl border bg-surface-container-lowest shadow-sm transition-all duration-300 ${
-        isStudyMode ? 'border-primary shadow-lg shadow-primary/10 ring-2 ring-primary/20' : 'border-outline-variant'
-      }`}
+  useEffect(() => {
+    const closeWhenSelectionIsInvalid = () => {
+      window.requestAnimationFrame(() => {
+        const selection = window.getSelection();
+        const selectedText = selection?.toString().trim();
+        if (!selection || !selectedText || selection.isCollapsed || selection.rangeCount === 0) {
+          setSelectionMenu(null);
+          return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const container = articleRef.current;
+        if (!container || !container.contains(range.commonAncestorContainer)) {
+          setSelectionMenu(null);
+        }
+      });
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest('[data-selection-menu="true"]')) return;
+      if (target instanceof Node && articleRef.current?.contains(target)) return;
+      setSelectionMenu(null);
+    };
+
+    const handleScroll = () => setSelectionMenu(null);
+
+    document.addEventListener('selectionchange', closeWhenSelectionIsInvalid);
+    document.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('scroll', handleScroll, true);
+
+    return () => {
+      document.removeEventListener('selectionchange', closeWhenSelectionIsInvalid);
+      document.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [articleRef]);
+
+  const selectionMenuNode = selectionMenu ? (
+    <div
+      data-selection-menu="true"
+      onMouseDown={(event) => event.preventDefault()}
+      className="fixed z-[95] flex -translate-x-1/2 -translate-y-full gap-1 rounded-xl border border-outline-variant bg-surface p-1.5 shadow-xl"
+      style={{ left: selectionMenu.x, top: selectionMenu.y }}
     >
-      <header className="border-b border-outline-variant bg-surface px-5 py-5 sm:px-7">
+      <button type="button" onClick={() => void handleTextAction('note')} className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-label-md font-bold text-on-primary">
+        <span className="material-symbols-outlined text-[18px]">add_notes</span>
+        Add Note
+      </button>
+      <button
+        type="button"
+        onClick={() => void handleTextAction('flashcard')}
+        disabled={savingFlashcard}
+        className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container disabled:opacity-60"
+      >
+        <span className="material-symbols-outlined text-[18px]">style</span>
+        {savingFlashcard ? 'Saving...' : 'Save Flashcard'}
+      </button>
+      <button type="button" onClick={() => void handleTextAction('ai')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container">
+        <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+        Ask AI
+      </button>
+    </div>
+  ) : null;
+
+  return (
+    <>
+      <article
+        ref={articleRef}
+        onMouseUp={handleSelection}
+        onKeyUp={handleSelection}
+        className={`overflow-hidden rounded-xl border bg-surface-container-lowest shadow-sm transition-all duration-300 ${
+          isStudyMode ? 'border-primary shadow-lg shadow-primary/10 ring-2 ring-primary/20' : 'border-outline-variant'
+        }`}
+      >
+        <header className="border-b border-outline-variant bg-surface px-5 py-5 sm:px-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="mb-2 text-label-md font-label-md uppercase text-secondary">Focus lesson</p>
@@ -294,31 +367,9 @@ export function LessonContent({
           )}
         </div>
 
-        {selectionMenu && (
-          <div
-            className="fixed z-[95] flex -translate-x-1/2 -translate-y-full gap-1 rounded-xl border border-outline-variant bg-surface p-1.5 shadow-xl"
-            style={{ left: selectionMenu.x, top: selectionMenu.y }}
-          >
-            <button type="button" onClick={() => void handleTextAction('note')} className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-label-md font-bold text-on-primary">
-              <span className="material-symbols-outlined text-[18px]">add_notes</span>
-              Add Note
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleTextAction('flashcard')}
-              disabled={savingFlashcard}
-              className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container disabled:opacity-60"
-            >
-              <span className="material-symbols-outlined text-[18px]">style</span>
-              {savingFlashcard ? 'Saving...' : 'Save Flashcard'}
-            </button>
-            <button type="button" onClick={() => void handleTextAction('ai')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container">
-              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
-              Ask AI
-            </button>
-          </div>
-        )}
       </section>
     </article>
+    {selectionMenuNode ? createPortal(selectionMenuNode, document.body) : null}
+  </>
   );
 }

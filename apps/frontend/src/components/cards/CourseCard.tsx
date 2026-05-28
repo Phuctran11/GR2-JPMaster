@@ -271,9 +271,9 @@ export function MyLearningCard({
   };
 
   return (
-    <InteractiveHoverCard className="group h-full rounded-[2rem]" tone={status === 'Completed' ? 'success' : 'primary'}>
+    <InteractiveHoverCard className="group h-full min-w-0 rounded-[2rem]" tone={status === 'Completed' ? 'success' : 'primary'}>
       <Card
-        className="w-full p-4 md:p-5 flex flex-row items-center gap-4 md:gap-5 h-full cursor-pointer transition-transform"
+        className="flex h-full w-full min-w-0 cursor-pointer flex-col gap-4 overflow-visible p-4 transition-transform sm:flex-row sm:items-center md:gap-5 md:p-5"
         onClick={handleClick}
         role={onClick ? 'button' : undefined}
         tabIndex={onClick ? 0 : undefined}
@@ -285,7 +285,7 @@ export function MyLearningCard({
           }
         }}
       >
-        <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0 group overflow-hidden rounded-lg">
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-28 md:w-28">
           {image ? (
             <ImageCard src={image} alt={title} hoverScale={105} rounded="md" />
           ) : (
@@ -300,7 +300,7 @@ export function MyLearningCard({
             <ProgressBar value={progress} showLabel variant="default" showIndicator={false} />
           </div>
         </div>
-        <div className="shrink-0 flex flex-col items-stretch gap-2 sm:items-end">
+        <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
           {status === 'In Progress' ? (
             <button
               type="button"

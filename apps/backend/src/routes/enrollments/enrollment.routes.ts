@@ -16,6 +16,9 @@ router.get("/my-courses", authMiddleware, asyncHandler(enrollmentController.getM
 // Get enrolled courses by status (active, completed, dropped)
 router.get("/my-courses/:status", authMiddleware, asyncHandler(enrollmentController.getMyCoursesByStatus));
 
+// Get current user's enrollment status for a course without requiring access
+router.get("/course/:courseId/status", authMiddleware, asyncHandler(enrollmentController.getCourseEnrollmentStatus));
+
 // Get specific enrolled course detail (includes lessons + ratings)
 router.get("/course/:courseId", authMiddleware, asyncHandler(enrollmentController.getEnrolledCourseDetail));
 

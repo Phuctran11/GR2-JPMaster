@@ -61,6 +61,9 @@ export function useCourseDetailData({
 
         if (user) {
           try {
+            const enrollmentStatusResult = await enrollmentAPI.getCourseEnrollmentStatus(parseInt(courseId));
+            if (!enrollmentStatusResult.data.enrolled) return;
+
             const enrolledCourseResult = await enrollmentAPI.getEnrolledCourseDetail(parseInt(courseId));
             const enrolledCourse = enrolledCourseResult.data;
             const status =

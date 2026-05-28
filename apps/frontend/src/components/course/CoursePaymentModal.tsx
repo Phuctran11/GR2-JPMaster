@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { Button } from '../index';
 import type { PaymentTransaction } from '../../services/api';
 import { formatVnd } from './courseDetailUtils';
@@ -17,7 +18,10 @@ export function CoursePaymentModal({
   onRefreshStatus: () => void;
   onClose: () => void;
 }) {
-  return (
+  const qrImageUrl = transaction.qr_image_url?.trim();
+  const canRenderQrImage = Boolean(qrImageUrl && (/^https?:\/\//i.test(qrImageUrl) || qrImageUrl.startsWith('data:image/')));
+
+  const modal = (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 p-2 sm:p-4">
       <div className="max-h-[calc(100vh-1rem)] w-full max-w-6xl overflow-y-auto overflow-x-hidden rounded-xl border border-outline-variant bg-surface shadow-2xl sm:max-h-[calc(100vh-2rem)]">
         <div className="flex items-start justify-between gap-3 border-b border-outline-variant bg-surface-container-low p-4 sm:p-5">
@@ -53,6 +57,17 @@ export function CoursePaymentModal({
           </div>
 
           <div className="space-y-3">
+            {canRenderQrImage && (
+              <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
+                <p className="text-label-md text-on-surface-variant">QR code</p>
+                <img
+                  src={qrImageUrl}
+                  alt="payOS payment QR code"
+                  className="mt-3 aspect-square w-full rounded-lg border border-outline-variant bg-white object-contain p-2"
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="rounded-lg border border-outline-variant bg-surface-container-low p-3">
                 <p className="text-label-md text-on-surface-variant">Amount</p>
@@ -112,4 +127,6 @@ export function CoursePaymentModal({
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }

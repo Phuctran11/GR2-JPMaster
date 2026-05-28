@@ -57,16 +57,8 @@ export function useLessonProgressActions({
       if (!result.data.completed) {
         throw new Error('Failed to mark lesson as completed');
       }
-      setLessons((previousLessons) =>
-        previousLessons.map((lesson) =>
-          lesson.lesson_id === currentLesson.lesson_id
-            ? {
-                ...lesson,
-                is_completed: true,
-              }
-            : lesson
-        )
-      );
+      const refreshedCourse = await enrollmentAPI.getEnrolledCourseDetail(parseInt(courseId));
+      setLessons(refreshedCourse.data.lessons || []);
       if (result.data.final_quiz) {
         navigate(`/courses/${courseId}/final-test`);
       }

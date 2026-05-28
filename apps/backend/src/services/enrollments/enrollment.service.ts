@@ -7,6 +7,7 @@ import { ApiError } from "../../utils/http.js";
 import {
   getEffectiveEnrollmentStatus,
   requireCourseAccess,
+  requireLessonProgressAccess,
   requireOwnedEnrollment,
 } from "./enrollmentAccess.service.js";
 import enrollmentCompletionService from "./enrollmentCompletion.service.js";
@@ -80,6 +81,29 @@ export class EnrollmentService {
     return updated;
   }
 
+  async getCourseEnrollmentStatus(userId: number, courseId: number) {
+    const course = await courseModel.getCourseById(courseId);
+    if (!course) {
+      throw new ApiError(404, "Course not found");
+    }
+
+    const enrollment = await enrollmentModel.getEnrollmentByUserAndCourse(userId, courseId);
+    if (!enrollment) {
+      return {
+        enrolled: false,
+        enrollment_status: null,
+        enrollment_date: null,
+      };
+    }
+
+    const effectiveStatus = await this.getEffectiveEnrollmentStatus(userId, courseId, enrollment.status);
+    return {
+      enrolled: effectiveStatus === "active" || effectiveStatus === "completed",
+      enrollment_status: effectiveStatus,
+      enrollment_date: enrollment.enrollment_date,
+    };
+  }
+
   async getEnrolledCourseDetail(userId: number, courseId: number) {
     await requireCourseAccess(userId, courseId);
 
@@ -89,10 +113,34 @@ export class EnrollmentService {
     }
 
     const lessonCompletionMap = await courseModel.getLessonCompletionMap(userId, courseId);
-    courseDetail.lessons = courseDetail.lessons?.map((lesson) => ({
+    const lessonsWithProgress = courseDetail.lessons?.map((lesson) => ({
       ...lesson,
       is_completed: lessonCompletionMap.get(lesson.lesson_id) || false,
-    }));
+    })) ?? [];
+    const firstUnfinishedLessonIndex = lessonsWithProgress.findIndex((lesson) => !lesson.is_completed);
+
+    courseDetail.lessons = lessonsWithProgress.map((lesson, index) => {
+      const isAccessible = lesson.is_completed || firstUnfinishedLessonIndex === -1 || index === firstUnfinishedLessonIndex;
+
+      if (isAccessible) {
+        return {
+          ...lesson,
+          is_accessible: true,
+          is_locked: false,
+        };
+      }
+
+      return {
+        ...lesson,
+        content_text: null,
+        video_url: null,
+        video_asset_id: null,
+        audio_url: null,
+        audio_asset_id: null,
+        is_accessible: false,
+        is_locked: true,
+      };
+    });
 
     const enrollment = await enrollmentModel.getEnrollmentByUserAndCourse(userId, courseId);
     const effectiveStatus = enrollment
@@ -130,6 +178,7 @@ export class EnrollmentService {
 
   async markLessonStarted(userId: number, courseId: number, lessonId: number) {
     await requireCourseAccess(userId, courseId);
+    await requireLessonProgressAccess(userId, courseId, lessonId);
 
     const updated = await enrollmentModel.markLessonStarted(userId, courseId, lessonId);
     if (!updated) {
@@ -143,6 +192,7 @@ export class EnrollmentService {
   }
 
   async markLessonCompleted(userId: number, courseId: number, lessonId: number) {
+    await requireLessonProgressAccess(userId, courseId, lessonId);
     return enrollmentCompletionService.markLessonCompleted(userId, courseId, lessonId);
   }
 
@@ -154,6 +204,7 @@ export class EnrollmentService {
       throw new ApiError(500, "Failed to drop enrollment");
     }
   }
+
 }
 
 export default new EnrollmentService();

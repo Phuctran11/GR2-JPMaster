@@ -30,7 +30,7 @@ export function QuizFocusView({
   if (!quiz) return null;
 
   return (
-    <main className="fixed inset-0 z-[70] overflow-y-auto bg-surface-container-low">
+    <main id="quiz-focus-scroll" className="fixed inset-0 z-[70] overflow-y-auto bg-surface-container-low">
       <QuizFocusHeader
         quiz={quiz}
         courseTitle={courseTitle}

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 interface LoginRequest {
   email: string;
@@ -184,6 +184,8 @@ export interface Lesson {
   created_at: string;
   updated_at: string;
   is_completed?: boolean;
+  is_accessible?: boolean;
+  is_locked?: boolean;
 }
 
 export interface CourseRating {
@@ -1750,6 +1752,28 @@ export const enrollmentAPI = {
   /**
    * Get enrolled course detail with lessons and ratings
    */
+  async getCourseEnrollmentStatus(courseId: number): Promise<{
+    data: {
+      enrolled: boolean;
+      enrollment_status: 'active' | 'completed' | 'dropped' | null;
+      enrollment_date: string | null;
+    };
+  }> {
+    const response = await authenticatedFetch(`${API_BASE_URL}/enrollments/course/${courseId}/status`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Unauthorized - Please login first');
+      }
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch enrollment status');
+    }
+
+    return response.json();
+  },
+
   async getEnrolledCourseDetail(courseId: number): Promise<{ data: Course & { enrollment_status: string; enrollment_date: string } }> {
     const response = await authenticatedFetch(`${API_BASE_URL}/enrollments/course/${courseId}`, {
       method: 'GET',

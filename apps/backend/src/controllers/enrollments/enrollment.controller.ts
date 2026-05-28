@@ -56,6 +56,13 @@ export class EnrollmentController {
     return ok(res, course);
   }
 
+  async getCourseEnrollmentStatus(req: AuthenticatedRequest, res: Response) {
+    const user = requireUser(req);
+    const courseId = parsePositiveInt(req.params.courseId, "course ID");
+    const status = await enrollmentService.getCourseEnrollmentStatus(user.user_id, courseId);
+    return ok(res, status);
+  }
+
   async getFirstLessonByCourse(req: AuthenticatedRequest, res: Response) {
     const user = requireUser(req);
     const courseId = parsePositiveInt(req.params.courseId, "course ID");

@@ -21,6 +21,16 @@ const getGoogleClientIds = () =>
     .map((value) => value.trim())
     .filter(Boolean);
 
+const normalizeUsernameCandidate = (value: string) => {
+  const normalized = value
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[^\p{L}\p{N}_. -]/gu, "")
+    .slice(0, 60);
+
+  return normalized || "google_user";
+};
+
 class UserAuthService {
   private generateAuthResponse(message: string, user: UserWithPassword) {
     const token = tokenService.generateToken({
@@ -40,6 +50,7 @@ class UserAuthService {
     try {
       const response = await axios.get<GoogleTokenInfo>("https://oauth2.googleapis.com/tokeninfo", {
         params: { id_token: idToken },
+        timeout: 10000,
       });
 
       const tokenInfo = response.data;
@@ -64,8 +75,35 @@ class UserAuthService {
       return tokenInfo;
     } catch (error) {
       if (error instanceof ApiError) throw error;
+      if (axios.isAxiosError(error) && (error.code === "ECONNABORTED" || /timeout/i.test(error.message))) {
+        throw new ApiError(504, "Google token verification timed out");
+      }
       throw new ApiError(401, "Failed to verify Google token");
     }
+  }
+
+  private async getAvailableGoogleUsername(name: string, email: string) {
+    const emailPrefix = email.split("@")[0] || "google_user";
+    const baseUsername = normalizeUsernameCandidate(name || emailPrefix);
+
+    const candidates = [
+      baseUsername,
+      normalizeUsernameCandidate(`${baseUsername} ${emailPrefix}`),
+      normalizeUsernameCandidate(`${baseUsername} ${Date.now().toString(36)}`),
+    ];
+
+    for (const candidate of candidates) {
+      const existing = await userModel.getUserByUsernameIncludingDeleted(candidate);
+      if (!existing) return candidate;
+    }
+
+    for (let suffix = 2; suffix < 100; suffix += 1) {
+      const candidate = normalizeUsernameCandidate(`${baseUsername} ${suffix}`);
+      const existing = await userModel.getUserByUsernameIncludingDeleted(candidate);
+      if (!existing) return candidate;
+    }
+
+    return normalizeUsernameCandidate(`${baseUsername} ${Date.now().toString(36)}`);
   }
 
   async googleLogin(googleToken: unknown) {
@@ -83,13 +121,30 @@ class UserAuthService {
       throw new ApiError(401, "Invalid Google token");
     }
 
-    const email = googleData.email;
-    const username = googleData.name || email.split("@")[0];
-    let user = await userModel.getUserByEmail(email);
+    const email = googleData.email.trim().toLowerCase();
+    let user = await userModel.getUserByEmailIncludingDeleted(email);
+
+    if (user?.status === "deleted" || user?.deleted_at) {
+      throw new ApiError(403, "This email belongs to a deleted account");
+    }
 
     if (!user) {
+      const username = await this.getAvailableGoogleUsername(googleData.name || "", email);
       const passwordHash = await passwordService.hashPassword(`google_oauth_${Date.now()}`);
-      user = await userModel.createUser(username, email, passwordHash, "learner", normalizeAvatarUrl(googleData.picture));
+      try {
+        user = await userModel.createUser(
+          username,
+          email,
+          passwordHash,
+          "learner",
+          normalizeAvatarUrl(googleData.picture)
+        );
+      } catch (error: any) {
+        if (error?.code === "23505") {
+          throw new ApiError(409, "This Google account conflicts with an existing user. Please use another account or contact support.");
+        }
+        throw error;
+      }
     }
 
     if (user.status !== "active") {
@@ -104,7 +159,7 @@ class UserAuthService {
       throw new ApiError(400, "email and password are required");
     }
 
-    const user = await userModel.getUserByEmail(String(email));
+    const user = await userModel.getUserByEmail(String(email).trim().toLowerCase());
     if (!user) {
       throw new ApiError(401, "Invalid email or password");
     }
@@ -128,14 +183,27 @@ class UserAuthService {
       throw new ApiError(400, "username, email, and password are required");
     }
 
-    const existingUser = await userModel.getUserByEmailIncludingDeleted(String(email));
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedUsername = String(username).trim();
+    if (!normalizedUsername || !normalizedEmail) {
+      throw new ApiError(400, "username, email, and password are required");
+    }
+
+    const existingUser = await userModel.getUserByEmailIncludingDeleted(normalizedEmail);
     if (existingUser) {
-      throw new ApiError(409, "Email already exists");
+      throw new ApiError(409, "This email is already registered");
     }
 
     const passwordHash = await passwordService.hashPassword(String(password));
-    const user = await userModel.createUser(String(username), String(email), passwordHash, "learner");
-    return toPublicUser(user);
+    try {
+      const user = await userModel.createUser(normalizedUsername, normalizedEmail, passwordHash, "learner");
+      return toPublicUser(user);
+    } catch (error: any) {
+      if (error?.code === "23505") {
+        throw new ApiError(409, "This email is already registered");
+      }
+      throw error;
+    }
   }
 }
 

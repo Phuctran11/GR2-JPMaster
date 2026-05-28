@@ -13,6 +13,8 @@ export interface Lesson {
   created_at: Date;
   updated_at: Date;
   is_completed?: boolean;
+  is_accessible?: boolean;
+  is_locked?: boolean;
 }
 
 export interface CourseRatingInfo {

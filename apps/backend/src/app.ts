@@ -40,6 +40,19 @@ app.get("/", (req, res) => {
   res.send("E-learning API running...");
 });
 
+app.get("/healthz", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+app.get("/readyz", async (req, res, next) => {
+  try {
+    await pool.query("SELECT 1");
+    res.status(200).json({ status: "ready" });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/flashcards", flashcardRoutes);
@@ -86,3 +99,16 @@ paymentExpirySweep.unref?.();
 
 server.requestTimeout = getServerRequestTimeoutMs();
 server.headersTimeout = getServerHeadersTimeoutMs();
+
+const shutdown = () => {
+  logger.info("Shutting down server", { context: "app" });
+  clearInterval(paymentExpirySweep);
+  server.close(() => {
+    void pool.end().finally(() => {
+      process.exit(0);
+    });
+  });
+};
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);

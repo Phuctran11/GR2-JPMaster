@@ -25,6 +25,7 @@ function SignupForm() {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors },
   } = useForm<SignupFormValues>({
     defaultValues: {
@@ -47,7 +48,12 @@ function SignupForm() {
       addToast('Account created successfully. Please log in.', 'success');
       navigate('/login', { replace: true });
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Sign up failed', 'error');
+      const message = err instanceof Error ? err.message : 'Sign up failed';
+      const normalizedMessage = message.toLowerCase();
+      if (normalizedMessage.includes('email') && (normalizedMessage.includes('registered') || normalizedMessage.includes('exists'))) {
+        setError('email', { type: 'server', message: 'This email is already registered. Please log in or use another email.' });
+      }
+      addToast(message, 'error');
     } finally {
       setLoading(false);
     }

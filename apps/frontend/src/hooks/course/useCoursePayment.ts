@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { NavigateFunction } from 'react-router-dom';
 import { paymentAPI, type PaymentTransaction } from '../../services/api';
 
@@ -35,6 +35,7 @@ export function useCoursePayment({
   const [checkingPayment, setCheckingPayment] = useState(false);
   const [payOsEmbeddedError, setPayOsEmbeddedError] = useState<string | null>(null);
   const paymentTransactionId = paymentTransaction?.payment_transaction_id;
+  const mountedCheckoutUrlRef = useRef<string | null>(null);
 
   const refreshPaymentStatus = useCallback(async () => {
     if (!paymentTransactionId) return;
@@ -68,6 +69,7 @@ export function useCoursePayment({
 
   useEffect(() => {
     if (!paymentModalOpen || !paymentTransaction?.checkout_url) return;
+    if (mountedCheckoutUrlRef.current === paymentTransaction.checkout_url) return;
 
     let cancelled = false;
     const containerId = 'payos-checkout-container';
@@ -119,6 +121,7 @@ export function useCoursePayment({
           },
         });
         checkout.open();
+        mountedCheckoutUrlRef.current = paymentTransaction.checkout_url || null;
       } catch (error) {
         if (!cancelled) setPayOsEmbeddedError(error instanceof Error ? error.message : 'Failed to load payOS checkout');
       }
@@ -130,6 +133,11 @@ export function useCoursePayment({
       cancelled = true;
     };
   }, [paymentModalOpen, paymentTransaction?.checkout_url, refreshPaymentStatus]);
+
+  useEffect(() => {
+    if (paymentModalOpen) return;
+    mountedCheckoutUrlRef.current = null;
+  }, [paymentModalOpen]);
 
   return {
     paymentTransaction,

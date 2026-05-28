@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AIAssistantPanel } from '../ai/AIAssistantPanel';
 import type { Flashcard } from '../../services/api';
 
@@ -14,7 +16,16 @@ export function FlashcardAiAssistantModal({
   selectedCardContext: string[];
   onClose: () => void;
 }) {
-  return (
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  const modal = (
     <div className="fixed inset-0 z-[100] flex justify-end bg-black/45 p-3 sm:p-5" role="dialog" aria-modal="true">
       <div className="flex h-full w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-surface shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">
@@ -70,4 +81,6 @@ export function FlashcardAiAssistantModal({
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }

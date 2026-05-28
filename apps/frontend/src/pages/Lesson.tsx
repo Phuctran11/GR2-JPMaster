@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header, Footer, Container, Breadcrumbs } from '../components';
 import {
@@ -96,6 +96,13 @@ export default function Lesson() {
   const hasLessonMedia = Boolean(currentLesson?.video_url?.trim());
   const canMarkCurrentLessonComplete = lessonQuizPassed;
   const completeBlockedReason = lessonQuiz ? 'Pass the lesson quiz to unlock completion.' : undefined;
+
+  useEffect(() => {
+    if (!courseId || !lessonId || !currentLesson) return;
+    if (Number(lessonId) !== currentLesson.lesson_id) {
+      navigate(`/courses/${courseId}/lessons/${currentLesson.lesson_id}`, { replace: true });
+    }
+  }, [courseId, currentLesson, lessonId, navigate]);
 
   const breadcrumbs = [
     { label: 'Home', path: '/' },

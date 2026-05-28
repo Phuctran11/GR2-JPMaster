@@ -4,6 +4,7 @@ import enrollmentModel from "../../models/enrollments/enrollment.model.js";
 import quizModel, { QuizAnswerInput } from "../../models/quizzes/quiz.model.js";
 import { ApiError } from "../../utils/http.js";
 import learningActivityService from "../achievements/learningActivity.service.js";
+import { requireLessonProgressAccess } from "../enrollments/enrollmentAccess.service.js";
 
 export class QuizService {
   private async getQuizCourseIdOrThrow(quizId: number): Promise<number> {
@@ -41,6 +42,10 @@ export class QuizService {
   async startQuiz(userId: number, quizId: number) {
     const courseId = await this.getQuizCourseIdOrThrow(quizId);
     await this.requireCourseAccess(userId, courseId);
+    const quiz = await quizModel.getPublicQuizById(quizId, userId);
+    if (quiz?.quiz_type === "lesson_quiz" && quiz.lesson_id) {
+      await requireLessonProgressAccess(userId, courseId, quiz.lesson_id);
+    }
     const attempt = await quizModel.startQuizAttempt(userId, quizId);
     if (!attempt) {
       throw new ApiError(404, "Quiz not found");
@@ -54,6 +59,7 @@ export class QuizService {
       throw new ApiError(404, "Lesson not found");
     }
     await this.requireCourseAccess(userId, courseId);
+    await requireLessonProgressAccess(userId, courseId, lessonId);
     return quizModel.getLessonQuiz(lessonId, userId);
   }
 
@@ -65,6 +71,10 @@ export class QuizService {
   async submitQuiz(userId: number, quizId: number, answers: QuizAnswerInput[], attemptId?: number) {
     const courseId = await this.getQuizCourseIdOrThrow(quizId);
     await this.requireCourseAccess(userId, courseId);
+    const quiz = await quizModel.getPublicQuizById(quizId, userId);
+    if (quiz?.quiz_type === "lesson_quiz" && quiz.lesson_id) {
+      await requireLessonProgressAccess(userId, courseId, quiz.lesson_id);
+    }
 
     const result = await quizModel.submitQuiz(userId, quizId, answers, attemptId);
     if (!result) {

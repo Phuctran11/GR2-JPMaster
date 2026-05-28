@@ -49,9 +49,15 @@ export const replaceBlogTags = async (client: PoolClient, blogId: number, tags: 
 
   await client.query(`DELETE FROM "BlogTagMap" WHERE blog_id = $1;`, [blogId]);
 
-  const normalizedTags = [...new Set(tags.map((tag) => tag.trim()).filter(Boolean))];
-  for (const tag of normalizedTags) {
-    const slug = blogSlug(tag);
+  const normalizedTags = new Map<string, string>();
+  for (const tag of tags) {
+    const name = tag.trim();
+    const slug = blogSlug(name);
+    if (!name || !slug) continue;
+    if (!normalizedTags.has(slug)) normalizedTags.set(slug, name);
+  }
+
+  for (const [slug, tag] of normalizedTags) {
     const tagType = ["vocabulary", "grammar", "reading", "listening"].includes(slug)
       ? "skill"
       : /^n[1-5]$/.test(slug)
@@ -61,11 +67,13 @@ export const replaceBlogTags = async (client: PoolClient, blogId: number, tags: 
       `
         INSERT INTO "BlogTag" (name, slug, tag_type, created_at, updated_at)
         VALUES ($1, $2, $3, NOW(), NOW())
-        ON CONFLICT (name) DO UPDATE
-        SET updated_at = "BlogTag".updated_at
+        ON CONFLICT (slug) DO UPDATE
+        SET name = EXCLUDED.name,
+            tag_type = EXCLUDED.tag_type,
+            updated_at = NOW()
         RETURNING tag_id;
       `,
-      [tag, slug.toUpperCase().startsWith("N") ? slug.toUpperCase() : slug, tagType]
+      [tag, slug, tagType]
     );
     await client.query(
       `

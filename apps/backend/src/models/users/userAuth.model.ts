@@ -23,7 +23,7 @@ export class UserAuthModel {
     const query = `
       SELECT ${userWithPasswordSelect}
       FROM "User"
-      WHERE email = $1
+      WHERE LOWER(email) = LOWER($1)
         AND status <> 'deleted'
         AND deleted_at IS NULL;
     `;
@@ -35,9 +35,19 @@ export class UserAuthModel {
     const query = `
       SELECT ${userWithPasswordSelect}
       FROM "User"
-      WHERE email = $1;
+      WHERE LOWER(email) = LOWER($1);
     `;
     const result = await databaseService.executeQuery(query, [email]);
+    return result.rows[0] || null;
+  }
+
+  async getUserByUsernameIncludingDeleted(username: string): Promise<UserWithPassword | null> {
+    const query = `
+      SELECT ${userWithPasswordSelect}
+      FROM "User"
+      WHERE LOWER(username) = LOWER($1);
+    `;
+    const result = await databaseService.executeQuery(query, [username]);
     return result.rows[0] || null;
   }
 }

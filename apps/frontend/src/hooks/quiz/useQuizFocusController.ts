@@ -5,6 +5,12 @@ import { getQuizDurationSeconds } from '../../components/quiz/quizFocusUtils';
 import { useQuizFocusAudio } from './useQuizFocusAudio';
 import { useQuizFocusGuard } from './useQuizFocusGuard';
 
+const scrollQuizFocusToTop = () => {
+  requestAnimationFrame(() => {
+    document.getElementById('quiz-focus-scroll')?.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  });
+};
+
 export function useQuizFocusController({
   courseId,
   lessonId,
@@ -114,6 +120,7 @@ export function useQuizFocusController({
 
   const handleSubmitted = useCallback((result: QuizSubmitResult) => {
     setSubmittedResult(result);
+    scrollQuizFocusToTop();
   }, []);
 
   const handleRetake = () => {

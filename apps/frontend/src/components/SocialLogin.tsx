@@ -31,6 +31,10 @@ export function SocialLogin({ loading, setLoading }: SocialLoginProps) {
     }
 
     setLoading(true);
+    const slowLoginTimer = window.setTimeout(() => {
+      addToast('Google sign-in is taking longer than usual. The backend may be waking up, please wait.', 'info');
+    }, 12000);
+
     try {
       const res = await authAPI.googleLogin({ token: response.credential });
       if (!res.token) {
@@ -44,6 +48,7 @@ export function SocialLogin({ loading, setLoading }: SocialLoginProps) {
       addToast(err instanceof Error ? err.message : 'Google login failed', 'error');
       console.error('Google login error:', err);
     } finally {
+      window.clearTimeout(slowLoginTimer);
       setLoading(false);
     }
   }, [addToast, login, navigate, setLoading]);

@@ -44,6 +44,9 @@ export default function CourseDetail() {
     shouldShowFinalTestButton,
     modules,
   } = useCourseDetailData({ courseId, user, showToast });
+  const handlePaymentCompleted = useCallback(() => {
+    setEnrollmentStatus('active');
+  }, [setEnrollmentStatus]);
   const {
     paymentTransaction,
     setPaymentTransaction,
@@ -55,7 +58,7 @@ export default function CourseDetail() {
   } = useCoursePayment({
     navigate,
     showToast,
-    onPaymentCompleted: () => setEnrollmentStatus('active'),
+    onPaymentCompleted: handlePaymentCompleted,
   });
   const {
     enrolling,

@@ -9,6 +9,12 @@ import {
   type JlptTestPhase,
 } from '../../components/jlpt/jlptTestUtils';
 
+const scrollJlptFocusToTop = () => {
+  requestAnimationFrame(() => {
+    document.getElementById('jlpt-focus-scroll')?.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  });
+};
+
 export function useJlptTestController(numericExamId: number) {
   const [exam, setExam] = useState<JlptExamDetail | null>(null);
   const [answers, setAnswers] = useState<AnswerState>({});
@@ -80,7 +86,7 @@ export function useJlptTestController(numericExamId: number) {
       const response = await jlptExamAPI.submitExam(exam.exam_id, buildJlptAnswerPayload(exam, answers));
       setResult(response.data);
       setPhase('submitted');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollJlptFocusToTop();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Failed to submit JLPT test');
     } finally {
@@ -141,7 +147,7 @@ export function useJlptTestController(numericExamId: number) {
     }
     setPhase('break');
     setRemainingSeconds(BREAK_SECONDS);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollJlptFocusToTop();
   };
 
   const finishSection = () => {
@@ -156,7 +162,7 @@ export function useJlptTestController(numericExamId: number) {
     setActiveSectionIndex(0);
     setRemainingSeconds(0);
     setShowSectionSubmitConfirm(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollJlptFocusToTop();
   };
 
   const setSingleOption = (questionId: number, optionId: number) => {
