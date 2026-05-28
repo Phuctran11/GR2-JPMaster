@@ -16,7 +16,7 @@ export function FlashcardAiAssistantModal({
 }) {
   return (
     <div className="fixed inset-0 z-[100] flex justify-end bg-black/45 p-3 sm:p-5" role="dialog" aria-modal="true">
-      <div className="flex h-full w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+      <div className="flex h-full w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-surface shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">
           <div className="min-w-0">
             <p className="text-label-md font-bold uppercase tracking-wide text-primary">Flashcard AI</p>

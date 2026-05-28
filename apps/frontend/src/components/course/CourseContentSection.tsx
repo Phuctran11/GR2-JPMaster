@@ -30,6 +30,8 @@ export function CourseContentSection({
   onSelectLesson,
   onTakeFinalTest,
 }: CourseContentSectionProps) {
+  const hasLessonAccess = enrollmentStatus === 'active' || enrollmentStatus === 'completed';
+
   return (
     <section className="py-section-gap">
       <Container>
@@ -80,7 +82,8 @@ export function CourseContentSection({
                       key={module.id}
                       module={module}
                       lesson={lesson}
-                      canPlay={Boolean(enrollmentStatus && (lesson?.is_completed || index === firstUnfinishedLessonIndex))}
+                      isCurrent={hasLessonAccess && !lesson?.is_completed && index === firstUnfinishedLessonIndex}
+                      canPlay={hasLessonAccess}
                       onPlay={() => {
                         if (lesson?.lesson_id) {
                           onSelectLesson(lesson.lesson_id);
@@ -90,7 +93,7 @@ export function CourseContentSection({
                   );
                 })}
                 {finalQuiz && enrollmentStatus && (
-                  <div className={`border p-stack-lg shadow-sm ${shouldShowFinalTestButton ? 'border-primary bg-primary-fixed/20' : finalQuizPassed ? 'border-emerald-300 bg-emerald-50' : 'border-outline-variant bg-surface-container-low'}`}>
+                  <div className={`border p-stack-lg shadow-sm ${shouldShowFinalTestButton ? 'border-primary bg-primary-fixed/20' : finalQuizPassed ? 'border-success/40 bg-success-container' : 'border-outline-variant bg-surface-container-low'}`}>
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                       <div>
                         <p className="text-label-md font-bold uppercase tracking-wide text-primary">Final test</p>

@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input, Button, GlassCard, Icon, PasswordInput, Breadcrumbs, Header, Footer } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
+import { MotionSectionFrame } from '../components/ui';
 import { authAPI } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import { useForm } from 'react-hook-form';
 import { formRules, getFieldError, sameAs } from '../utils/formValidation';
+import signupBackground from '../assets/bg3.png';
 
 type SignupFormValues = {
   name: string;
@@ -114,30 +116,6 @@ function SignupForm() {
   );
 }
 
-function SignupDecorations() {
-  return (
-    <>
-      {/* Sakura Branch */}
-      <div className="absolute top-20 right-0 w-1/3 h-full pointer-events-none overflow-hidden opacity-80 mix-blend-multiply hidden lg:block">
-        <img
-          className="w-full h-full object-contain object-right-top transform scale-125"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfYvwYjUnRoL5hB2NDmwFnbuyrh7iU2U48LOHkBU4pcdJdYVigwUuGjboCZ0GxNhQRysnuL9z2kJGTkvLv89aE_xUzjzgYEgA0UmNiAE3Wkbe3pHvUxPJ_sgWmp518yf3tWBIS2wz29D-ElaGKU1k4YlVSde9l3-VUds3bnDNyBRpfkMU2-fTG05iRvvvnBBUy73MQUatj7GkGeXxinbup__iubzbpX28dirzqe68kAv42nY27g0EYCQU-YLlAwZZel-seQK5716DF"
-          alt="Sakura"
-        />
-      </div>
-
-      {/* Wave Pattern */}
-      <div className="absolute bottom-0 left-0 w-1/4 h-1/2 pointer-events-none opacity-40 hidden lg:block">
-        <img
-          className="w-full h-full object-contain object-left-bottom grayscale"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlJCc00W2ETSpzLSsBMgTsN4xXxcYuvkrlhm13n5-cNxlg5a-3zWtvVKbzR7j0gxh3ODHAZreuWBSguP9YxI7hUvT3zgQmYgEO8RglO9bFO68EtMOA7j-O5-xN7nFQS8Kfh4lmbXIGbb_NkzoOc6CGr8xhezHKaitAnNtLOQpruSkW2aw47TF8Yd31UDTu3RLvIcB9nBh71N2Epy6o8zQSQ8jd8u3XRKWkgUbmSCHTC-F5G6WTfDdk8qkuGdF1B0H03i-JV33Cj7kJ"
-          alt="Wave pattern"
-        />
-      </div>
-    </>
-  );
-}
-
 function SignupBentoCards() {
   return (
     <div className="mt-12 grid grid-cols-2 gap-4 border-t border-outline-variant/30 pt-8">
@@ -178,30 +156,36 @@ export default function Signup() {
       <Header />
       <Breadcrumbs items={breadcrumbs} />
       <main
-        className="relative flex-grow py-24 pb-section-gap flex items-center justify-center bg-background"
+        className="relative flex-grow py-24 pb-section-gap flex items-center justify-center overflow-hidden bg-background"
         style={{
-          backgroundColor: '#faf8ff',
-          backgroundImage:
-            'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2740%27 viewBox=%270 0 80 40%27%3E%3Cpath d=%27M0 40c4.5 0 9-2 12-5s7.5-3 12-3 9 2 12 5 7.5 3 12 3 9-2 12-5 7.5-3 12-3 9 2 12 5M0 20c4.5 0 9-2 12-5s7.5-3 12-3 9 2 12 5 7.5 3 12 3 9-2 12-5 7.5-3 12-3 9 2 12 5%27 fill=%27none%27 stroke=%27%23e5e7eb%27 stroke-width=%271%27/%3E%3C/svg%3E")',
+          backgroundImage: `url(${signupBackground})`,
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       >
-        {/* Decorative Elements */}
-        <SignupDecorations />
+        <div className="absolute inset-0 bg-background/70 backdrop-blur-[1px] dark:bg-background/82" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
 
         {/* Registration Container */}
         <div className="w-full flex justify-center relative z-10">
           <GlassCard className="w-full mx-margin-mobile md:mx-margin-desktop max-w-[520px] p-stack-lg md:p-12 rounded-xl shadow-lg">
-            <div className="mb-stack-lg">
-              <Heading level="h1" size="headline-lg" className="mb-2">
-                Master the Art of Japanese
-              </Heading>
-              <Text variant="body-md" color="on-surface-variant">
-                Begin your scholarly journey with elite curriculum and focused study tools.
-              </Text>
-            </div>
+            <MotionSectionFrame index={0} preset="hero">
+              <div className="mb-stack-lg">
+                <Heading level="h1" size="headline-lg" className="mb-2">
+                  Master the Art of Japanese
+                </Heading>
+                <Text variant="body-md" color="on-surface-variant">
+                  Begin your scholarly journey with elite curriculum and focused study tools.
+                </Text>
+              </div>
+            </MotionSectionFrame>
 
-            <SignupForm />
-            <SignupBentoCards />
+            <MotionSectionFrame index={1} preset="sweep">
+              <SignupForm />
+            </MotionSectionFrame>
+            <MotionSectionFrame index={2} preset="pop">
+              <SignupBentoCards />
+            </MotionSectionFrame>
           </GlassCard>
         </div>
       </main>

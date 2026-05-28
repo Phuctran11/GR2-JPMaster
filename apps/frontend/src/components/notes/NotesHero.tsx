@@ -15,7 +15,7 @@ export function NotesHero({
   onSelectType: (type: LessonNoteType | 'all') => void;
 }) {
   return (
-    <section className="mb-6 rounded-2xl border border-outline-variant bg-white p-5 shadow-sm md:p-6">
+    <section className="mb-6 rounded-2xl border border-outline-variant bg-surface p-5 shadow-sm md:p-6">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-label-md font-bold uppercase tracking-wide text-primary">Study notes</p>
@@ -51,7 +51,7 @@ export function NotesHero({
             >
               <span className="material-symbols-outlined text-[17px]">{meta.icon}</span>
               {meta.label}
-              <span className="rounded-full bg-white/70 px-2 py-0.5">{countsByType[type]}</span>
+              <span className="rounded-full bg-surface/70 px-2 py-0.5">{countsByType[type]}</span>
             </button>
           );
         })}

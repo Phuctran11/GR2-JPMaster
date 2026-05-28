@@ -5,7 +5,7 @@ export function ReviewItem({ review, isUser, isHighlighted }: { review: ReviewCa
   const getInitials = (username: string | undefined) => (username || 'U').substring(0, 2).toUpperCase();
   const colors = ['bg-primary-fixed', 'bg-secondary-fixed', 'bg-tertiary-fixed'];
   const highlightClass = isHighlighted ? 'ring-4 ring-secondary-container shadow-xl shadow-secondary-container/30' : '';
-  const userClass = isUser ? 'bg-primary-fixed/20 border-primary shadow-lg shadow-primary/15 ring-2 ring-primary/25' : 'bg-white border-outline-variant';
+  const userClass = isUser ? 'bg-primary-fixed/20 border-primary shadow-lg shadow-primary/15 ring-2 ring-primary/25' : 'bg-surface border-outline-variant';
 
   return (
     <Card id={`review-${review.rating_id}`} className={`h-full relative p-6 border scroll-mt-24 transition-all ${userClass} ${highlightClass}`}>

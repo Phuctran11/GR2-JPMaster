@@ -1,9 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { ToastContainer } from './components/Toast';
 import { JapaneseDictionaryWidget } from './components/JapaneseDictionaryWidget';
+import { ThemeTransitionOverlay } from './components/ThemeTransitionOverlay';
+import { MotionFrame } from './components/ui';
 import { Suspense, lazy } from 'react';
+import type { ReactNode } from 'react';
 
 const Homepage = lazy(() => import('./pages/Homepage'));
 const CourseList = lazy(() => import('./pages/CourseList'));
@@ -24,46 +28,65 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 
+function PageMotion({
+  children,
+  direction = 'up',
+  preset = 'lift',
+}: {
+  children: ReactNode;
+  direction?: 'up' | 'down' | 'left' | 'right' | 'up-left' | 'up-right' | 'down-left' | 'down-right' | 'none';
+  preset?: 'soft' | 'hero' | 'lift' | 'sweep' | 'pop';
+}) {
+  return (
+    <MotionFrame preset={preset} direction={direction} duration={0.24} viewportAmount={0.02}>
+      {children}
+    </MotionFrame>
+  );
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <BrowserRouter>
-          <ToastContainer />
-          <JapaneseDictionaryWidget />
-          <Suspense fallback={
-            <div className="min-h-screen flex flex-col bg-background">
-              <div className="mx-auto my-20 text-center">
-                <p className="text-on-surface-variant">Loading...</p>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <ThemeTransitionOverlay />
+            <ToastContainer />
+            <JapaneseDictionaryWidget />
+            <Suspense fallback={
+              <div className="min-h-screen flex flex-col bg-background">
+                <div className="mx-auto my-20 text-center">
+                  <p className="text-on-surface-variant">Loading...</p>
+                </div>
               </div>
-            </div>
-          }>
-            <Routes>
-              <Route path="/" element={<Homepage />} />
-              <Route path="/courses" element={<CourseList />} />
-              <Route path="/explore" element={<CourseExplore />} />
-              <Route path="/courses/:id" element={<CourseDetail />} />
-              <Route path="/courses/:id/certificate" element={<Certification />} />
-              <Route path="/courses/:id/lessons/:lessonId" element={<Lesson />} />
-              <Route path="/courses/:id/lessons/:lessonId/quiz" element={<QuizFocus />} />
-              <Route path="/courses/:id/final-test" element={<QuizFocus />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/flashcards" element={<Flashcard />} />
-              <Route path="/flashcards/:id" element={<FlashcardDetail />} />
-              <Route path="/notes" element={<Notes />} />
-              <Route path="/tests" element={<TestList />} />
-              <Route path="/tests/:examId" element={<JlptTest />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/blog" element={<BlogList />} />
-              <Route path="/blog/:id" element={<BlogDetail />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </ToastProvider>
-    </AuthProvider>
+            }>
+              <Routes>
+                <Route path="/" element={<Homepage />} />
+                <Route path="/courses" element={<PageMotion direction="up-right"><CourseList /></PageMotion>} />
+                <Route path="/explore" element={<PageMotion direction="up-left"><CourseExplore /></PageMotion>} />
+                <Route path="/courses/:id" element={<PageMotion direction="right" preset="sweep"><CourseDetail /></PageMotion>} />
+                <Route path="/courses/:id/certificate" element={<PageMotion direction="up" preset="pop"><Certification /></PageMotion>} />
+                <Route path="/courses/:id/lessons/:lessonId" element={<PageMotion direction="left" preset="soft"><Lesson /></PageMotion>} />
+                <Route path="/courses/:id/lessons/:lessonId/quiz" element={<PageMotion direction="up" preset="soft"><QuizFocus /></PageMotion>} />
+                <Route path="/courses/:id/final-test" element={<PageMotion direction="up" preset="soft"><QuizFocus /></PageMotion>} />
+                <Route path="/profile" element={<PageMotion direction="down-right"><Profile /></PageMotion>} />
+                <Route path="/flashcards" element={<PageMotion direction="up-left"><Flashcard /></PageMotion>} />
+                <Route path="/flashcards/:id" element={<PageMotion direction="right" preset="sweep"><FlashcardDetail /></PageMotion>} />
+                <Route path="/notes" element={<PageMotion direction="down-left" preset="pop"><Notes /></PageMotion>} />
+                <Route path="/tests" element={<PageMotion direction="up-right"><TestList /></PageMotion>} />
+                <Route path="/tests/:examId" element={<PageMotion direction="left" preset="soft"><JlptTest /></PageMotion>} />
+                <Route path="/admin" element={<PageMotion direction="up" preset="soft"><AdminDashboard /></PageMotion>} />
+                <Route path="/blog" element={<PageMotion direction="up-left"><BlogList /></PageMotion>} />
+                <Route path="/blog/:id" element={<PageMotion direction="right" preset="sweep"><BlogDetail /></PageMotion>} />
+                <Route path="/login" element={<PageMotion direction="down" preset="hero"><Login /></PageMotion>} />
+                <Route path="/signup" element={<PageMotion direction="down-right" preset="hero"><Signup /></PageMotion>} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

@@ -23,7 +23,7 @@ export function FlashcardEditDialog({
 }) {
   return (
     <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-surface shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4">
           <div className="min-w-0">
             <p className="text-label-md font-bold uppercase tracking-wide text-primary">Edit Flashcard</p>
@@ -44,7 +44,7 @@ export function FlashcardEditDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Front <span className="text-error">Required</span></span>
               <textarea
-                className="min-h-28 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                className="min-h-28 w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
                 value={form.frontText}
                 onChange={(event) => onChange({ ...form, frontText: event.target.value })}
               />
@@ -52,7 +52,7 @@ export function FlashcardEditDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Back <span className="text-error">Required</span></span>
               <textarea
-                className="min-h-28 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                className="min-h-28 w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
                 value={form.backText}
                 onChange={(event) => onChange({ ...form, backText: event.target.value })}
               />
@@ -63,7 +63,7 @@ export function FlashcardEditDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Reading <span className="font-normal text-on-surface-variant">Optional</span></span>
               <input
-                className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
                 value={form.reading}
                 onChange={(event) => onChange({ ...form, reading: event.target.value })}
               />
@@ -71,7 +71,7 @@ export function FlashcardEditDialog({
             <label className="block">
               <span className="mb-1 block text-label-md font-bold text-on-surface">Tags <span className="font-normal text-on-surface-variant">Optional</span></span>
               <input
-                className="w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+                className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
                 value={form.tags}
                 onChange={(event) => onChange({ ...form, tags: event.target.value })}
                 placeholder="Comma separated tags"
@@ -82,7 +82,7 @@ export function FlashcardEditDialog({
           <label className="block">
             <span className="mb-1 block text-label-md font-bold text-on-surface">Example sentence <span className="font-normal text-on-surface-variant">Optional</span></span>
             <textarea
-              className="min-h-24 w-full rounded-lg border border-outline-variant bg-white px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
+              className="min-h-24 w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary"
               value={form.exampleSentence}
               onChange={(event) => onChange({ ...form, exampleSentence: event.target.value })}
             />

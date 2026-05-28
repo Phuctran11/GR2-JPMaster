@@ -22,7 +22,7 @@ export function CollectionDialog({
 }) {
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true">
-      <section className="w-full max-w-lg rounded-xl border border-outline-variant bg-white p-6 shadow-xl">
+      <section className="w-full max-w-lg rounded-xl border border-outline-variant bg-surface p-6 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-label-md font-bold uppercase tracking-wide text-primary">
@@ -43,7 +43,7 @@ export function CollectionDialog({
             <input
               value={form.title}
               onChange={(event) => onChange({ ...form, title: event.target.value })}
-              className="w-full rounded-lg border border-outline-variant bg-white px-4 py-3 outline-none focus:border-primary"
+              className="w-full rounded-lg border border-outline-variant bg-surface px-4 py-3 outline-none focus:border-primary"
               placeholder="e.g. Daily Phrases"
             />
           </label>
@@ -53,7 +53,7 @@ export function CollectionDialog({
               value={form.description}
               onChange={(event) => onChange({ ...form, description: event.target.value })}
               rows={3}
-              className="w-full resize-y rounded-lg border border-outline-variant bg-white px-4 py-3 outline-none focus:border-primary"
+              className="w-full resize-y rounded-lg border border-outline-variant bg-surface px-4 py-3 outline-none focus:border-primary"
               placeholder="What does this collection cover?"
             />
           </label>
@@ -62,7 +62,7 @@ export function CollectionDialog({
             <select
               value={form.visibility}
               onChange={(event) => onChange({ ...form, visibility: event.target.value as FlashcardVisibility })}
-              className="w-full rounded-lg border border-outline-variant bg-white px-4 py-3 outline-none focus:border-primary"
+              className="w-full rounded-lg border border-outline-variant bg-surface px-4 py-3 outline-none focus:border-primary"
             >
               <option value="private">Private</option>
               <option value="public">Public</option>
@@ -76,7 +76,7 @@ export function CollectionDialog({
               type="button"
               onClick={onDelete}
               disabled={saving}
-              className="rounded-lg border border-red-200 bg-white px-5 py-3 font-bold text-red-700 hover:bg-red-50 disabled:opacity-50"
+              className="rounded-lg border border-error/40 bg-surface px-5 py-3 font-bold text-on-error-container hover:bg-error-container disabled:opacity-50"
             >
               Delete
             </button>
@@ -84,7 +84,7 @@ export function CollectionDialog({
             <span />
           )}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button type="button" onClick={onClose} className="rounded-lg border border-outline-variant bg-white px-5 py-3 font-bold text-on-surface">
+            <button type="button" onClick={onClose} className="rounded-lg border border-outline-variant bg-surface px-5 py-3 font-bold text-on-surface">
               Cancel
             </button>
             <Button onClick={onSubmit} disabled={!form.title.trim() || saving}>

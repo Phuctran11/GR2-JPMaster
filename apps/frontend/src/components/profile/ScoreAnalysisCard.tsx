@@ -53,7 +53,7 @@ function ScoreTrendLine({ attempts }: { attempts: AnalyticsAttempt[] }) {
   const areaPath = `${pathData} L ${coordinates[coordinates.length - 1].x} ${height - padding} L ${coordinates[0].x} ${height - padding} Z`;
 
   return (
-    <div className="rounded-xl border border-outline-variant bg-[linear-gradient(180deg,#f8fbff_0%,#eef7ff_100%)] p-3">
+    <div className="rounded-xl border border-outline-variant bg-[linear-gradient(180deg,#f8fbff_0%,#eef7ff_100%)] p-3 dark:bg-[linear-gradient(180deg,rgba(30,41,59,0.78)_0%,rgba(15,23,42,0.96)_100%)]">
       <svg viewBox={`0 0 ${width} ${height}`} className="h-36 w-full" role="img" aria-label="Score trend line chart">
         <defs>
           <linearGradient id={`scoreLine${chartId}`} x1="0" x2="1" y1="0" y2="0">
@@ -65,6 +65,13 @@ function ScoreTrendLine({ attempts }: { attempts: AnalyticsAttempt[] }) {
             <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.24" />
             <stop offset="100%" stopColor="#2563eb" stopOpacity="0.02" />
           </linearGradient>
+          <filter id={`scoreGlow${chartId}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2.2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
         {[25, 50, 75, 100].map((value) => {
           const y = height - padding - (value / 100) * (height - padding * 2);
@@ -73,13 +80,13 @@ function ScoreTrendLine({ attempts }: { attempts: AnalyticsAttempt[] }) {
         <path d={areaPath} fill={`url(#scoreArea${chartId})`} />
         <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="currentColor" className="text-outline-variant" />
         <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="currentColor" className="text-outline-variant" />
-        <path d={pathData} fill="none" stroke={`url(#scoreLine${chartId})`} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={pathData} fill="none" stroke={`url(#scoreLine${chartId})`} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" filter={`url(#scoreGlow${chartId})`} />
         {coordinates.map((point, index) => (
           <g key={`${point.title}-${index}`}>
-            <circle cx={point.x} cy={point.y} r="6" fill="#ffffff" stroke="#14b8a6" strokeWidth="3">
+            <circle cx={point.x} cy={point.y} r="6" fill="rgb(var(--color-surface))" stroke="#38d5c8" strokeWidth="3">
               <title>{`${point.title}: ${point.score}%`}</title>
             </circle>
-            <circle cx={point.x} cy={point.y} r="2.5" fill="#2563eb" />
+            <circle cx={point.x} cy={point.y} r="2.5" fill="#8fb3ff" />
           </g>
         ))}
       </svg>

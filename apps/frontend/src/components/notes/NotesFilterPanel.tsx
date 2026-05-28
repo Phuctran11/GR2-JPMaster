@@ -26,7 +26,7 @@ export function NotesFilterPanel({
   onClearFilters: () => void;
 }) {
   return (
-    <section className="mb-6 overflow-hidden rounded-2xl border border-outline-variant bg-white shadow-sm">
+    <section className="mb-6 overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-sm">
       <div className="flex flex-col gap-3 border-b border-outline-variant bg-surface-container-low px-4 py-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-on-primary">
@@ -41,7 +41,7 @@ export function NotesFilterPanel({
           type="button"
           onClick={onClearFilters}
           disabled={!hasActiveFilters}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant bg-white px-4 py-2 font-bold text-on-surface transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant bg-surface px-4 py-2 font-bold text-on-surface transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           <span className="material-symbols-outlined text-[18px]">restart_alt</span>
           Clear filters
@@ -57,7 +57,7 @@ export function NotesFilterPanel({
             <input
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
-              className="w-full rounded-xl border border-outline-variant bg-white py-3 pl-11 pr-4 outline-none focus:border-primary"
+              className="w-full rounded-xl border border-outline-variant bg-surface py-3 pl-11 pr-4 outline-none focus:border-primary"
               placeholder="Search note content or selected text"
             />
           </div>
@@ -70,7 +70,7 @@ export function NotesFilterPanel({
             <select
               value={noteType}
               onChange={(event) => onNoteTypeChange(event.target.value as LessonNoteType | 'all')}
-              className="w-full appearance-none rounded-xl border border-outline-variant bg-white py-3 pl-10 pr-9 outline-none focus:border-primary"
+              className="w-full appearance-none rounded-xl border border-outline-variant bg-surface py-3 pl-10 pr-9 outline-none focus:border-primary"
             >
               {noteTypeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -92,7 +92,7 @@ export function NotesFilterPanel({
               <select
                 value={pinned}
                 onChange={(event) => onPinnedChange(event.target.value as NotesPinnedFilter)}
-                className="w-full appearance-none rounded-xl border border-outline-variant bg-white py-3 pl-10 pr-9 outline-none focus:border-primary"
+                className="w-full appearance-none rounded-xl border border-outline-variant bg-surface py-3 pl-10 pr-9 outline-none focus:border-primary"
               >
                 <option value="all">All notes</option>
                 <option value="true">Pinned only</option>
@@ -111,7 +111,7 @@ export function NotesFilterPanel({
               <select
                 value={sortOrder}
                 onChange={(event) => onSortOrderChange(event.target.value as NotesSortOrder)}
-                className="w-full appearance-none rounded-xl border border-outline-variant bg-white py-3 pl-10 pr-9 outline-none focus:border-primary"
+                className="w-full appearance-none rounded-xl border border-outline-variant bg-surface py-3 pl-10 pr-9 outline-none focus:border-primary"
               >
                 <option value="newest">Newest first</option>
                 <option value="oldest">Oldest first</option>

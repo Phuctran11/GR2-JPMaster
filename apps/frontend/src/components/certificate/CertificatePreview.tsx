@@ -4,7 +4,7 @@ import { formatCourseDuration, formatDisplayDate } from './certificateFormatters
 
 export function CertificatePreview({ certificate }: { certificate: Certificate }) {
   return (
-    <article className="certificate-sheet relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] border-[10px] border-primary bg-white shadow-2xl">
+    <article className="certificate-sheet relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] border-[10px] border-primary bg-surface shadow-2xl">
       <div className="absolute inset-0 border-[3px] border-secondary m-6 rounded-[1.25rem]"></div>
       <div className="absolute -left-28 -top-28 h-72 w-72 rounded-full bg-primary/10"></div>
       <div className="absolute -right-24 -bottom-24 h-80 w-80 rounded-full bg-secondary/15"></div>

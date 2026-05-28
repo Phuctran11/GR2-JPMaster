@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { formRules, getFieldError } from '../utils/formValidation';
 import { AuthLayout } from '../components/AuthLayout';
 import { SocialLogin } from '../components/SocialLogin';
+import { MotionSectionFrame } from '../components/ui';
 
 type LoginFormValues = {
   email: string;
@@ -120,7 +121,9 @@ export default function Login() {
       <Header />
       <Breadcrumbs items={breadcrumbs} />
       <AuthLayout title="Welcome Back" subtitle="Continue your path to proficiency.">
-        <LoginForm />
+        <MotionSectionFrame index={0} preset="sweep">
+          <LoginForm />
+        </MotionSectionFrame>
       </AuthLayout>
       <Footer />
     </div>

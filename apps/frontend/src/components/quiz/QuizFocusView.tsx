@@ -43,13 +43,13 @@ export function QuizFocusView({
       <Container className="py-6 md:py-8">
         <div className="mx-auto max-w-4xl space-y-5">
           {!submittedResult && (
-            <section className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900">
+            <section className="rounded-xl border border-warning/40 bg-warning-container p-4 text-on-warning-container">
               Focus mode is locked. Submit this {isFinalTest ? 'final test' : 'quiz'} to exit.
             </section>
           )}
 
           {!submittedResult && timedOut && (
-            <section className="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800">
+            <section className="rounded-xl border border-error/40 bg-error-container p-4 text-on-error-container">
               <div className="flex items-start gap-3">
                 <span className="material-symbols-outlined mt-0.5">timer_off</span>
                 <div>

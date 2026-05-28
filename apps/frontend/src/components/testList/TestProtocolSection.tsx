@@ -28,7 +28,7 @@ export function TestProtocolSection() {
           </div>
         </div>
 
-        <Card className="bg-white p-stack-lg border border-outline-variant shadow-sm relative">
+        <Card className="bg-surface p-stack-lg border border-outline-variant shadow-sm relative">
           <h3 className="font-headline-sm text-headline-sm mb-stack-md text-primary">Practice Scoring</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left">

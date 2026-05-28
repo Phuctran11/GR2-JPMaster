@@ -36,7 +36,7 @@ export function LessonActions({
               {hasNextLesson ? 'Complete this lesson before moving to the next one.' : 'Complete this final lesson when you are done reviewing.'}
             </p>
             {!isCompleted && !canMarkComplete && completeBlockedReason && (
-              <p className="mt-2 text-body-sm font-semibold text-amber-700">{completeBlockedReason}</p>
+              <p className="mt-2 text-body-sm font-semibold text-on-warning-container">{completeBlockedReason}</p>
             )}
           </div>
         </div>

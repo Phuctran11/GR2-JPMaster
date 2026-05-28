@@ -13,7 +13,7 @@ export function LevelBadge({
 
   const variants = {
     glass: 'bg-white/20 backdrop-blur-md text-white',
-    solid: 'bg-primary text-white',
+    solid: 'bg-primary text-on-primary',
     outline: 'border border-primary text-primary'
   };
 

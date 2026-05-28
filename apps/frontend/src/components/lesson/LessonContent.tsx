@@ -296,7 +296,7 @@ export function LessonContent({
 
         {selectionMenu && (
           <div
-            className="fixed z-[95] flex -translate-x-1/2 -translate-y-full gap-1 rounded-xl border border-outline-variant bg-white p-1.5 shadow-xl"
+            className="fixed z-[95] flex -translate-x-1/2 -translate-y-full gap-1 rounded-xl border border-outline-variant bg-surface p-1.5 shadow-xl"
             style={{ left: selectionMenu.x, top: selectionMenu.y }}
           >
             <button type="button" onClick={() => void handleTextAction('note')} className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-label-md font-bold text-on-primary">

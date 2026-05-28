@@ -6,7 +6,7 @@ interface ToastMessages {
   error: (message: string) => void;
 }
 
-const FLASHCARD_DETAIL_PAGE_SIZE = 8;
+const FLASHCARD_DETAIL_PAGE_SIZE = 100;
 
 export function useFlashcardDetailData({
   collectionId,
@@ -26,24 +26,30 @@ export function useFlashcardDetailData({
   const [loading, setLoading] = useState(true);
 
   const currentCard = useMemo(() => cards[currentIndex] ?? null, [cards, currentIndex]);
-  const cardsOffset = useMemo(() => (cardsPage - 1) * FLASHCARD_DETAIL_PAGE_SIZE, [cardsPage]);
-
   const fetchCardsPage = useCallback(async () => {
     if (!collectionId || Number.isNaN(collectionId)) {
       navigate('/flashcards');
       return null;
     }
 
-    const [collectionResult, cardResult] = await Promise.all([
+    const [collectionResult, firstCardResult] = await Promise.all([
       flashcardAPI.getCollection(collectionId),
-      flashcardAPI.getCollectionCards(collectionId, FLASHCARD_DETAIL_PAGE_SIZE, cardsOffset),
+      flashcardAPI.getCollectionCards(collectionId, FLASHCARD_DETAIL_PAGE_SIZE, 0),
     ]);
+    const totalCount = firstCardResult.total_count ?? firstCardResult.count;
+    const allCards = [...firstCardResult.data];
+
+    for (let offset = FLASHCARD_DETAIL_PAGE_SIZE; offset < totalCount; offset += FLASHCARD_DETAIL_PAGE_SIZE) {
+      const cardResult = await flashcardAPI.getCollectionCards(collectionId, FLASHCARD_DETAIL_PAGE_SIZE, offset);
+      allCards.push(...cardResult.data);
+    }
+
     return {
       collection: collectionResult.data,
-      cards: cardResult.data,
-      totalCount: cardResult.total_count ?? cardResult.count,
+      cards: allCards,
+      totalCount,
     };
-  }, [cardsOffset, collectionId, navigate]);
+  }, [collectionId, navigate]);
 
   useEffect(() => {
     let active = true;

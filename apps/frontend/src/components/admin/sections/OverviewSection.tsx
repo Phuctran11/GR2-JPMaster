@@ -34,16 +34,16 @@ const paymentStatusLabels: Record<string, string> = {
 };
 
 const chartColors = {
-  navy: '#00236f',
-  coral: '#e46f43',
-  amber: '#b7791f',
-  teal: '#0f766e',
-  violet: '#6d28d9',
-  emerald: '#047857',
-  sky: '#0369a1',
-  rose: '#be123c',
-  softBlue: '#dce1ff',
-  softAmber: '#fff1cc',
+  navy: 'rgb(var(--color-primary))',
+  coral: 'rgb(var(--color-tertiary))',
+  amber: 'rgb(var(--color-warning))',
+  teal: 'rgb(var(--color-success))',
+  violet: 'rgb(var(--color-inverse-primary))',
+  emerald: 'rgb(var(--color-success))',
+  sky: 'rgb(var(--color-surface-tint))',
+  rose: 'rgb(var(--color-error))',
+  softBlue: 'rgb(var(--color-primary-fixed))',
+  softAmber: 'rgb(var(--color-warning-container))',
 };
 
 const compactNumber = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
@@ -61,12 +61,13 @@ const chartTitleClass = 'text-headline-sm font-semibold text-on-surface';
 const chartSubtitleClass = 'mt-1 text-body-sm leading-6 text-on-surface-variant';
 const chartContainerClass = 'h-72 min-h-72';
 const largeChartContainerClass = 'h-80 min-h-80';
-const gridStroke = '#e3e1e9';
-const axisTickStyle = { fill: '#444651', fontSize: 12 };
+const gridStroke = 'rgb(var(--color-outline-variant))';
+const axisTickStyle = { fill: 'rgb(var(--color-on-surface-variant))', fontSize: 12 };
 const tooltipStyle = {
-  border: '1px solid #c5c5d3',
+  border: '1px solid rgb(var(--color-outline-variant))',
   borderRadius: 8,
-  backgroundColor: '#ffffff',
+  backgroundColor: 'rgb(var(--color-surface))',
+  color: 'rgb(var(--color-on-surface))',
   boxShadow: '0 12px 28px rgb(26 27 33 / 0.12)',
 };
 

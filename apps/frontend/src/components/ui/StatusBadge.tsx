@@ -17,12 +17,12 @@ export function StatusBadge({
       outline: 'border border-secondary text-secondary'
     },
     'Completed': {
-      filled: 'bg-green-100 text-green-700',
-      outline: 'border border-green-700 text-green-700'
+      filled: 'bg-success-container text-on-success-container',
+      outline: 'border border-success text-success'
     },
     'Not Started': {
-      filled: 'bg-gray-100 text-gray-600',
-      outline: 'border border-gray-600 text-gray-600'
+      filled: 'bg-surface-container-high text-on-surface-variant',
+      outline: 'border border-outline text-on-surface-variant'
     }
   };
 

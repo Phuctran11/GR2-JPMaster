@@ -21,7 +21,9 @@ export function ProfileTabNav<T extends string>({
           type="button"
           onClick={() => onChange(tab.id)}
           className={`inline-flex h-12 min-w-0 items-center justify-center gap-2 rounded-md px-3 text-title-sm font-bold transition-colors ${
-            activeTab === tab.id ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface hover:bg-surface-container'
+            activeTab === tab.id
+              ? 'bg-primary text-on-primary shadow-sm'
+              : "text-on-surface hover:bg-surface-container [html[data-theme='dark']_&]:text-white/90 [html[data-theme='dark']_&]:hover:bg-surface-container-high [html[data-theme='dark']_&]:hover:text-white"
           }`}
         >
           <span className="material-symbols-outlined shrink-0 text-[18px]">{tab.icon}</span>

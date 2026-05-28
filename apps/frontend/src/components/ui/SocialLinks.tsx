@@ -26,7 +26,7 @@ export function SocialLinks({ links, size = 'md', className = '' }: SocialLinksP
           key={link.icon}
           href={link.url}
           title={link.label}
-          className={`${sizeClasses[size]} rounded-full bg-white border border-outline-variant flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all`}
+          className={`${sizeClasses[size]} rounded-full bg-surface border border-outline-variant flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all`}
         >
           <Icon name={link.icon} size={size === 'lg' ? 'md' : 'sm'} />
         </a>

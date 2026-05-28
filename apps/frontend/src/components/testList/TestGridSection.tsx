@@ -36,7 +36,7 @@ export function TestGridSection({
         </span>
       </div>
 
-      {error && <p className="mb-stack-md rounded-lg bg-red-50 px-4 py-3 text-red-700">{error}</p>}
+      {error && <p className="mb-stack-md rounded-lg bg-error-container px-4 py-3 text-on-error-container">{error}</p>}
 
       {!loading && !error && tests.length === 0 && (
         <Card className="border border-outline-variant bg-surface p-stack-lg text-center">

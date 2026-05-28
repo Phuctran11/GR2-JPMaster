@@ -146,7 +146,7 @@ export function LessonMedia({ lesson, onAddVideoNote, videoNotes = [], onEditVid
         )}
       </div>
       {onAddVideoNote && (
-        <div className="border-t border-outline-variant bg-white px-4 py-3">
+        <div className="border-t border-outline-variant bg-surface px-4 py-3">
           <button
             type="button"
             onClick={() => {

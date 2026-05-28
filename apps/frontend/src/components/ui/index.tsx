@@ -12,6 +12,9 @@ export { FloatingCard } from './FloatingCard';
 export { IconButton } from './IconButton';
 export { SocialLinks } from './SocialLinks';
 export { FooterLinkColumn } from './FooterLinkColumn';
+export { InteractiveHoverCard } from './InteractiveHoverCard';
+export { MotionFrame } from './MotionFrame';
+export { MotionSectionFrame } from './MotionSectionFrame';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -20,7 +23,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Card({ className = '', children, ...rest }: CardProps) {
   return (
     <div
-      className={`bg-white rounded-[2rem] border border-outline-variant/30 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 ${className}`}
+      className={`bg-surface rounded-[2rem] border border-outline-variant/30 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 ${className}`}
       {...rest}
     >
       {children}
@@ -124,7 +127,7 @@ export function Avatar({ src, alt, size = 'md' }: AvatarProps) {
   return (
     <img
       alt={alt}
-      className={`${sizes[size]} rounded-full object-cover border-4 border-white shadow-xl`}
+      className={`${sizes[size]} rounded-full object-cover border-4 border-surface shadow-xl`}
       src={src}
     />
   );

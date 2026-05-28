@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Header, Footer, Card, Container, Breadcrumbs, Pagination } from '../components';
+import { Header, Footer, Card, Container, Breadcrumbs } from '../components';
 import { Heading, Text } from '../components/ui/Typography';
+import { MotionSectionFrame } from '../components/ui';
 import {
   FlashcardAiAssistantModal,
   FlashcardCardsList,
@@ -28,19 +29,12 @@ export default function FlashcardDetail() {
     collection,
     cards,
     setCards,
-    cardsPage,
-    setCardsPage,
-    cardPageSize,
-    cardTotalCount,
     setCardTotalCount,
     currentIndex,
     setCurrentIndex,
-    showBack,
     setShowBack,
     currentCard,
     loading,
-    goPrevious,
-    goNext,
   } = useFlashcardDetailData({ collectionId, navigate, toast });
   const {
     selectedCardIds,
@@ -101,21 +95,25 @@ export default function FlashcardDetail() {
             <Card className="p-stack-lg text-center">Loading review...</Card>
           ) : (
             <div className="space-y-section-gap">
-              <FlashcardDetailHeader
-                collection={collection}
-                isOwner={isOwner}
-                onBack={() => navigate('/flashcards')}
-              />
+              <MotionSectionFrame index={0} preset="hero">
+                <FlashcardDetailHeader
+                  collection={collection}
+                  isOwner={isOwner}
+                  onBack={() => navigate('/flashcards')}
+                />
+              </MotionSectionFrame>
 
               {isOwner && (
-                <FlashcardCreateCardForm
-                  form={createForm}
-                  saving={saving}
-                  uploadingMedia={uploadingMedia}
-                  onChange={setCreateForm}
-                  onSubmit={() => void handleCreateCard()}
-                  onUploadMedia={(file, mediaKind) => void uploadCreateCardMedia(file, mediaKind)}
-                />
+                <MotionSectionFrame index={1} preset="sweep">
+                  <FlashcardCreateCardForm
+                    form={createForm}
+                    saving={saving}
+                    uploadingMedia={uploadingMedia}
+                    onChange={setCreateForm}
+                    onSubmit={() => void handleCreateCard()}
+                    onUploadMedia={(file, mediaKind) => void uploadCreateCardMedia(file, mediaKind)}
+                  />
+                </MotionSectionFrame>
               )}
 
               {!currentCard ? (
@@ -126,34 +124,30 @@ export default function FlashcardDetail() {
                   </Text>
                 </Card>
               ) : (
-                <FlashcardStudyPanel
-                  currentCard={currentCard}
-                  currentIndex={currentIndex}
-                  cardCount={cards.length}
-                  showBack={showBack}
-                  onToggleBack={() => setShowBack((value) => !value)}
-                  onPrevious={goPrevious}
-                  onNext={goNext}
-                />
+                <MotionSectionFrame index={2}>
+                  <FlashcardStudyPanel
+                    cards={cards}
+                    currentIndex={currentIndex}
+                    onSelectCard={(index) => {
+                      setCurrentIndex(index);
+                      setShowBack(false);
+                    }}
+                  />
+                </MotionSectionFrame>
               )}
 
-              <FlashcardCardsList
-                cards={cards}
-                isOwner={isOwner}
-                selectedCardIds={selectedCardIds}
-                onToggleSelected={toggleSelectedCard}
-                onClearSelected={clearSelectedCards}
-                onOpenAi={openAiAssistant}
-                onEdit={openEditCard}
-                onDelete={(flashcardId) => void handleDeleteCard(flashcardId)}
-              />
-              <Pagination
-                page={cardsPage}
-                pageSize={cardPageSize}
-                itemCount={cards.length}
-                totalCount={cardTotalCount}
-                onPageChange={setCardsPage}
-              />
+              <MotionSectionFrame index={3} preset="pop">
+                <FlashcardCardsList
+                  cards={cards}
+                  isOwner={isOwner}
+                  selectedCardIds={selectedCardIds}
+                  onToggleSelected={toggleSelectedCard}
+                  onClearSelected={clearSelectedCards}
+                  onOpenAi={openAiAssistant}
+                  onEdit={openEditCard}
+                  onDelete={(flashcardId) => void handleDeleteCard(flashcardId)}
+                />
+              </MotionSectionFrame>
             </div>
           )}
         </Container>

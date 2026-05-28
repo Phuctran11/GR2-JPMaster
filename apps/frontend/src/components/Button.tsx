@@ -17,7 +17,7 @@ export function Button({
   const variants = {
     primary: 'bg-primary text-on-primary hover:shadow-lg hover:shadow-primary/20',
     secondary: 'bg-secondary-container text-on-secondary-container hover:bg-secondary/90',
-    outline: 'border-2 border-primary/20 bg-white/50 backdrop-blur-sm text-primary hover:bg-primary/5'
+    outline: 'border-2 border-primary/20 bg-surface/70 backdrop-blur-sm text-primary hover:bg-primary/5'
   };
 
   const sizes = {

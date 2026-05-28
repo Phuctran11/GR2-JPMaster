@@ -17,11 +17,11 @@ export function QuestionNoteComposerBlock({
   onDeleted: (noteId: number) => void;
 }) {
   return (
-    <details className="mt-3 rounded-lg border border-outline-variant bg-white p-3">
+    <details className="mt-3 rounded-lg border border-outline-variant bg-surface p-3">
       <summary className="cursor-pointer text-label-md font-bold text-primary">
         {existingQuestionNote ? 'Question note saved' : 'Add question note'}
         {existingQuestionNote && (
-          <span className="ml-2 rounded-full bg-emerald-50 px-2 py-1 text-label-sm text-emerald-700">noted</span>
+          <span className="ml-2 rounded-full bg-success-container px-2 py-1 text-label-sm text-on-success-container">noted</span>
         )}
       </summary>
       <div className="mt-3">

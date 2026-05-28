@@ -1,4 +1,4 @@
-import { Card, ImageCard, ProgressBar } from '../ui';
+import { Card, ImageCard, InteractiveHoverCard, ProgressBar } from '../ui';
 import { Heading, Text } from '../ui/Typography';
 import { Icon } from '../ui';
 import {
@@ -13,7 +13,7 @@ import {
 
 function CourseTypeBadge({ isFree = false }: { isFree?: boolean }) {
   const badgeTheme = isFree
-    ? 'border-emerald-200 bg-emerald-600 text-white'
+    ? 'border-success/40 bg-emerald-600 text-white'
     : 'border-sky-200 bg-slate-950 text-white';
   const dotTheme = isFree ? 'bg-lime-200' : 'bg-sky-200';
 
@@ -120,7 +120,7 @@ function CourseHoverInfo({
     <div
       ref={cardRef}
       style={hoverStyle ? { left: hoverStyle.left, top: hoverStyle.top } : undefined}
-      className={`pointer-events-none fixed z-[80] w-[min(92vw,21rem)] rounded-[1.75rem] border border-primary/20 bg-white/95 p-4 text-on-surface shadow-2xl shadow-primary/20 backdrop-blur-md transition-[opacity,transform] duration-200 sm:w-80 ${
+      className={`pointer-events-none fixed z-[80] w-[min(92vw,21rem)] rounded-[1.75rem] border border-primary/20 bg-surface/95 p-4 text-on-surface shadow-2xl shadow-primary/20 backdrop-blur-md transition-[opacity,transform] duration-200 sm:w-80 ${
         visible && hoverStyle ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
       }`}
     >
@@ -128,7 +128,7 @@ function CourseHoverInfo({
         <>
           <span
             style={{ left: hoverStyle.arrowLeft }}
-            className={`absolute h-4 w-4 -translate-x-1/2 rotate-45 border-primary/20 bg-white/95 ${
+            className={`absolute h-4 w-4 -translate-x-1/2 rotate-45 border-primary/20 bg-surface/95 ${
               hoverStyle.placement === 'top'
                 ? 'top-full -translate-y-2 border-b border-r'
                 : 'bottom-full translate-y-2 border-l border-t'
@@ -136,13 +136,13 @@ function CourseHoverInfo({
           ></span>
           <span
             style={{ left: hoverStyle.arrowLeft + 20 }}
-            className={`absolute h-3 w-3 rounded-full border border-primary/15 bg-white/95 shadow-lg ${
+            className={`absolute h-3 w-3 rounded-full border border-primary/15 bg-surface/95 shadow-lg ${
               hoverStyle.placement === 'top' ? 'top-[calc(100%+0.6rem)]' : 'bottom-[calc(100%+0.6rem)]'
             }`}
           ></span>
           <span
             style={{ left: hoverStyle.arrowLeft + 36 }}
-            className={`absolute h-2 w-2 rounded-full border border-primary/10 bg-white/90 shadow-md ${
+            className={`absolute h-2 w-2 rounded-full border border-primary/10 bg-surface/90 shadow-md ${
               hoverStyle.placement === 'top' ? 'top-[calc(100%+1.45rem)]' : 'bottom-[calc(100%+1.45rem)]'
             }`}
           ></span>
@@ -150,9 +150,6 @@ function CourseHoverInfo({
       )}
       <div className="mb-3 flex items-center justify-between gap-3 border-b border-primary/15 pb-3">
         <span className="text-[11px] font-black uppercase tracking-[0.16em] text-secondary">Course info</span>
-        <span className="rounded-full bg-secondary px-3 py-1 text-[11px] font-black uppercase tracking-wide text-on-secondary">
-          Details
-        </span>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {items.map((item) => (
@@ -245,7 +242,6 @@ interface MyLearningCardProps {
   needsFinalTest?: boolean;
   onClick?: (courseId: number) => void;
   onGetStarted?: (courseId: number) => void;
-  onTakeFinalTest?: (courseId: number) => void;
   onViewCertificate?: (courseId: number) => void;
 }
 
@@ -258,7 +254,6 @@ export function MyLearningCard({
   needsFinalTest = false,
   onClick,
   onGetStarted,
-  onTakeFinalTest,
   onViewCertificate,
 }: MyLearningCardProps) {
   const handleClick = () => {
@@ -270,88 +265,75 @@ export function MyLearningCard({
     onGetStarted?.(courseId);
   };
 
-  const handleTakeFinalTest = (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    onTakeFinalTest?.(courseId);
-  };
-
   const handleViewCertificate = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     onViewCertificate?.(courseId);
   };
 
   return (
-    <Card
-      className="w-full p-4 md:p-5 flex flex-row items-center gap-4 md:gap-5 h-full cursor-pointer transition-transform hover:-translate-y-1"
-      onClick={handleClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
-        if (!onClick) return;
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleClick();
-        }
-      }}
-    >
-      <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0 group overflow-hidden rounded-lg">
-        {image ? (
-          <ImageCard src={image} alt={title} hoverScale={105} rounded="md" />
-        ) : (
-          <CourseImagePlaceholder title={title} />
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <Heading level="h3" size="headline-sm" className="truncate mb-3">
-          {title}
-        </Heading>
-        <div className="w-full max-w-2xl">
-          <ProgressBar value={progress} showLabel variant="default" />
-        </div>
-      </div>
-      <div className="shrink-0 flex flex-col items-stretch gap-2 sm:items-end">
-        {status === 'In Progress' ? (
-          needsFinalTest ? (
-            <button
-              type="button"
-              onClick={handleTakeFinalTest}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-secondary bg-secondary px-4 py-2 text-label-md font-black text-on-secondary shadow-md transition-colors hover:bg-secondary-container hover:text-on-secondary-container"
-            >
-              <span className="material-symbols-outlined text-[18px]">assignment</span>
-              Take Final Test
-            </button>
+    <InteractiveHoverCard className="group h-full rounded-[2rem]" tone={status === 'Completed' ? 'success' : 'primary'}>
+      <Card
+        className="w-full p-4 md:p-5 flex flex-row items-center gap-4 md:gap-5 h-full cursor-pointer transition-transform"
+        onClick={handleClick}
+        role={onClick ? 'button' : undefined}
+        tabIndex={onClick ? 0 : undefined}
+        onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+          if (!onClick) return;
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleClick();
+          }
+        }}
+      >
+        <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0 group overflow-hidden rounded-lg">
+          {image ? (
+            <ImageCard src={image} alt={title} hoverScale={105} rounded="md" />
           ) : (
+            <CourseImagePlaceholder title={title} />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <Heading level="h3" size="headline-sm" className="truncate mb-3">
+            {title}
+          </Heading>
+          <div className="w-full max-w-2xl">
+            <ProgressBar value={progress} showLabel variant="default" showIndicator={false} />
+          </div>
+        </div>
+        <div className="shrink-0 flex flex-col items-stretch gap-2 sm:items-end">
+          {status === 'In Progress' ? (
             <button
               type="button"
               onClick={handleGetStarted}
-              className="whitespace-nowrap rounded-full bg-primary px-4 py-2 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container hover:text-on-primary"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-4 py-2 text-label-md font-semibold text-on-primary transition-colors hover:bg-primary-container hover:text-on-primary"
             >
-              Get Started
+              {needsFinalTest && <span className="material-symbols-outlined text-[18px]">assignment</span>}
+              {needsFinalTest ? 'Take Final Test' : 'Get Started'}
             </button>
-          )
-        ) : (
-          <>
-            <button
-              type="button"
-              disabled
-              className="whitespace-nowrap rounded-full bg-surface-container px-4 py-2 text-label-md font-semibold text-on-surface-variant"
-            >
-              {status === 'Completed' ? 'Completed' : 'Not Started'}
-            </button>
-            {status === 'Completed' && (
+          ) : (
+            <>
               <button
                 type="button"
-                onClick={handleViewCertificate}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-secondary px-4 py-2 text-label-md font-bold text-on-secondary shadow-md transition-colors hover:bg-secondary-container hover:text-on-secondary-container"
+                disabled
+                className="whitespace-nowrap rounded-full bg-surface-container px-4 py-2 text-label-md font-semibold text-on-surface-variant"
               >
-                <span className="material-symbols-outlined text-[18px]">workspace_premium</span>
-                Certification
+                {status === 'Completed' ? 'Completed' : 'Not Started'}
               </button>
-            )}
-          </>
-        )}
-      </div>
-    </Card>
+              {status === 'Completed' && (
+                <button
+                  type="button"
+                  onClick={handleViewCertificate}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-4 py-2 text-label-md font-bold text-on-primary shadow-md transition-colors hover:bg-primary-container hover:text-on-primary"
+                >
+                  <span className="material-symbols-outlined text-[18px]">workspace_premium</span>
+                  Certification
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </Card>
+    </InteractiveHoverCard>
   );
 }
 
@@ -405,6 +387,7 @@ export function CourseGridCard({
         hoverStyle={hover.hoverStyle}
         cardRef={hover.cardRef}
       />
+      <InteractiveHoverCard className="rounded-[2rem]" tone={isFree ? 'success' : 'primary'}>
       <Card className="flex flex-col relative overflow-hidden border-2 border-outline-variant hover:border-primary transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-2 bg-surface-container-high">
       <div className="relative overflow-hidden">
         {image ? (
@@ -445,6 +428,7 @@ export function CourseGridCard({
         </div>
       </div>
       </Card>
+      </InteractiveHoverCard>
     </div>
   );
 }
@@ -501,6 +485,7 @@ export function FeaturedCourseCard({
         hoverStyle={hover.hoverStyle}
         cardRef={hover.cardRef}
       />
+      <InteractiveHoverCard className="rounded-2xl" tone="secondary">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-primary-container text-on-primary shadow-2xl border-3 border-secondary hover:border-secondary-fixed transition-all duration-300 hover:shadow-3xl">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <Icon name="verified_user" size="lg" />
@@ -527,7 +512,7 @@ export function FeaturedCourseCard({
           <div className="flex items-start justify-between mb-8">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-5 flex-wrap">
-                <span className="px-4 py-2 rounded-full text-label-sm font-black inline-flex items-center gap-2 uppercase tracking-widest shadow-lg hover:shadow-xl transition-all transform group-hover:scale-105 border-2 border-amber-300/50 bg-gradient-to-r from-amber-400 to-amber-500 text-white">
+                <span className="px-4 py-2 rounded-full text-label-sm font-black inline-flex items-center gap-2 uppercase tracking-widest shadow-lg hover:shadow-xl transition-all transform group-hover:scale-105 border-2 border-warning/40 bg-gradient-to-r from-warning to-secondary text-on-secondary">
                   <span className="font-black">Top Recommendation</span>
                 </span>
                 <CourseTypeBadge isFree={isFree} />
@@ -551,7 +536,7 @@ export function FeaturedCourseCard({
                 aria-label={`View ${title}`}
                 title="View course"
                 onClick={(event) => triggerEnroll(event, courseId, onEnroll)}
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/30 bg-white/10 text-white backdrop-blur-sm transition-all hover:bg-white hover:text-primary"
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/30 bg-white/10 text-white backdrop-blur-sm transition-all hover:bg-surface hover:text-primary"
               >
                 <Icon name="arrow_forward" size="lg" />
               </button>
@@ -568,6 +553,7 @@ export function FeaturedCourseCard({
         </div>
         </div>
       </div>
+      </InteractiveHoverCard>
     </div>
   );
 }

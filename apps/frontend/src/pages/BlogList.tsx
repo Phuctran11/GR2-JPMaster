@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Header, Footer, Breadcrumbs, Pagination } from '../components';
 import { Heading } from '../components/ui/Typography';
+import { MotionSectionFrame } from '../components/ui';
 import { BlogFilterBar } from '../components/sections/BlogFilterBar';
 import { BlogCard, FeaturedBlogCard } from '../components/cards';
 import { blogAPI, type Blog, type BlogCategory } from '../services/api';
@@ -125,44 +126,49 @@ export default function BlogList() {
       <Header />
       <Breadcrumbs items={breadcrumbs} />
       <main className="flex-1">
-        <section className="relative min-h-[430px] w-full overflow-hidden">
-          <img
-            alt="Japanese study desk"
-            className="absolute inset-0 w-full h-full object-cover"
-            src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1800&q=80"
-          />
-          <div className="absolute inset-0 bg-black/45"></div>
-          <div className="relative mx-auto flex min-h-[430px] w-full max-w-[1280px] items-end px-margin-desktop pb-section-gap pt-24">
-            <div className="max-w-3xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-label-md font-semibold text-white backdrop-blur">
-                <span className="material-symbols-outlined text-[18px]">menu_book</span>
-                Japanese learning journal
-              </div>
-              <h1 className="font-display-lg text-display-lg text-on-primary mb-stack-md">Blog</h1>
-              <p className="max-w-2xl font-body-lg text-body-lg text-inverse-on-surface/90">
-                Practical Japanese learning guides, culture notes, and JLPT study resources from JPMaster.
-              </p>
-              <div className="mt-stack-lg grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
-                  <p className="text-headline-md font-bold">{totalCount}</p>
-                  <p className="text-label-md text-white/80">Articles</p>
+        <MotionSectionFrame index={0} preset="hero">
+          <section className="relative min-h-[430px] w-full overflow-hidden">
+            <img
+              alt="Japanese study desk"
+              className="absolute inset-0 w-full h-full object-cover"
+              src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1800&q=80"
+            />
+            <div className="absolute inset-0 bg-black/45"></div>
+            <div className="relative mx-auto flex min-h-[430px] w-full max-w-[1280px] items-end px-margin-desktop pb-section-gap pt-24">
+              <div className="max-w-3xl">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-label-md font-semibold text-white backdrop-blur">
+                  <span className="material-symbols-outlined text-[18px]">menu_book</span>
+                  Japanese learning journal
                 </div>
-                <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
-                  <p className="text-headline-md font-bold">{categories.length}</p>
-                  <p className="text-label-md text-white/80">Topics</p>
-                </div>
-                <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
-                  <p className="text-headline-md font-bold">JLPT</p>
-                  <p className="text-label-md text-white/80">Study focus</p>
+                <h1 className="font-display-lg text-display-lg text-on-primary mb-stack-md">Blog</h1>
+                <p className="max-w-2xl font-body-lg text-body-lg text-inverse-on-surface/90">
+                  Practical Japanese learning guides, culture notes, and JLPT study resources from JPMaster.
+                </p>
+                <div className="mt-stack-lg grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-3">
+                  <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
+                    <p className="text-headline-md font-bold">{totalCount}</p>
+                    <p className="text-label-md text-white/80">Articles</p>
+                  </div>
+                  <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
+                    <p className="text-headline-md font-bold">{categories.length}</p>
+                    <p className="text-label-md text-white/80">Topics</p>
+                  </div>
+                  <div className="rounded-lg border border-white/20 bg-white/12 p-3 text-white backdrop-blur">
+                    <p className="text-headline-md font-bold">JLPT</p>
+                    <p className="text-label-md text-white/80">Study focus</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </MotionSectionFrame>
 
-        <BlogFilterBar categories={categoryOptions} onCategoryChange={setCategory} onSearch={setSearch} />
+        <MotionSectionFrame index={1} preset="sweep">
+          <BlogFilterBar categories={categoryOptions} onCategoryChange={setCategory} onSearch={setSearch} />
+        </MotionSectionFrame>
 
-        <section className="max-w-[1280px] mx-auto px-margin-desktop py-section-gap">
+        <MotionSectionFrame index={2}>
+          <section className="max-w-[1280px] mx-auto px-margin-desktop py-section-gap">
           <div className="mb-stack-lg flex flex-col justify-between gap-3 md:flex-row md:items-end">
             <div>
               <p className="text-label-md font-black uppercase tracking-wide text-secondary">Latest from JPMaster</p>
@@ -242,7 +248,8 @@ export default function BlogList() {
               <Pagination page={page} pageSize={pageSize} itemCount={blogs.length} totalCount={totalCount} onPageChange={setPage} className="mt-section-gap" />
             </>
           )}
-        </section>
+          </section>
+        </MotionSectionFrame>
       </main>
       <Footer />
     </div>

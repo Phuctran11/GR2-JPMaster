@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header, Footer, Container, Section, Breadcrumbs } from '../components';
+import { MotionSectionFrame } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useProfileActions } from '../hooks/profile/useProfileActions';
@@ -110,58 +111,64 @@ export default function Profile() {
         <Section bgColor="light">
           <Container>
             <div className="mb-section-gap space-y-8">
-              <ProfileHero
-                profile={profile}
-                completedCourseCount={completedCourses.length}
-                activeCourseCount={activeCourses.length}
-              />
+              <MotionSectionFrame index={0} preset="hero">
+                <ProfileHero
+                  profile={profile}
+                  completedCourseCount={completedCourses.length}
+                  activeCourseCount={activeCourses.length}
+                />
+              </MotionSectionFrame>
 
               <div className="space-y-8">
-                <ProfileTabNav tabs={profileTabs} activeTab={activeTab} onChange={setActiveTab} />
+                <MotionSectionFrame index={1} preset="sweep">
+                  <ProfileTabNav tabs={profileTabs} activeTab={activeTab} onChange={setActiveTab} />
+                </MotionSectionFrame>
 
-                {activeTab === 'overview' && (
-                  <ProfileOverviewTab
-                    avatarUrl={avatarUrl}
-                    username={username}
-                    saving={saving}
-                    avatarUploading={avatarUploading}
-                    completedCourses={completedCourses}
-                    registerProfile={profileForm.register}
-                    profileErrors={profileForm.formState.errors}
-                    onSubmit={profileForm.handleSubmit(onProfileSubmit)}
-                    onAvatarUpload={(file) => void handleAvatarUpload(file)}
-                    onRemoveAvatar={() => void handleRemoveAvatar()}
-                    onViewCertificate={(courseId) => navigate(`/courses/${courseId}/certificate`)}
-                  />
-                )}
-                {activeTab === 'progress' && (
-                  <ProfileProgressTab
-                    summary={summary}
-                    studyTime={studyTime}
-                    enrollments={enrollments}
-                    quizAttempts={quizAttempts}
-                    jlptAttempts={jlptAttempts}
-                  />
-                )}
+                <MotionSectionFrame index={2}>
+                  {activeTab === 'overview' && (
+                    <ProfileOverviewTab
+                      avatarUrl={avatarUrl}
+                      username={username}
+                      saving={saving}
+                      avatarUploading={avatarUploading}
+                      completedCourses={completedCourses}
+                      registerProfile={profileForm.register}
+                      profileErrors={profileForm.formState.errors}
+                      onSubmit={profileForm.handleSubmit(onProfileSubmit)}
+                      onAvatarUpload={(file) => void handleAvatarUpload(file)}
+                      onRemoveAvatar={() => void handleRemoveAvatar()}
+                      onViewCertificate={(courseId) => navigate(`/courses/${courseId}/certificate`)}
+                    />
+                  )}
+                  {activeTab === 'progress' && (
+                    <ProfileProgressTab
+                      summary={summary}
+                      studyTime={studyTime}
+                      enrollments={enrollments}
+                      quizAttempts={quizAttempts}
+                      jlptAttempts={jlptAttempts}
+                    />
+                  )}
 
-                {activeTab === 'goals' && (
-                  <ProfileGoalsTab
-                    goals={goals}
-                    registerGoal={goalForm.register}
-                    goalErrors={goalForm.formState.errors}
-                    onSubmit={goalForm.handleSubmit(onCreateGoal)}
-                    onDisableGoal={(goalId) => void handleDisableGoal(goalId)}
-                  />
-                )}
-                {activeTab === 'achievements' && (
-                  <ProfileAchievementsTab
-                    achievements={achievements}
-                    achievementTracks={achievementTracks}
-                    filteredAchievementTracks={filteredAchievementTracks}
-                    achievementFilter={achievementFilter}
-                    onAchievementFilterChange={setAchievementFilter}
-                  />
-                )}
+                  {activeTab === 'goals' && (
+                    <ProfileGoalsTab
+                      goals={goals}
+                      registerGoal={goalForm.register}
+                      goalErrors={goalForm.formState.errors}
+                      onSubmit={goalForm.handleSubmit(onCreateGoal)}
+                      onDisableGoal={(goalId) => void handleDisableGoal(goalId)}
+                    />
+                  )}
+                  {activeTab === 'achievements' && (
+                    <ProfileAchievementsTab
+                      achievements={achievements}
+                      achievementTracks={achievementTracks}
+                      filteredAchievementTracks={filteredAchievementTracks}
+                      achievementFilter={achievementFilter}
+                      onAchievementFilterChange={setAchievementFilter}
+                    />
+                  )}
+                </MotionSectionFrame>
               </div>
             </div>
           </Container>

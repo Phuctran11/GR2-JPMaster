@@ -6,7 +6,7 @@ export function QuestionResultFeedback({
   explanation?: string | null;
 }) {
   return (
-    <div className={`mt-3 rounded-lg px-3 py-2 text-body-sm ${isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-700'}`}>
+    <div className={`mt-3 rounded-lg px-3 py-2 text-body-sm ${isCorrect ? 'bg-success-container text-on-success-container' : 'bg-error-container text-on-error-container'}`}>
       <strong>{isCorrect ? 'Correct.' : 'Incorrect.'}</strong>
       {explanation ? ` ${explanation}` : ''}
     </div>

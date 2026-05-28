@@ -79,6 +79,7 @@ export function SocialLogin({ loading, setLoading }: SocialLoginProps) {
           text: 'signin_with',
           shape: 'rectangular',
           logo_alignment: 'left',
+          locale: 'en',
           width: 360,
         });
         setGoogleReady(true);
@@ -151,7 +152,7 @@ export function SocialLogin({ loading, setLoading }: SocialLoginProps) {
               className="flex items-center justify-center gap-2 py-3 px-4 border border-outline-variant rounded-lg hover:bg-surface-container transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FaGoogle className="w-5 h-5" />
-              <span className="font-label-md text-label-md text-on-surface">Google</span>
+              <span className="font-label-md text-label-md text-on-surface">Sign in with Google</span>
             </button>
           )}
         </div>
