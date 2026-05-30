@@ -47,13 +47,13 @@ export function GlassCard({ className = '', children }: GlassCardProps) {
 interface SectionProps {
   className?: string;
   children: React.ReactNode;
-  bgColor?: 'light' | 'dark' | 'primary';
+  bgColor?: 'light' | 'muted' | 'primary';
 }
 
 export function Section({ className = '', children, bgColor = 'light' }: SectionProps) {
   const bgClasses = {
     light: 'bg-surface',
-    dark: 'bg-surface-container-low',
+    muted: 'bg-surface-container-low',
     primary: 'bg-primary',
   };
 

@@ -1,6 +1,6 @@
 import jlptExamModel, { JlptAnswerPayload } from "../../models/jlpt/jlptExam.model.js";
 import { ApiError } from "../../utils/http.js";
-import learningActivityService from "../achievements/learningActivity.service.js";
+import learningActivityService from "../learning-activity/learningActivity.service.js";
 
 const validLevels = ["N1", "N2", "N3", "N4", "N5", "All"];
 const validSections = ["all", "vocabulary", "grammar", "reading", "listening"];

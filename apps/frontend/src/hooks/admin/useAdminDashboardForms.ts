@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   emptyAutoJlptQuestions,
-  emptyBlog,
   emptyCourse,
   emptyJlptExam,
   emptyJlptSection,
@@ -13,7 +12,6 @@ import {
 } from '../../components/admin/adminFormDefaults';
 import type {
   AdminAutoJlptQuestionsFormValues,
-  AdminBlogFormValues,
   AdminCourseFormValues,
   AdminJlptExamFormValues,
   AdminJlptSectionFormValues,
@@ -48,8 +46,6 @@ export function useAdminDashboardForms() {
   const [readingPassageForm, setReadingPassageForm] = useState<AdminReadingPassageFormValues>(emptyReadingPassage);
   const [editingReadingPassageId, setEditingReadingPassageId] = useState<number | null>(null);
   const [autoJlptQuestionsForm, setAutoJlptQuestionsForm] = useState<AdminAutoJlptQuestionsFormValues>(emptyAutoJlptQuestions);
-  const [blogForm, setBlogForm] = useState<AdminBlogFormValues>(emptyBlog);
-  const [editingBlogId, setEditingBlogId] = useState<number | null>(null);
 
   return {
     userForm,
@@ -96,9 +92,5 @@ export function useAdminDashboardForms() {
     setEditingReadingPassageId,
     autoJlptQuestionsForm,
     setAutoJlptQuestionsForm,
-    blogForm,
-    setBlogForm,
-    editingBlogId,
-    setEditingBlogId,
   };
 }

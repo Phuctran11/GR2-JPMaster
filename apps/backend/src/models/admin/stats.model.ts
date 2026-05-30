@@ -8,7 +8,6 @@ export class AdminStatsModel {
     const ownerLessonFilter = ownerId ? "AND c.created_by = $1" : "";
     const ownerQuizFilter = ownerId ? "AND created_by = $1" : "";
     const ownerJlptFilter = ownerId ? "AND created_by = $1" : "";
-    const ownerBlogFilter = ownerId ? "AND author_id = $1" : "";
     const ownerEnrollmentFilter = ownerId ? "AND c.created_by = $1" : "";
     const ownerPaymentFilter = ownerId ? "AND c.created_by = $1" : "";
     const ownerQuizAttemptFilter = ownerId ? "AND q.created_by = $1" : "";
@@ -23,7 +22,6 @@ export class AdminStatsModel {
           (SELECT COUNT(*)::int FROM "Quiz" WHERE deleted_at IS NULL ${ownerQuizFilter}) AS tests,
           (SELECT COUNT(*)::int FROM "JLPTExam" WHERE deleted_at IS NULL ${ownerJlptFilter}) AS "jlptTests",
           (SELECT COUNT(*)::int FROM "CourseEnrollment" ce JOIN "Course" c ON c.course_id = ce.course_id WHERE c.deleted_at IS NULL ${ownerEnrollmentFilter}) AS enrollments,
-          (SELECT COUNT(*)::int FROM "Blog" WHERE deleted_at IS NULL ${ownerBlogFilter}) AS blogs,
           (SELECT COUNT(*)::int FROM "QuizAttempt" qa JOIN "Quiz" q ON q.quiz_id = qa.quiz_id WHERE qa.quiz_id IS NOT NULL AND q.deleted_at IS NULL ${ownerQuizFilter.replace("created_by", "q.created_by")}) AS "quizAttempts",
           (SELECT COUNT(*)::int FROM "QuizAttempt" qa JOIN "JLPTExam" je ON je.exam_id = qa.jlpt_exam_id WHERE qa.jlpt_exam_id IS NOT NULL AND je.deleted_at IS NULL ${ownerJlptFilter.replace("created_by", "je.created_by")}) AS "jlptAttempts",
           (SELECT COUNT(*)::int FROM "PaymentTransaction" pt JOIN "Purchase" p ON p.purchase_id = pt.purchase_id JOIN "Course" c ON c.course_id = p.course_id WHERE pt.status = 'paid' ${ownerPaymentFilter}) AS "paidPayments",
@@ -39,7 +37,6 @@ export class AdminStatsModel {
           (SELECT COUNT(*)::int FROM "Quiz" WHERE deleted_at IS NULL) AS tests,
           (SELECT COUNT(*)::int FROM "JLPTExam" WHERE deleted_at IS NULL) AS "jlptTests",
           (SELECT COUNT(*)::int FROM "CourseEnrollment") AS enrollments,
-          (SELECT COUNT(*)::int FROM "Blog" WHERE deleted_at IS NULL) AS blogs,
           (SELECT COUNT(*)::int FROM "QuizAttempt" WHERE quiz_id IS NOT NULL) AS "quizAttempts",
           (SELECT COUNT(*)::int FROM "QuizAttempt" WHERE jlpt_exam_id IS NOT NULL) AS "jlptAttempts",
           (SELECT COUNT(*)::int FROM "PaymentTransaction" WHERE status = 'paid') AS "paidPayments",

@@ -1,37 +1,26 @@
 import { QuestionMediaBlock, QuestionOptionList, QuestionResultFeedback } from '../questions';
-import type { LessonNote, Quiz, QuizQuestion, QuizSubmitResult } from '../../services/api';
-import { QuestionNoteComposerBlock } from './QuestionNoteComposerBlock';
+import type { QuizQuestion, QuizSubmitResult } from '../../services/api';
 import { QuestionStemHeader } from './QuestionStemHeader';
 import type { QuizAnswerState } from './quizPanelUtils';
 
 export function QuizQuestionItem({
-  quiz,
   question,
   index,
   answer,
   submitResult,
   isSubmitted,
-  existingQuestionNote,
-  lessonId,
   onSingleOption,
   onToggleMultipleOption,
   onTextAnswer,
-  onQuestionNoteSaved,
-  onQuestionNoteDeleted,
 }: {
-  quiz: Quiz;
   question: QuizQuestion;
   index: number;
   answer: QuizAnswerState[number];
   submitResult: QuizSubmitResult | null;
   isSubmitted: boolean;
-  existingQuestionNote: LessonNote | null;
-  lessonId?: number;
   onSingleOption: (questionId: number, optionId: number) => void;
   onToggleMultipleOption: (questionId: number, optionId: number) => void;
   onTextAnswer: (questionId: number, answerText: string) => void;
-  onQuestionNoteSaved: (savedNote: LessonNote) => void;
-  onQuestionNoteDeleted: (noteId: number) => void;
 }) {
   const result = submitResult?.question_results.find((item) => item.question_id === question.question_id);
 
@@ -91,14 +80,6 @@ export function QuizQuestionItem({
             />
           )}
 
-          <QuestionNoteComposerBlock
-            lessonId={lessonId ?? quiz.lesson_id ?? null}
-            questionId={question.question_id}
-            questionNumber={index + 1}
-            existingQuestionNote={existingQuestionNote}
-            onSaved={onQuestionNoteSaved}
-            onDeleted={onQuestionNoteDeleted}
-          />
         </div>
       </div>
     </article>

@@ -3,8 +3,6 @@ import { useToast } from '../../contexts/ToastContext';
 import type { AdminTab } from '../../components/admin/adminTypes';
 import {
   adminAPI,
-  type AdminBlog,
-  type AdminBlogStatus,
   type AdminCourse,
   type AdminJlptExam,
   type AdminJlptLevel,
@@ -41,8 +39,6 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
   const [jlptExams, setJlptExams] = useState<AdminJlptExam[]>([]);
   const [jlptTotalCount, setJlptTotalCount] = useState(0);
   const [jlptSections, setJlptSections] = useState<AdminJlptSection[]>([]);
-  const [blogs, setBlogs] = useState<AdminBlog[]>([]);
-  const [blogTotalCount, setBlogTotalCount] = useState(0);
   const [payments, setPayments] = useState<AdminPayment[]>([]);
   const [paymentTotalCount, setPaymentTotalCount] = useState(0);
   const [quizQuestions, setQuizQuestions] = useState<AdminQuizQuestion[]>([]);
@@ -53,7 +49,6 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
   const [courseFilter, setCourseFilter] = useState({ search: '', level: '', sort_order: 'desc' as AdminSortOrder, limit: adminPageSize, offset: 0 });
   const [testFilter, setTestFilter] = useState({ search: '', quiz_type: 'all' as AdminQuizType | 'all', sort_order: 'desc' as AdminSortOrder, limit: adminPageSize, offset: 0 });
   const [jlptFilter, setJlptFilter] = useState({ search: '', sort_order: 'desc' as AdminSortOrder, limit: adminPageSize, offset: 0 });
-  const [blogFilter, setBlogFilter] = useState({ search: '', status: 'all' as AdminBlogStatus | 'all', sort_order: 'desc' as AdminSortOrder, limit: adminPageSize, offset: 0 });
   const [paymentFilter, setPaymentFilter] = useState({ search: '', status: 'all' as AdminPaymentStatus, sort_order: 'desc' as AdminSortOrder, limit: adminPageSize, offset: 0 });
 
   const run = useCallback(async (task: () => Promise<void>, success?: string) => {
@@ -100,11 +95,6 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
   const loadJlptSections = useCallback((examId: number) => run(async () => setJlptSections((await adminAPI.getJlptSections(examId)).data)), [run]);
   const loadJlptQuestions = useCallback((sectionId: number) => run(async () => setJlptQuestions((await adminAPI.getJlptSectionQuestions(sectionId)).data)), [run]);
   const loadReadingPassages = useCallback((level?: AdminJlptLevel) => run(async () => setReadingPassages((await adminAPI.getReadingPassages(level ? { jlpt_level: level } : {})).data)), [run]);
-  const loadBlogs = useCallback(() => run(async () => {
-    const result = await adminAPI.getBlogs(blogFilter);
-    setBlogs(result.data);
-    setBlogTotalCount(result.total_count ?? result.count);
-  }), [blogFilter, run]);
   const loadPayments = useCallback(() => run(async () => {
     const result = await adminAPI.getPayments(paymentFilter);
     setPayments(result.data);
@@ -121,15 +111,13 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
         return JSON.stringify(testFilter);
       case 'jlpt':
         return JSON.stringify(jlptFilter);
-      case 'blogs':
-        return JSON.stringify(blogFilter);
       case 'payments':
         return JSON.stringify(paymentFilter);
       case 'overview':
       default:
         return 'stats';
     }
-  }, [blogFilter, courseFilter, jlptFilter, paymentFilter, testFilter, userFilter]);
+  }, [courseFilter, jlptFilter, paymentFilter, testFilter, userFilter]);
 
   const loadTab = useCallback(async (tab: AdminTab, force = false) => {
     if (!canAccessAdminData(role)) return;
@@ -154,9 +142,6 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
       case 'jlpt':
         await loadJlptExams();
         break;
-      case 'blogs':
-        await loadBlogs();
-        break;
       case 'payments':
         await loadPayments();
         break;
@@ -167,7 +152,6 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
     setLoadedTabKeys((previous) => ({ ...previous, [tab]: tabKey }));
   }, [
     getTabKey,
-    loadBlogs,
     loadCourses,
     loadJlptExams,
     loadLessonQuizzes,
@@ -206,8 +190,6 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
     jlptExams,
     jlptTotalCount,
     jlptSections,
-    blogs,
-    blogTotalCount,
     payments,
     paymentTotalCount,
     quizQuestions,
@@ -217,13 +199,11 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
     courseFilter,
     testFilter,
     jlptFilter,
-    blogFilter,
     paymentFilter,
     setUserFilter,
     setCourseFilter,
     setTestFilter,
     setJlptFilter,
-    setBlogFilter,
     setPaymentFilter,
     setQuizQuestions,
     setJlptSections,
@@ -240,7 +220,6 @@ export function useAdminDashboardData(role: AdminRole | undefined, activeTab: Ad
     loadJlptSections,
     loadJlptQuestions,
     loadReadingPassages,
-    loadBlogs,
     loadPayments,
     loadTab,
     refreshAll,

@@ -57,7 +57,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
               {item.path ? (
                 <button
                   onClick={() => navigate(item.path!)}
-                  className="text-primary hover:text-primary-dark hover:underline transition-colors cursor-pointer"
+                  className="text-primary hover:underline transition-colors cursor-pointer"
                 >
                   {item.label}
                 </button>

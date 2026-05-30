@@ -36,7 +36,7 @@ export function StudyTimeChart({ points }: { points: StudyTimePoint[] }) {
           </div>
         </div>
       </div>
-      <div className="overflow-x-auto rounded-xl border border-outline-variant bg-[linear-gradient(180deg,#f8fbff_0%,#eef7f5_100%)] p-3 dark:bg-[linear-gradient(180deg,rgba(30,41,59,0.75)_0%,rgba(15,23,42,0.95)_100%)]">
+      <div className="overflow-x-auto rounded-xl border border-outline-variant bg-[linear-gradient(180deg,#f8fbff_0%,#eef7f5_100%)] p-3">
         <div className="flex h-52 min-w-[620px] items-end gap-1">
           {points.map((point, index) => {
             const isActive = point.duration_seconds > 0;
@@ -44,15 +44,15 @@ export function StudyTimeChart({ points }: { points: StudyTimePoint[] }) {
             const isPeak = peakPoint?.study_date === point.study_date && isActive;
             return (
               <div key={point.study_date} className="flex flex-1 flex-col items-center gap-2">
-                <div className="relative flex h-36 w-full items-end rounded-md bg-surface/70 px-0.5 shadow-inner dark:bg-white/6 dark:ring-1 dark:ring-white/8">
+                <div className="relative flex h-36 w-full items-end rounded-md bg-surface/70 px-0.5 shadow-inner">
                   <div
                     title={`${formatDate(point.study_date)}: ${formatMinutes(point.duration_seconds)}`}
                     className={`w-full rounded-t transition-all duration-300 hover:scale-y-105 ${
                       isActive
                         ? isPeak
-                          ? 'bg-gradient-to-t from-[#f59e0b] via-[#facc15] to-[#fef08a] shadow-sm shadow-[#f59e0b]/30 dark:from-[#fb923c] dark:via-[#facc15] dark:to-[#fef3c7] dark:shadow-[#facc15]/35'
-                          : 'bg-gradient-to-t from-[#2563eb] via-[#14b8a6] to-[#86efac] shadow-sm shadow-primary/10 dark:from-[#60a5fa] dark:via-[#2dd4bf] dark:to-[#bbf7d0] dark:shadow-[#2dd4bf]/30'
-                        : 'bg-outline-variant/50 dark:bg-white/12'
+                          ? 'bg-gradient-to-t from-[#f59e0b] via-[#facc15] to-[#fef08a] shadow-sm shadow-[#f59e0b]/30'
+                          : 'bg-gradient-to-t from-[#2563eb] via-[#14b8a6] to-[#86efac] shadow-sm shadow-primary/10'
+                        : 'bg-outline-variant/50'
                     }`}
                     style={{ height: `${isActive ? Math.max(8, (point.duration_seconds / maxSeconds) * 100) : 4}%` }}
                   />
@@ -69,13 +69,13 @@ export function StudyTimeChart({ points }: { points: StudyTimePoint[] }) {
         </div>
       </div>
       <div className="mt-3 grid grid-cols-1 gap-2 text-label-md text-on-surface-variant sm:grid-cols-3">
-        <div className="rounded-lg bg-[#eef7fb] px-3 py-2 dark:bg-sky-400/10 dark:text-sky-100">
+        <div className="rounded-lg bg-[#eef7fb] px-3 py-2">
           <span className="font-bold text-on-surface">{activeDays}</span> active days
         </div>
-        <div className="rounded-lg bg-[#fff7df] px-3 py-2 dark:bg-amber-400/10 dark:text-amber-100">
+        <div className="rounded-lg bg-[#fff7df] px-3 py-2">
           Peak: <span className="font-bold text-on-surface">{peakPoint ? formatCompactDate(peakPoint.study_date) : 'None'}</span>
         </div>
-        <div className="rounded-lg bg-[#f1f5f9] px-3 py-2 dark:bg-slate-700/40 dark:text-slate-100">
+        <div className="rounded-lg bg-[#f1f5f9] px-3 py-2">
           Range: <span className="font-bold text-on-surface">{points[0] ? formatCompactDate(points[0].study_date) : ''}</span>
           {' - '}
           <span className="font-bold text-on-surface">{points[points.length - 1] ? formatCompactDate(points[points.length - 1].study_date) : ''}</span>

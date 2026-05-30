@@ -43,5 +43,5 @@ export default function QuizFocus() {
     );
   }
 
-  return <QuizFocusView controller={controller} lessonId={lessonId} />;
+  return <QuizFocusView controller={controller} />;
 }

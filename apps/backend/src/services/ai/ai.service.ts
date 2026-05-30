@@ -1,8 +1,8 @@
-import { buildFlashcardPrompt, buildLessonPrompt } from "./aiPrompts.service.js";
-import type { FlashcardAiMode, FlashcardAiPayload, LessonAiMode, LessonAiPayload } from "./ai.types.js";
+import { buildFlashcardPrompt } from "./aiPrompts.service.js";
+import type { FlashcardAiMode, FlashcardAiPayload } from "./ai.types.js";
 import geminiClientService from "./geminiClient.service.js";
 
-export type { FlashcardAiMode, FlashcardAiPayload, LessonAiMode, LessonAiPayload };
+export type { FlashcardAiMode, FlashcardAiPayload };
 
 export class AiService {
   async generateText(prompt: string) {
@@ -11,10 +11,6 @@ export class AiService {
 
   async generateFlashcardResponse(payload: FlashcardAiPayload) {
     return this.generateText(buildFlashcardPrompt(payload));
-  }
-
-  async generateLessonResponse(payload: LessonAiPayload) {
-    return this.generateText(buildLessonPrompt(payload));
   }
 }
 

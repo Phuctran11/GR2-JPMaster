@@ -1,4 +1,3 @@
-export { BlogsSection } from './BlogsSection';
 export { CoursesSection } from './CoursesSection';
 export { JlptSection } from './JlptSection';
 export { OverviewSection } from './OverviewSection';

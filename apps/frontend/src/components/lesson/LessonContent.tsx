@@ -1,16 +1,13 @@
 import { useEffect, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
-import type { Lesson as LessonData, LessonNote } from '../../services/api';
+import type { Lesson as LessonData } from '../../services/api';
 import { Heading, Text } from '../ui/Typography';
 
 interface LessonContentProps {
   lesson: LessonData;
   isStudyMode: boolean;
   articleRef: RefObject<HTMLElement | null>;
-  onAddHighlightNote?: (selectedText: string) => void;
   onSaveFlashcard?: (selectedText: string) => Promise<void> | void;
-  onAskAIAboutSelection?: (selectedText: string) => void;
-  highlightNotes?: LessonNote[];
 }
 
 type LessonContentBlock =
@@ -87,92 +84,25 @@ const parseLessonContent = (content: string): LessonContentBlock[] => {
   return blocks;
 };
 
-const renderHighlightedText = (text: string, highlightedTexts: string[]) => {
-  const validHighlights = highlightedTexts
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .sort((a, b) => b.length - a.length);
-
-  if (validHighlights.length === 0) return text;
-
-  const parts: Array<{ text: string; highlighted: boolean }> = [];
-  let cursor = 0;
-
-  while (cursor < text.length) {
-    let nextIndex = -1;
-    let nextHighlight = '';
-
-    for (const highlight of validHighlights) {
-      const index = text.indexOf(highlight, cursor);
-      if (index >= 0 && (nextIndex === -1 || index < nextIndex || (index === nextIndex && highlight.length > nextHighlight.length))) {
-        nextIndex = index;
-        nextHighlight = highlight;
-      }
-    }
-
-    if (nextIndex === -1) {
-      parts.push({ text: text.slice(cursor), highlighted: false });
-      break;
-    }
-
-    if (nextIndex > cursor) {
-      parts.push({ text: text.slice(cursor, nextIndex), highlighted: false });
-    }
-
-    parts.push({ text: text.slice(nextIndex, nextIndex + nextHighlight.length), highlighted: true });
-    cursor = nextIndex + nextHighlight.length;
-  }
-
-  return parts.map((part, index) =>
-    part.highlighted ? (
-      <mark
-        key={index}
-        className="rounded px-1 py-0.5 font-semibold"
-        style={{ backgroundColor: '#fde047', color: '#713f12', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone' }}
-      >
-        {part.text}
-      </mark>
-    ) : (
-      <span key={index}>{part.text}</span>
-    )
-  );
-};
-
 export function LessonContent({
   lesson,
   isStudyMode,
   articleRef,
-  onAddHighlightNote,
   onSaveFlashcard,
-  onAskAIAboutSelection,
-  highlightNotes = [],
 }: LessonContentProps) {
   const contentText = normalizeLessonContent(lesson.content_text);
   const contentBlocks = contentText ? parseLessonContent(contentText) : [];
   const [selectionMenu, setSelectionMenu] = useState<{ text: string; x: number; y: number } | null>(null);
   const [savingFlashcard, setSavingFlashcard] = useState(false);
-  const highlightedTexts = highlightNotes.map((note) => note.selected_text ?? '').filter(Boolean);
 
   const clearSelection = () => {
     window.getSelection()?.removeAllRanges();
     setSelectionMenu(null);
   };
 
-  const handleTextAction = async (action: 'note' | 'flashcard' | 'ai') => {
+  const handleTextAction = async () => {
     const selectedText = selectionMenu?.text || window.getSelection()?.toString().trim();
     if (!selectedText) return;
-
-    if (action === 'note') {
-      onAddHighlightNote?.(selectedText);
-      clearSelection();
-      return;
-    }
-
-    if (action === 'ai') {
-      onAskAIAboutSelection?.(selectedText);
-      clearSelection();
-      return;
-    }
 
     if (!onSaveFlashcard || savingFlashcard) return;
     try {
@@ -258,22 +188,14 @@ export function LessonContent({
       className="fixed z-[95] flex -translate-x-1/2 -translate-y-full gap-1 rounded-xl border border-outline-variant bg-surface p-1.5 shadow-xl"
       style={{ left: selectionMenu.x, top: selectionMenu.y }}
     >
-      <button type="button" onClick={() => void handleTextAction('note')} className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-label-md font-bold text-on-primary">
-        <span className="material-symbols-outlined text-[18px]">add_notes</span>
-        Add Note
-      </button>
       <button
         type="button"
-        onClick={() => void handleTextAction('flashcard')}
+        onClick={() => void handleTextAction()}
         disabled={savingFlashcard}
-        className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container disabled:opacity-60"
+        className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-label-md font-bold text-on-primary disabled:opacity-60"
       >
         <span className="material-symbols-outlined text-[18px]">style</span>
         {savingFlashcard ? 'Saving...' : 'Save Flashcard'}
-      </button>
-      <button type="button" onClick={() => void handleTextAction('ai')} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-label-md font-bold text-on-surface-variant hover:bg-surface-container">
-        <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
-        Ask AI
       </button>
     </div>
   ) : null;
@@ -297,8 +219,8 @@ export function LessonContent({
             </Heading>
             <Text variant="body-md" color="on-surface-variant" className="mt-2 max-w-[680px]">
               {lesson.video_url?.trim()
-                ? 'Watch the lesson first, then use the notes below to lock in the main ideas.'
-                : 'Read carefully through the lesson notes and mark the lesson complete when you are ready.'}
+                ? 'Watch the lesson first, then review the content to lock in the main ideas.'
+                : 'Read carefully through the lesson content and mark the lesson complete when you are ready.'}
             </Text>
           </div>
         </div>
@@ -331,7 +253,7 @@ export function LessonContent({
                   <ol key={index} className="list-decimal space-y-2 pl-6 text-body-lg font-body-lg leading-8 text-on-surface">
                     {block.items.map((item, itemIndex) => (
                       <li key={itemIndex} className="pl-1">
-                        {renderHighlightedText(item, highlightedTexts)}
+                        {item}
                       </li>
                     ))}
                   </ol>
@@ -343,7 +265,7 @@ export function LessonContent({
                   <ul key={index} className="list-disc space-y-2 pl-6 text-body-lg font-body-lg leading-8 text-on-surface">
                     {block.items.map((item, itemIndex) => (
                       <li key={itemIndex} className="pl-1">
-                        {renderHighlightedText(item, highlightedTexts)}
+                        {item}
                       </li>
                     ))}
                   </ul>
@@ -353,7 +275,7 @@ export function LessonContent({
               if (block.type === 'paragraph') {
                 return (
                   <p key={index} className="whitespace-pre-line text-body-lg font-body-lg leading-8 text-on-surface">
-                    {renderHighlightedText(block.text, highlightedTexts)}
+                    {block.text}
                   </p>
                 );
               }

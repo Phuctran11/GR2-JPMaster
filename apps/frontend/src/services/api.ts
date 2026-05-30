@@ -197,42 +197,6 @@ export interface CourseRating {
   created_at: string;
 }
 
-export interface BlogTag {
-  tag_id: number;
-  name: string;
-  slug: string;
-  tag_type: 'skill' | 'jlpt_level' | 'topic';
-}
-
-export interface Blog {
-  blog_id: number;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  content: string | null;
-  category_id: number | null;
-  category: string | null;
-  category_slug: string | null;
-  cover_asset_id?: number | null;
-  image_url: string | null;
-  video_asset_id?: number | null;
-  video_url?: string | null;
-  status: 'draft' | 'published' | 'archived';
-  author_id: number;
-  author_username?: string | null;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-  tags: BlogTag[];
-}
-
-export interface BlogCategory {
-  category_id: number;
-  name: string;
-  slug: string;
-  blog_count: number;
-}
-
 export interface QuizOption {
   option_id: number;
   question_id: number;
@@ -410,49 +374,6 @@ export interface Certificate {
   updated_at: string;
 }
 
-export type LessonNoteType = 'text_note' | 'video_note' | 'highlight' | 'question_note' | 'ai_summary';
-
-export interface LessonNote {
-  note_id: number;
-  user_id: number;
-  lesson_id: number | null;
-  question_id: number | null;
-  note_type: LessonNoteType;
-  note_content: string;
-  selected_text: string | null;
-  video_timestamp_seconds: number | null;
-  is_pinned: boolean;
-  is_deleted: boolean;
-  created_at: string;
-  updated_at: string;
-  lesson_title?: string | null;
-  course_id?: number | null;
-  course_title?: string | null;
-  quiz_type?: 'lesson_quiz' | 'practice_test' | 'final_test' | null;
-  question_text?: string | null;
-}
-
-export interface CreateLessonNotePayload {
-  lesson_id?: number | null;
-  question_id?: number | null;
-  note_type: LessonNoteType;
-  note_content: string;
-  selected_text?: string | null;
-  video_timestamp_seconds?: number | null;
-  is_pinned?: boolean;
-}
-
-export interface LessonNoteFilters {
-  note_type?: LessonNoteType | 'all';
-  lesson_id?: number;
-  question_id?: number;
-  pinned?: boolean | 'all';
-  search?: string;
-  sort_order?: 'newest' | 'oldest';
-  limit?: number;
-  offset?: number;
-}
-
 export type FlashcardVisibility = 'private' | 'public';
 
 export interface FlashcardCollection {
@@ -517,7 +438,6 @@ export interface UploadedAsset {
 }
 
 export type FlashcardAiMode = 'paragraph' | 'dialogue' | 'explain' | 'ask';
-export type LessonAiMode = 'explain' | 'grammar' | 'summary' | 'ask';
 
 export interface FlashcardAiPayload {
   mode: FlashcardAiMode;
@@ -526,14 +446,6 @@ export interface FlashcardAiPayload {
   reading?: string | null;
   exampleSentence?: string | null;
   selectedWords?: string[] | null;
-  question?: string | null;
-}
-
-export interface LessonAiPayload {
-  mode: LessonAiMode;
-  lessonTitle: string;
-  lessonContent?: string | null;
-  selectedText?: string | null;
   question?: string | null;
 }
 
@@ -830,101 +742,6 @@ export const certificateAPI = {
   },
 };
 
-export const lessonNoteAPI = {
-  async getMyNotes(filters: LessonNoteFilters = {}): Promise<{ data: LessonNote[]; count: number; total_count?: number; counts_by_type?: Array<{ note_type: LessonNoteType; count: number }> }> {
-    const params = new URLSearchParams();
-    if (filters.note_type && filters.note_type !== 'all') params.set('note_type', filters.note_type);
-    if (filters.lesson_id) params.set('lesson_id', String(filters.lesson_id));
-    if (filters.question_id) params.set('question_id', String(filters.question_id));
-    if (filters.pinned !== undefined && filters.pinned !== 'all') params.set('pinned', String(filters.pinned));
-    if (filters.search?.trim()) params.set('search', filters.search.trim());
-    if (filters.sort_order) params.set('sort_order', filters.sort_order);
-    params.set('limit', String(filters.limit ?? 20));
-    params.set('offset', String(filters.offset ?? 0));
-
-    const response = await authenticatedFetch(`${API_BASE_URL}/lesson-notes?${params}`, {
-      method: 'GET',
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized - Please login first');
-      }
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch notes');
-    }
-
-    return response.json();
-  },
-
-  async createNote(payload: CreateLessonNotePayload): Promise<{ message: string; data: LessonNote }> {
-    const response = await authenticatedFetch(`${API_BASE_URL}/lesson-notes`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized - Please login first');
-      }
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create note');
-    }
-
-    return response.json();
-  },
-
-  async updateNote(noteId: number, payload: Partial<CreateLessonNotePayload>): Promise<{ message: string; data: LessonNote }> {
-    const response = await authenticatedFetch(`${API_BASE_URL}/lesson-notes/${noteId}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized - Please login first');
-      }
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to update note');
-    }
-
-    return response.json();
-  },
-
-  async setPinned(noteId: number, isPinned: boolean): Promise<{ message: string; data: LessonNote }> {
-    const response = await authenticatedFetch(`${API_BASE_URL}/lesson-notes/${noteId}/pin`, {
-      method: 'PATCH',
-      body: JSON.stringify({ is_pinned: isPinned }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized - Please login first');
-      }
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to update pinned note');
-    }
-
-    return response.json();
-  },
-
-  async deleteNote(noteId: number): Promise<{ message: string }> {
-    const response = await authenticatedFetch(`${API_BASE_URL}/lesson-notes/${noteId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized - Please login first');
-      }
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to delete note');
-    }
-
-    return response.json();
-  },
-};
-
 export const flashcardAPI = {
   async getCollections(
     limit = 20,
@@ -1130,26 +947,11 @@ export const aiAPI = {
 
     return response.json();
   },
-
-  async askLesson(payload: LessonAiPayload): Promise<{ data: AiResponse }> {
-    const response = await authenticatedFetch(`${API_BASE_URL}/ai/lesson`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) throw new Error('Unauthorized - Please login first');
-      throw new Error(await getApiErrorMessage(response, 'Failed to ask AI about lesson'));
-    }
-
-    return response.json();
-  },
 };
 
 export type AdminRole = 'learner' | 'owner' | 'admin';
 export type AdminUserStatus = 'active' | 'suspended';
 export type AdminQuizType = 'lesson_quiz' | 'practice_test' | 'final_test';
-export type AdminBlogStatus = 'draft' | 'published' | 'archived';
 export type AdminJlptLevel = 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
 export type AdminSectionType = 'vocabulary' | 'grammar' | 'reading' | 'listening';
 export type AdminSortOrder = 'desc' | 'asc';
@@ -1163,7 +965,6 @@ export interface AdminStats {
     tests: number;
     jlptTests: number;
     enrollments: number;
-    blogs: number;
     quizAttempts: number;
     jlptAttempts: number;
     paidPayments: number;
@@ -1335,28 +1136,6 @@ export type AdminQuizQuestionPayload = Omit<AdminQuizQuestion, 'question_id' | '
   options: AdminQuestionOption[];
 };
 
-export interface AdminBlog {
-  blog_id: number;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  content: string | null;
-  category_id?: number | null;
-  category: string | null;
-  category_slug?: string | null;
-  tags?: BlogTag[];
-  cover_asset_id?: number | null;
-  image_url: string | null;
-  video_asset_id?: number | null;
-  video_url?: string | null;
-  status: AdminBlogStatus;
-  author_id: number;
-  author_username?: string | null;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export type AdminMediaKind = 'image' | 'video' | 'audio';
 
 export interface AdminCloudinaryAsset {
@@ -1495,38 +1274,8 @@ export const adminAPI = {
   deleteJlptSectionQuestion: (sectionId: number, questionId: number) =>
     adminRequest<{ message: string }>(`/jlpt-sections/${sectionId}/questions/${questionId}`, { method: 'DELETE' }),
 
-  getBlogs: (filters: { search?: string; status?: AdminBlogStatus | 'all'; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
-    adminRequest<{ data: AdminBlog[]; count: number; total_count?: number }>(`/blogs?${adminParams({ limit: 50, ...filters })}`),
-  createBlog: (payload: { title: string; slug?: string; excerpt?: string | null; content?: string | null; category?: string | null; category_name?: string | null; tags?: string[]; cover_asset_id?: number | null; image_url?: string | null; video_asset_id?: number | null; video_url?: string | null; status: AdminBlogStatus }) =>
-    adminRequest<{ message: string; data: AdminBlog }>('/blogs', { method: 'POST', body: JSON.stringify(payload) }),
-  updateBlog: (blogId: number, payload: Partial<{ title: string; slug: string; excerpt: string | null; content: string | null; category: string | null; category_name: string | null; tags: string[]; cover_asset_id: number | null; image_url: string | null; video_asset_id: number | null; video_url: string | null; status: AdminBlogStatus }>) =>
-    adminRequest<{ message: string; data: AdminBlog }>(`/blogs/${blogId}`, { method: 'PUT', body: JSON.stringify(payload) }),
-  deleteBlog: (blogId: number) =>
-    adminRequest<{ message: string }>(`/blogs/${blogId}`, { method: 'DELETE' }),
-
   getPayments: (filters: { search?: string; status?: AdminPaymentStatus; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}) =>
     adminRequest<{ data: AdminPayment[]; count: number; total_count?: number }>(`/payments?${adminParams({ limit: 50, ...filters })}`),
-};
-
-export const blogAPI = {
-  async getBlogs(filters: { search?: string; category?: string; tag?: string; published_after?: string; sort_order?: AdminSortOrder; limit?: number; offset?: number } = {}): Promise<{ data: Blog[]; count: number; total_count?: number }> {
-    const params = adminParams({ limit: 20, ...filters });
-    const response = await fetch(`${API_BASE_URL}/blogs?${params}`);
-    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch blogs'));
-    return response.json();
-  },
-
-  async getBlog(identifier: string): Promise<{ data: Blog }> {
-    const response = await fetch(`${API_BASE_URL}/blogs/${encodeURIComponent(identifier)}`);
-    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch blog'));
-    return response.json();
-  },
-
-  async getCategories(): Promise<{ data: BlogCategory[]; count: number }> {
-    const response = await fetch(`${API_BASE_URL}/blogs/categories`);
-    if (!response.ok) throw new Error(await getApiErrorMessage(response, 'Failed to fetch blog categories'));
-    return response.json();
-  },
 };
 
 export interface AnalyticsSummary {
@@ -1579,21 +1328,6 @@ export interface LearningGoal {
   updated_at: string;
 }
 
-export interface Achievement {
-  achievement_id: number;
-  code: string;
-  name: string;
-  description: string | null;
-  badge_icon: string | null;
-  badge_color: string | null;
-  achievement_type: string;
-  tier: 'bronze' | 'silver' | 'gold' | 'platinum';
-  condition_key: string;
-  condition_value: number;
-  earned_at: string | null;
-  current_value: number;
-}
-
 const authJsonRequest = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
   const response = await authenticatedFetch(`${API_BASE_URL}${path}`, options);
   if (!response.ok) {
@@ -1618,10 +1352,6 @@ export const goalAPI = {
     authJsonRequest<{ message: string; data: LearningGoal }>(`/goals/${goalId}`, { method: 'PUT', body: JSON.stringify(payload) }),
   deleteGoal: (goalId: number) =>
     authJsonRequest<{ message: string }>(`/goals/${goalId}`, { method: 'DELETE' }),
-};
-
-export const achievementAPI = {
-  getMine: () => authJsonRequest<{ data: Achievement[] }>('/achievements/me'),
 };
 
 export const paymentAPI = {

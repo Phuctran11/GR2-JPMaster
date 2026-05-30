@@ -1,13 +1,11 @@
 import { AdminModalRouter } from './AdminModalRouter';
 import {
-  createBlogModalGroup,
   createCourseLessonModalGroup,
   createJlptModalGroup,
   createQuestionModalGroup,
   createUserModalGroup,
 } from './AdminDashboardModalGroups';
 import type {
-  AdminDashboardBlogProps,
   AdminDashboardCommonProps,
   AdminDashboardCourseLessonProps,
   AdminDashboardJlptProps,
@@ -23,7 +21,6 @@ export function AdminDashboardModals({
   tests,
   jlpt,
   questions,
-  blog,
 }: {
   common: AdminDashboardCommonProps;
   users: AdminDashboardUserProps;
@@ -31,7 +28,6 @@ export function AdminDashboardModals({
   tests: AdminDashboardTestProps;
   jlpt: AdminDashboardJlptProps;
   questions: AdminDashboardQuestionProps;
-  blog: AdminDashboardBlogProps;
 }) {
   return (
     <AdminModalRouter
@@ -41,7 +37,6 @@ export function AdminDashboardModals({
         ...createCourseLessonModalGroup({ common, courseLessons, tests }),
         ...createJlptModalGroup({ common, jlpt, questions }),
         ...createQuestionModalGroup({ common, jlpt, questions }),
-        ...createBlogModalGroup({ common, blog }),
       }}
     />
   );

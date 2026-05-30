@@ -4,7 +4,6 @@ import { Header } from '../components';
 import { useAuth } from '../contexts/AuthContext';
 import { type AdminRole } from '../services/api';
 import { useAdminAssetUpload } from '../hooks/admin/useAdminAssetUpload';
-import { useAdminBlogs } from '../hooks/admin/useAdminBlogs';
 import { useAdminCoursesLessons } from '../hooks/admin/useAdminCoursesLessons';
 import { useAdminDashboardData } from '../hooks/admin/useAdminDashboardData';
 import { useAdminDashboardForms } from '../hooks/admin/useAdminDashboardForms';
@@ -14,7 +13,6 @@ import { useAdminTests } from '../hooks/admin/useAdminTests';
 import { useAdminUsers } from '../hooks/admin/useAdminUsers';
 import { AdminDashboardModals } from '../components/admin/AdminDashboardModals';
 import { AdminSidebar } from '../components/admin/DashboardUi';
-import { BlogsSection } from '../components/admin/sections/BlogsSection';
 import { CoursesSection } from '../components/admin/sections/CoursesSection';
 import { JlptSection } from '../components/admin/sections/JlptSection';
 import { PaymentsSection } from '../components/admin/sections/PaymentsSection';
@@ -60,8 +58,6 @@ export default function AdminDashboard() {
     jlptExams,
     jlptTotalCount,
     jlptSections,
-    blogs,
-    blogTotalCount,
     payments,
     paymentTotalCount,
     quizQuestions,
@@ -71,13 +67,11 @@ export default function AdminDashboard() {
     courseFilter,
     testFilter,
     jlptFilter,
-    blogFilter,
     paymentFilter,
     setUserFilter,
     setCourseFilter,
     setTestFilter,
     setJlptFilter,
-    setBlogFilter,
     setPaymentFilter,
     setQuizQuestions,
     setJlptSections,
@@ -94,7 +88,6 @@ export default function AdminDashboard() {
     loadJlptSections,
     loadJlptQuestions,
     loadReadingPassages,
-    loadBlogs,
     refreshAll,
   } = useAdminDashboardData(user?.role as AdminRole | undefined, activeTab);
 
@@ -143,10 +136,6 @@ export default function AdminDashboard() {
     setEditingReadingPassageId,
     autoJlptQuestionsForm,
     setAutoJlptQuestionsForm,
-    blogForm,
-    setBlogForm,
-    editingBlogId,
-    setEditingBlogId,
   } = useAdminDashboardForms();
   const { uploadingField, uploadAsset } = useAdminAssetUpload();
 
@@ -363,17 +352,6 @@ export default function AdminDashboard() {
     loadReadingPassages,
   });
 
-  const { openCreateBlog, openEditBlog, deleteBlog, submitBlog } = useAdminBlogs({
-    editingBlogId,
-    setEditingBlogId,
-    setBlogForm,
-    setActiveModal,
-    closeModal,
-    run,
-    loadBlogs,
-    loadStats,
-  });
-
   if (loading) return <div className="min-h-screen bg-background p-8 text-on-surface">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== 'admin' && user.role !== 'owner') return <Navigate to="/" replace />;
@@ -410,7 +388,7 @@ export default function AdminDashboard() {
               <p className="text-label-md font-semibold uppercase text-primary">JPMaster Dashboard</p>
               <h1 className="mt-1 text-headline-lg font-bold text-on-surface">Dashboard</h1>
               <p className="mt-2 max-w-2xl text-body-md text-on-surface-variant">
-                Track platform metrics and manage users, courses, lessons, tests, and blog content.
+                Track platform metrics and manage users, courses, lessons, tests, and payments.
               </p>
             </div>
             <button className={secondaryButtonClass} disabled={busy} onClick={() => void refreshAll()}>
@@ -480,19 +458,6 @@ export default function AdminDashboard() {
             onEdit={openEditJlptExam}
             onManageSections={openManageJlptSections}
             onDelete={deleteJlptExam}
-          />
-        )}
-
-        {activeTab === 'blogs' && (
-          <BlogsSection
-            blogs={blogs}
-            totalCount={blogTotalCount}
-            busy={busy}
-            filter={blogFilter}
-            setFilter={setBlogFilter}
-            onCreate={openCreateBlog}
-            onEdit={openEditBlog}
-            onDelete={deleteBlog}
           />
         )}
 
@@ -601,11 +566,6 @@ export default function AdminDashboard() {
           deleteItem: deleteQuestion,
           submit: submitQuestion,
           closeForm: closeQuestionForm,
-        }}
-        blog={{
-          form: blogForm,
-          editingId: editingBlogId,
-          submit: submitBlog,
         }}
       />
     </div>

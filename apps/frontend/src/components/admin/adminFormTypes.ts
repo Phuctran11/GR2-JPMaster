@@ -1,6 +1,5 @@
 import type {
   emptyAutoJlptQuestions,
-  emptyBlog,
   emptyCourse,
   emptyJlptExam,
   emptyJlptSection,
@@ -20,4 +19,3 @@ export type AdminJlptSectionFormValues = typeof emptyJlptSection;
 export type AdminQuestionFormValues = typeof emptyQuestion;
 export type AdminReadingPassageFormValues = typeof emptyReadingPassage;
 export type AdminAutoJlptQuestionsFormValues = typeof emptyAutoJlptQuestions;
-export type AdminBlogFormValues = typeof emptyBlog;

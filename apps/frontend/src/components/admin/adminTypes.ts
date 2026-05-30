@@ -1,5 +1,4 @@
 import type {
-  AdminBlogStatus,
   AdminJlptLevel,
   AdminQuestionType,
   AdminQuizType,
@@ -10,7 +9,6 @@ import type {
 } from '../../services/api';
 
 export type {
-  AdminBlogStatus,
   AdminJlptLevel,
   AdminQuestionType,
   AdminQuizType,
@@ -20,7 +18,7 @@ export type {
   AdminUserStatus,
 };
 
-export type AdminTab = 'overview' | 'users' | 'courses' | 'tests' | 'jlpt' | 'blogs' | 'payments';
+export type AdminTab = 'overview' | 'users' | 'courses' | 'tests' | 'jlpt' | 'payments';
 export type ModalName =
   | 'user'
   | 'course'
@@ -34,5 +32,4 @@ export type ModalName =
   | 'jlptSection'
   | 'readingPassage'
   | 'autoJlptQuestions'
-  | 'blog'
   | null;

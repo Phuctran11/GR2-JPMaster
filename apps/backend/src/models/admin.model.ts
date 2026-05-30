@@ -1,7 +1,6 @@
 ﻿export type UserRole = "learner" | "owner" | "admin";
 export type UserStatus = "active" | "suspended" | "deleted";
 export type QuizType = "lesson_quiz" | "practice_test" | "final_test";
-export type BlogStatus = "draft" | "published" | "archived";
 export type QuestionType = "single_choice" | "multiple_choice" | "true_false" | "fill_in_blank";
 export type SectionType = "vocabulary" | "grammar" | "reading" | "listening";
 export type JlptLevel = "N5" | "N4" | "N3" | "N2" | "N1";
@@ -15,7 +14,6 @@ export interface AdminListParams {
   level?: string;
   courseId?: number;
   quizType?: QuizType | "all";
-  status?: BlogStatus | "all";
   sortOrder?: SortOrder;
   ownerId?: number;
 }
@@ -28,7 +26,6 @@ export interface AdminStats {
     tests: number;
     jlptTests: number;
     enrollments: number;
-    blogs: number;
     quizAttempts: number;
     jlptAttempts: number;
     paidPayments: number;

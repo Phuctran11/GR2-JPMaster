@@ -53,7 +53,7 @@ function ScoreTrendLine({ attempts }: { attempts: AnalyticsAttempt[] }) {
   const areaPath = `${pathData} L ${coordinates[coordinates.length - 1].x} ${height - padding} L ${coordinates[0].x} ${height - padding} Z`;
 
   return (
-    <div className="rounded-xl border border-outline-variant bg-[linear-gradient(180deg,#f8fbff_0%,#eef7ff_100%)] p-3 dark:bg-[linear-gradient(180deg,rgba(30,41,59,0.78)_0%,rgba(15,23,42,0.96)_100%)]">
+    <div className="rounded-xl border border-outline-variant bg-[linear-gradient(180deg,#f8fbff_0%,#eef7ff_100%)] p-3">
       <svg viewBox={`0 0 ${width} ${height}`} className="h-36 w-full" role="img" aria-label="Score trend line chart">
         <defs>
           <linearGradient id={`scoreLine${chartId}`} x1="0" x2="1" y1="0" y2="0">

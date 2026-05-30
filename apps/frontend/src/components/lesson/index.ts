@@ -1,13 +1,10 @@
 export { LessonActions } from './LessonActions';
-export { LessonAiAssistantModal } from './LessonAiAssistantModal';
 export { LessonContent } from './LessonContent';
 export { LessonFlashcardDialog } from './LessonFlashcardDialog';
 export { LessonHeaderSection } from './LessonHeaderSection';
 export { LessonMedia } from './LessonMedia';
-export { LessonNoteDialog } from './LessonNoteDialog';
 export { LessonSidebarPanels } from './LessonSidebarPanels';
 export { LessonStatusPage } from './LessonStatusPage';
-export { QuestionNoteComposerBlock } from './QuestionNoteComposerBlock';
 export { QuestionStemHeader } from './QuestionStemHeader';
 export { QuizPanel } from './QuizPanel';
 export { formatLessonDuration } from './lessonUtils';

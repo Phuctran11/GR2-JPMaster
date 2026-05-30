@@ -1,4 +1,3 @@
-import adminBlogsController from "./blogs.controller.js";
 import adminCoursesController from "./courses.controller.js";
 import adminJlptController from "./jlpt.controller.js";
 import adminLessonsController from "./lessons.controller.js";
@@ -47,10 +46,6 @@ export const adminController = {
   updateJlptSectionQuestion: adminJlptController.updateJlptSectionQuestion.bind(adminJlptController),
   updateJlptSectionQuestionOrder: adminJlptController.updateJlptSectionQuestionOrder.bind(adminJlptController),
   deleteJlptSectionQuestion: adminJlptController.deleteJlptSectionQuestion.bind(adminJlptController),
-  listBlogs: adminBlogsController.listBlogs.bind(adminBlogsController),
-  createBlog: adminBlogsController.createBlog.bind(adminBlogsController),
-  updateBlog: adminBlogsController.updateBlog.bind(adminBlogsController),
-  deleteBlog: adminBlogsController.deleteBlog.bind(adminBlogsController),
 };
 
 export default adminController;

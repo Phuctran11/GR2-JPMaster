@@ -1,5 +1,7 @@
 # Backend Refactor Report
 
+> Maintenance note 2026-05-30: this historical refactor note is stale for removed features. Lesson notes, blog, achievements, and lesson AI chat were removed from source and `erd.sql`. Use `PROJECT_OVERVIEW.md` and current source as the source of truth.
+
 Last updated: 2026-05-27
 
 ## Muc Dich

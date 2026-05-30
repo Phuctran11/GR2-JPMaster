@@ -1,22 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Card } from '../ui';
-import type { Lesson as LessonData, LessonNote } from '../../services/api';
+import type { Lesson as LessonData } from '../../services/api';
 import { getYouTubeEmbedUrl } from './lessonUtils';
 
 interface LessonMediaProps {
   lesson: LessonData;
-  onAddVideoNote?: (timestampSeconds: number | null) => void;
-  videoNotes?: LessonNote[];
-  onEditVideoNote?: (note: LessonNote) => void;
 }
-
-const formatTimestamp = (seconds: number) => {
-  const safeSeconds = Math.max(0, Math.floor(seconds));
-  const hours = Math.floor(safeSeconds / 3600);
-  const minutes = Math.floor((safeSeconds % 3600) / 60);
-  const rest = safeSeconds % 60;
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(rest).padStart(2, '0')}`;
-};
 
 type YouTubePlayer = {
   getCurrentTime: () => number;
@@ -55,12 +44,11 @@ const loadYouTubeIframeApi = () => {
   return youtubeApiPromise;
 };
 
-export function LessonMedia({ lesson, onAddVideoNote, videoNotes = [], onEditVideoNote }: LessonMediaProps) {
+export function LessonMedia({ lesson }: LessonMediaProps) {
   const embedUrl = getYouTubeEmbedUrl(lesson.video_url);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const youtubePlayerRef = useRef<YouTubePlayer | null>(null);
-  const [youtubeReady, setYoutubeReady] = useState(false);
 
   const iframeSrc = useMemo(() => {
     if (!embedUrl) return null;
@@ -76,39 +64,19 @@ export function LessonMedia({ lesson, onAddVideoNote, videoNotes = [], onEditVid
     if (!iframeSrc || !iframeRef.current) return;
 
     let cancelled = false;
-    setYoutubeReady(false);
 
     loadYouTubeIframeApi().then(() => {
       if (cancelled || !iframeRef.current || !window.YT?.Player) return;
       youtubePlayerRef.current?.destroy();
-      youtubePlayerRef.current = new window.YT.Player(iframeRef.current, {
-        events: {
-          onReady: () => {
-            if (!cancelled) setYoutubeReady(true);
-          },
-        },
-      });
+      youtubePlayerRef.current = new window.YT.Player(iframeRef.current);
     });
 
     return () => {
       cancelled = true;
       youtubePlayerRef.current?.destroy();
       youtubePlayerRef.current = null;
-      setYoutubeReady(false);
     };
   }, [iframeSrc]);
-
-  const getCurrentTimestamp = () => {
-    if (videoRef.current) {
-      return Math.floor(videoRef.current.currentTime);
-    }
-
-    if (youtubeReady && youtubePlayerRef.current) {
-      return Math.floor(youtubePlayerRef.current.getCurrentTime());
-    }
-
-    return 0;
-  };
 
   if (!lesson.video_url) {
     return null;
@@ -145,43 +113,6 @@ export function LessonMedia({ lesson, onAddVideoNote, videoNotes = [], onEditVid
           />
         )}
       </div>
-      {onAddVideoNote && (
-        <div className="border-t border-outline-variant bg-surface px-4 py-3">
-          <button
-            type="button"
-            onClick={() => {
-              onAddVideoNote(getCurrentTimestamp());
-            }}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary"
-          >
-            <span className="material-symbols-outlined text-[18px]">add_notes</span>
-            Add video note
-          </button>
-          {embedUrl && !youtubeReady && (
-            <p className="mt-2 text-body-sm text-on-surface-variant">
-              Video timestamp is preparing. If needed, wait a moment before adding the note.
-            </p>
-          )}
-          {videoNotes.length > 0 && (
-            <div className="mt-4 border-t border-outline-variant pt-3">
-              <p className="mb-2 text-label-md font-bold text-on-surface">Note timestamps</p>
-              <div className="flex flex-wrap gap-2">
-                {videoNotes.map((note) => (
-                  <button
-                    key={note.note_id}
-                    type="button"
-                    onClick={() => onEditVideoNote?.(note)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-low px-3 py-2 text-label-md font-bold text-primary hover:border-primary"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">edit_note</span>
-                    {formatTimestamp(note.video_timestamp_seconds ?? 0)} noted
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </Card>
   );
 }

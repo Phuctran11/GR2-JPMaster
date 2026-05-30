@@ -12,7 +12,6 @@ import type {
 } from '../../services/api';
 import type {
   AdminAutoJlptQuestionsFormValues,
-  AdminBlogFormValues,
   AdminCourseFormValues,
   AdminJlptExamFormValues,
   AdminJlptSectionFormValues,
@@ -127,8 +126,3 @@ export type AdminDashboardQuestionProps = {
   closeForm: () => void;
 };
 
-export type AdminDashboardBlogProps = {
-  form: AdminBlogFormValues;
-  editingId: number | null;
-  submit: (values: AdminBlogFormValues) => void;
-};

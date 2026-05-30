@@ -1,5 +1,7 @@
 # JPMaster Frontend Architecture
 
+> Maintenance note 2026-05-30: this historical refactor note is stale for removed features. Notes, blog, lesson AI chat, and profile achievements were removed from source. Use `PROJECT_OVERVIEW.md` and current source as the source of truth.
+
 Tài liệu này tóm tắt cấu trúc tổ chức và luồng logic chính của frontend sau các đợt refactor. Mục tiêu là giúp người mới đọc code nhanh hơn, đồng thời giữ các refactor tiếp theo nhất quán.
 
 ## Tổng quan

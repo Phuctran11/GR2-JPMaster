@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { SearchBar, NavigationMenu, UserMenu, MobileMenu, AuthActions, ThemeToggle } from './header/';
+import { SearchBar, NavigationMenu, UserMenu, MobileMenu, AuthActions } from './header/';
 
 export function Header() {
   const location = useLocation();
@@ -21,9 +21,7 @@ export function Header() {
     { path: '/courses', label: 'My learning' },
     { path: '/explore', label: 'Explore' },
     { path: '/flashcards', label: 'Flashcards' },
-    { path: '/notes', label: 'Notes' },
     { path: '/tests', label: 'Tests' },
-    { path: '/blog', label: 'Blog' },
     ...(user?.role === 'admin' || user?.role === 'owner' ? [{ path: '/admin', label: 'Dashboard' }] : []),
   ];
 
@@ -49,7 +47,6 @@ export function Header() {
 
         {/* Right Section - Actions */}
         <div className="flex items-center gap-2 md:gap-3">
-          <ThemeToggle className="hidden sm:inline-flex" />
           {user ? (
             <>
               <UserMenu />

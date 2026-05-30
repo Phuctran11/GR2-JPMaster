@@ -17,7 +17,6 @@ interface QuizPanelProps {
   onPassed?: (result: QuizSubmitResult) => void;
   onSubmitted?: (result: QuizSubmitResult) => void;
   onRetake?: () => void;
-  lessonId?: number;
 }
 
 export function QuizPanel({
@@ -30,7 +29,6 @@ export function QuizPanel({
   onPassed,
   onSubmitted,
   onRetake,
-  lessonId,
 }: QuizPanelProps) {
   const {
     answers,
@@ -39,7 +37,6 @@ export function QuizPanel({
     error,
     showSubmitConfirm,
     setShowSubmitConfirm,
-    questionNotes,
     latestAttempt,
     requirementSatisfied,
     answeredCount,
@@ -51,8 +48,6 @@ export function QuizPanel({
     setTextAnswer,
     performSubmit,
     handleSubmitRequest,
-    handleQuestionNoteSaved,
-    handleQuestionNoteDeleted,
   } = useQuizPanelController({
     quiz,
     attemptId,
@@ -79,19 +74,14 @@ export function QuizPanel({
         {quiz.questions.map((question, index) => (
           <QuizQuestionItem
             key={question.question_id}
-            quiz={quiz}
             question={question}
             index={index}
             answer={answers[question.question_id] ?? emptyQuizAnswer}
             submitResult={submitResult}
             isSubmitted={isSubmitted}
-            existingQuestionNote={questionNotes.find((note) => note.question_id === question.question_id) ?? null}
-            lessonId={lessonId}
             onSingleOption={setSingleOption}
             onToggleMultipleOption={toggleMultipleOption}
             onTextAnswer={setTextAnswer}
-            onQuestionNoteSaved={handleQuestionNoteSaved}
-            onQuestionNoteDeleted={handleQuestionNoteDeleted}
           />
         ))}
       </div>

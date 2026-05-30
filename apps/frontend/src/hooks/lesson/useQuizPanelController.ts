@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  lessonNoteAPI,
   quizAPI,
-  type LessonNote,
   type Quiz,
   type QuizSubmitResult,
 } from '../../services/api';
@@ -35,7 +33,6 @@ export function useQuizPanelController({
   const [submitResult, setSubmitResult] = useState<QuizSubmitResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
-  const [questionNotes, setQuestionNotes] = useState<LessonNote[]>([]);
 
   const latestAttempt = submitResult
     ? {
@@ -114,41 +111,6 @@ export function useQuizPanelController({
     }
   }, [submitSignal]);
 
-  useEffect(() => {
-    let active = true;
-
-    const loadQuestionNotes = async () => {
-      try {
-        const result = await lessonNoteAPI.getMyNotes({ note_type: 'question_note', limit: 100 });
-        if (!active) return;
-        const questionIds = new Set(quiz.questions.map((question) => question.question_id));
-        setQuestionNotes(result.data.filter((note) => note.question_id != null && questionIds.has(note.question_id)));
-      } catch {
-        if (active) setQuestionNotes([]);
-      }
-    };
-
-    void loadQuestionNotes();
-
-    return () => {
-      active = false;
-    };
-  }, [quiz.questions]);
-
-  const handleQuestionNoteSaved = (savedNote: LessonNote) => {
-    setQuestionNotes((previous) => {
-      const sameQuestionIndex = previous.findIndex((note) => note.question_id === savedNote.question_id);
-      if (sameQuestionIndex >= 0) {
-        return previous.map((note, index) => (index === sameQuestionIndex ? { ...note, ...savedNote } : note));
-      }
-      return [savedNote, ...previous];
-    });
-  };
-
-  const handleQuestionNoteDeleted = (noteId: number) => {
-    setQuestionNotes((previous) => previous.filter((note) => note.note_id !== noteId));
-  };
-
   return {
     answers,
     submitting,
@@ -156,7 +118,6 @@ export function useQuizPanelController({
     error,
     showSubmitConfirm,
     setShowSubmitConfirm,
-    questionNotes,
     latestAttempt,
     requirementSatisfied,
     answeredCount,
@@ -168,7 +129,5 @@ export function useQuizPanelController({
     setTextAnswer,
     performSubmit,
     handleSubmitRequest,
-    handleQuestionNoteSaved,
-    handleQuestionNoteDeleted,
   };
 }

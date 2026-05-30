@@ -169,7 +169,7 @@ export default function Signup() {
           backgroundSize: 'cover',
         }}
       >
-        <div className="absolute inset-0 bg-background/70 backdrop-blur-[1px] dark:bg-background/82" />
+        <div className="absolute inset-0 bg-background/70 backdrop-blur-[1px]" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
 
         {/* Registration Container */}

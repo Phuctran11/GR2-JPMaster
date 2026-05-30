@@ -8,6 +8,5 @@ const router = Router();
 router.use(authMiddleware);
 
 router.post("/flashcard", asyncHandler(aiController.askFlashcard));
-router.post("/lesson", asyncHandler(aiController.askLesson));
 
 export default router;

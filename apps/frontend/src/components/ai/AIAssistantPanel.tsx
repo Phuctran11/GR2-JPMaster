@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Card, Icon } from '../index';
-import { aiAPI, type FlashcardAiMode, type LessonAiMode } from '../../services/api';
+import { aiAPI, type FlashcardAiMode } from '../../services/api';
 import { useToastMessages } from '../../hooks/useToastMessages';
 
 type FlashcardContext = {
@@ -12,19 +12,10 @@ type FlashcardContext = {
   selectedWords?: string[] | null;
 };
 
-type LessonContext = {
-  type: 'lesson';
-  lessonTitle: string;
-  lessonContent?: string | null;
-  selectedText?: string | null;
-};
-
-type AiContext = FlashcardContext | LessonContext;
-
 interface AIAssistantPanelProps {
   title: string;
   description: string;
-  context: AiContext;
+  context: FlashcardContext;
   className?: string;
   onSaveAnswer?: (answer: string) => Promise<void> | void;
   saveAnswerLabel?: string;
@@ -35,18 +26,6 @@ const flashcardActions: Array<{ mode: FlashcardAiMode; label: string; icon: stri
   { mode: 'dialogue', label: 'Create Dialogue', icon: 'forum' },
   { mode: 'explain', label: 'Explain Word', icon: 'school' },
 ];
-
-const lessonActions: Array<{ mode: LessonAiMode; label: string; icon: string }> = [
-  { mode: 'summary', label: 'Summarize Lesson', icon: 'summarize' },
-  { mode: 'grammar', label: 'Explain Grammar', icon: 'psychology' },
-  { mode: 'explain', label: 'Explain Content', icon: 'school' },
-];
-
-const getSelectedTextLabel = (context: AiContext) => {
-  if (context.type !== 'lesson' || !context.selectedText?.trim()) return null;
-  const text = context.selectedText.trim();
-  return text.length > 160 ? `${text.slice(0, 160)}...` : text;
-};
 
 const cleanAiText = (value: string) =>
   value
@@ -63,19 +42,18 @@ export function AIAssistantPanel({
   context,
   className = '',
   onSaveAnswer,
-  saveAnswerLabel = 'Save as Note',
+  saveAnswerLabel = 'Save',
 }: AIAssistantPanelProps) {
   const toast = useToastMessages();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
-  const [loadingMode, setLoadingMode] = useState<FlashcardAiMode | LessonAiMode | null>(null);
+  const [loadingMode, setLoadingMode] = useState<FlashcardAiMode | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [savingAnswer, setSavingAnswer] = useState(false);
-  const selectedTextLabel = getSelectedTextLabel(context);
   const cleanedAnswer = cleanAiText(answer);
 
-  const askAI = async (mode: FlashcardAiMode | LessonAiMode) => {
+  const askAI = async (mode: FlashcardAiMode) => {
     if (loadingMode) return;
     if (mode === 'ask' && !question.trim()) {
       setError('Enter a question before asking AI.');
@@ -87,24 +65,15 @@ export function AIAssistantPanel({
       setError('');
       setAnswer('');
 
-      const result =
-        context.type === 'flashcard'
-          ? await aiAPI.askFlashcard({
-              mode: mode as FlashcardAiMode,
-              word: context.word,
-              meaning: context.meaning,
-              reading: context.reading,
-              exampleSentence: context.exampleSentence,
-              selectedWords: context.selectedWords,
-              question: question.trim() || null,
-            })
-          : await aiAPI.askLesson({
-              mode: mode as LessonAiMode,
-              lessonTitle: context.lessonTitle,
-              lessonContent: context.lessonContent,
-              selectedText: context.selectedText,
-              question: question.trim() || null,
-            });
+      const result = await aiAPI.askFlashcard({
+        mode,
+        word: context.word,
+        meaning: context.meaning,
+        reading: context.reading,
+        exampleSentence: context.exampleSentence,
+        selectedWords: context.selectedWords,
+        question: question.trim() || null,
+      });
 
       setAnswer(cleanAiText(result.data.text));
       setCopied(false);
@@ -115,7 +84,7 @@ export function AIAssistantPanel({
     }
   };
 
-  const actions = context.type === 'flashcard' ? flashcardActions : lessonActions;
+  const actions = flashcardActions;
   const copyAnswer = async () => {
     if (!cleanedAnswer) return;
 
@@ -135,7 +104,7 @@ export function AIAssistantPanel({
       setSavingAnswer(true);
       setError('');
       await onSaveAnswer(cleanedAnswer);
-      toast.success('AI note saved successfully.');
+      toast.success('AI answer saved successfully.');
     } catch (saveError) {
       const message = saveError instanceof Error ? saveError.message : 'Unable to save this answer.';
       setError(message);
@@ -154,13 +123,6 @@ export function AIAssistantPanel({
           <p className="mt-2 max-w-2xl text-body-md text-on-surface-variant">{description}</p>
         </div>
       </div>
-
-      {selectedTextLabel && (
-        <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-          <p className="text-label-md font-bold text-primary">Selected Text</p>
-          <p className="mt-1 text-body-md text-on-surface">{selectedTextLabel}</p>
-        </div>
-      )}
 
       <div className="mt-5 flex flex-wrap gap-3">
         {actions.map((action) => (
@@ -183,7 +145,7 @@ export function AIAssistantPanel({
           onChange={(event) => setQuestion(event.target.value)}
           rows={3}
           className="min-h-[96px] w-full resize-y rounded-lg border border-outline-variant bg-surface px-4 py-3 outline-none focus:border-primary"
-          placeholder={context.type === 'flashcard' ? 'Ask AI anything about this word...' : 'Ask AI about the lesson content or grammar...'}
+          placeholder="Ask AI anything about this word..."
         />
         <Button
           type="button"

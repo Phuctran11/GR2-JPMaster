@@ -6,7 +6,6 @@ import { OPEN_FLASHCARD_AI_EVENT } from '../hooks/flashcards/useFlashcardAiAssis
 const SCRIPT_ID = 'tudienjp-popup-script';
 const SCRIPT_SRC = 'https://tudienjp.com/popup/tudienjp.js';
 const STORAGE_KEY = 'jpmaster:tudienjp-enabled';
-const OPEN_LESSON_AI_EVENT = 'jpmaster:open-lesson-ai';
 
 const isDictionaryBlockedPath = (pathname: string) =>
   /^\/courses\/[^/]+\/lessons\/[^/]+\/quiz$/.test(pathname) ||
@@ -26,7 +25,6 @@ export function JapaneseDictionaryWidget() {
   const [open, setOpen] = useState(false);
   const checkboxRef = useRef<HTMLInputElement | null>(null);
   const location = useLocation();
-  const canOpenLessonAi = /^\/courses\/[^/]+\/lessons\/[^/]+$/.test(location.pathname);
   const canOpenFlashcardAi = /^\/flashcards\/[^/]+$/.test(location.pathname);
   const dictionaryBlocked = isDictionaryBlockedPath(location.pathname);
   const dictionaryActive = enabled && !dictionaryBlocked;
@@ -164,29 +162,6 @@ export function JapaneseDictionaryWidget() {
               <span className="block text-label-sm">
                 {dictionaryBlocked ? 'Disabled in tests' : dictionaryActive ? 'Popup enabled' : 'Popup disabled'}
               </span>
-            </span>
-          </button>
-
-          <button
-            type="button"
-            disabled={!canOpenLessonAi}
-            onClick={() => {
-              if (!canOpenLessonAi) return;
-              window.dispatchEvent(new Event(OPEN_LESSON_AI_EVENT));
-            }}
-            className={`flex min-w-[190px] items-center gap-3 rounded-xl border px-3 py-2.5 text-left shadow-lg backdrop-blur transition ${
-              canOpenLessonAi
-                ? 'border-indigo-300 bg-indigo-50 text-indigo-900 hover:bg-indigo-100'
-                : 'cursor-not-allowed border-outline-variant bg-surface-container-low text-on-surface-variant opacity-70'
-            }`}
-            title={canOpenLessonAi ? 'Open lesson AI assistant' : 'AI chat is available inside lessons only'}
-          >
-            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${canOpenLessonAi ? 'bg-indigo-600 text-white' : 'bg-outline-variant/50 text-on-surface-variant'}`}>
-              <span className="material-symbols-outlined text-[22px]">auto_awesome</span>
-            </span>
-            <span className="min-w-0">
-              <span className="block text-label-md font-black">Lesson AI</span>
-              <span className="block text-label-sm">{canOpenLessonAi ? 'Ask about this lesson' : 'Lesson only'}</span>
             </span>
           </button>
 

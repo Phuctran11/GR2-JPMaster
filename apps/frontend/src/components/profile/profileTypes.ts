@@ -1,6 +1,6 @@
 import type { LearningGoalPeriod, LearningGoalType } from '../../services/api';
 
-export type ProfileTab = 'overview' | 'progress' | 'goals' | 'achievements';
+export type ProfileTab = 'overview' | 'progress' | 'goals';
 
 export type ProfileFormValues = {
   username: string;

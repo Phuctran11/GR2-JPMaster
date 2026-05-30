@@ -56,63 +56,6 @@ CREATE INDEX idx_course_deleted_at ON "Course"(deleted_at);
 CREATE INDEX idx_course_created_by ON "Course"(created_by);
 CREATE INDEX idx_course_level ON "Course"(level);
 
-CREATE TABLE "BlogCategory" (
-    category_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL,
-    slug VARCHAR(120) UNIQUE NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE "Blog" (
-    blog_id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) UNIQUE NOT NULL,
-    excerpt TEXT,
-    content TEXT,
-    category_id INT REFERENCES "BlogCategory"(category_id) ON DELETE SET NULL,
-    cover_asset_id INT REFERENCES "CloudinaryAsset"(asset_id) ON DELETE SET NULL,
-    image_url TEXT,
-    video_asset_id INT REFERENCES "CloudinaryAsset"(asset_id) ON DELETE SET NULL,
-    video_url TEXT,
-    status VARCHAR(20) CHECK (status IN ('draft', 'published', 'archived')) DEFAULT 'draft',
-    author_id INT NOT NULL REFERENCES "User"(user_id),
-    published_at TIMESTAMP,
-    deleted_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CHECK (status <> 'published' OR published_at IS NOT NULL)
-);
-
-CREATE INDEX idx_blog_status ON "Blog"(status);
-CREATE INDEX idx_blog_author ON "Blog"(author_id);
-CREATE INDEX idx_blog_category ON "Blog"(category_id);
-CREATE INDEX idx_blog_cover_asset ON "Blog"(cover_asset_id);
-CREATE INDEX idx_blog_video_asset ON "Blog"(video_asset_id);
-CREATE INDEX idx_blog_deleted_at ON "Blog"(deleted_at);
-CREATE INDEX idx_blog_public_published ON "Blog"(status, deleted_at, published_at DESC);
-
-CREATE TABLE "BlogTag" (
-    tag_id SERIAL PRIMARY KEY,
-    name VARCHAR(80) UNIQUE NOT NULL,
-    slug VARCHAR(100) UNIQUE NOT NULL,
-    tag_type VARCHAR(30) CHECK (tag_type IN ('skill', 'jlpt_level', 'topic')) DEFAULT 'topic',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE "BlogTagMap" (
-    blog_id INT NOT NULL REFERENCES "Blog"(blog_id) ON DELETE CASCADE,
-    tag_id INT NOT NULL REFERENCES "BlogTag"(tag_id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (blog_id, tag_id)
-);
-
-CREATE INDEX idx_blog_tag_type ON "BlogTag"(tag_type);
-CREATE INDEX idx_blog_tag_map_blog ON "BlogTagMap"(blog_id);
-CREATE INDEX idx_blog_tag_map_tag ON "BlogTagMap"(tag_id);
-
 CREATE TABLE "Lesson" (
     lesson_id SERIAL PRIMARY KEY,
     course_id INT NOT NULL REFERENCES "Course"(course_id),
@@ -237,40 +180,6 @@ CREATE INDEX idx_question_jlpt_section ON "Question"(jlpt_level, section_type);
 CREATE INDEX idx_question_auto_jlpt_bank ON "Question"(section_type, jlpt_level, difficulty_level, created_by, question_id)
 WHERE deleted_at IS NULL;
 CREATE INDEX idx_question_reading_passage ON "Question"(reading_passage_id);
-
-CREATE TABLE "LessonNote" (
-    note_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
-    lesson_id INT REFERENCES "Lesson"(lesson_id) ON DELETE CASCADE,
-    question_id INT REFERENCES "Question"(question_id) ON DELETE CASCADE,
-    note_type VARCHAR(30) NOT NULL CHECK (
-        note_type IN ('text_note', 'video_note', 'highlight', 'question_note', 'ai_summary')
-    ),
-    note_content TEXT NOT NULL,
-    selected_text TEXT,
-    video_timestamp_seconds INT,
-    is_pinned BOOLEAN DEFAULT FALSE,
-    is_deleted BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_lesson_note_user ON "LessonNote"(user_id);
-CREATE INDEX idx_lesson_note_lesson ON "LessonNote"(lesson_id);
-CREATE INDEX idx_lesson_note_question ON "LessonNote"(question_id);
-CREATE INDEX idx_lesson_note_user_lesson ON "LessonNote"(user_id, lesson_id);
-CREATE UNIQUE INDEX uq_lesson_note_text_per_lesson
-ON "LessonNote"(user_id, lesson_id, note_type)
-WHERE is_deleted = FALSE AND note_type IN ('text_note', 'ai_summary');
-CREATE UNIQUE INDEX uq_lesson_note_question
-ON "LessonNote"(user_id, question_id)
-WHERE is_deleted = FALSE AND note_type = 'question_note';
-CREATE UNIQUE INDEX uq_lesson_note_video_timestamp
-ON "LessonNote"(user_id, lesson_id, video_timestamp_seconds)
-WHERE is_deleted = FALSE AND note_type = 'video_note';
-CREATE UNIQUE INDEX uq_lesson_note_highlight_text
-ON "LessonNote"(user_id, lesson_id, selected_text)
-WHERE is_deleted = FALSE AND note_type = 'highlight';
 
 CREATE TABLE "Option" (
     option_id SERIAL PRIMARY KEY,
@@ -562,38 +471,3 @@ CREATE INDEX idx_goal_progress_goal_date ON "GoalProgress"(goal_id, progress_dat
 CREATE INDEX idx_goal_progress_completed ON "GoalProgress"(completed);
 CREATE INDEX idx_goal_progress_user_completed_date ON "GoalProgress"(user_id, completed, progress_date);
 
-CREATE TABLE "Achievement" (
-    achievement_id SERIAL PRIMARY KEY,
-    code VARCHAR(80) UNIQUE NOT NULL,
-    name VARCHAR(120) NOT NULL,
-    description TEXT,
-    badge_icon VARCHAR(80),
-    badge_color VARCHAR(30),
-    achievement_type VARCHAR(30) NOT NULL CHECK (
-        achievement_type IN ('streak', 'lesson', 'quiz', 'score', 'time', 'goal', 'jlpt', 'course')
-    ),
-    tier VARCHAR(20) NOT NULL DEFAULT 'bronze' CHECK (
-        tier IN ('bronze', 'silver', 'gold', 'platinum')
-    ),
-    condition_key VARCHAR(80) NOT NULL,
-    condition_value INT NOT NULL CHECK (condition_value > 0),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_achievement_type ON "Achievement"(achievement_type);
-CREATE INDEX idx_achievement_tier ON "Achievement"(tier);
-CREATE INDEX idx_achievement_condition ON "Achievement"(condition_key, condition_value);
-CREATE INDEX idx_achievement_type_condition ON "Achievement"(achievement_type, condition_key, condition_value);
-
-CREATE TABLE "UserAchievement" (
-    user_achievement_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES "User"(user_id) ON DELETE CASCADE,
-    achievement_id INT NOT NULL REFERENCES "Achievement"(achievement_id) ON DELETE CASCADE,
-    earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    metadata JSONB,
-    UNIQUE (user_id, achievement_id)
-);
-
-CREATE INDEX idx_user_achievement_user ON "UserAchievement"(user_id);
-CREATE INDEX idx_user_achievement_achievement ON "UserAchievement"(achievement_id);
-CREATE INDEX idx_user_achievement_earned_at ON "UserAchievement"(earned_at);

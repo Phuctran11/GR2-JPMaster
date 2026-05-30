@@ -3,7 +3,7 @@ import enrollmentModel from "../../models/enrollments/enrollment.model.js";
 import quizModel from "../../models/quizzes/quiz.model.js";
 import { ApiError } from "../../utils/http.js";
 import { requireCourseAccess } from "./enrollmentAccess.service.js";
-import learningActivityService from "../achievements/learningActivity.service.js";
+import learningActivityService from "../learning-activity/learningActivity.service.js";
 
 type LessonCompletionContext = {
   lesson: NonNullable<Awaited<ReturnType<typeof courseModel.getLessonByCourseAndLessonId>>>;

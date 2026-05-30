@@ -74,7 +74,7 @@ export function LessonFlashcardDialog({
                 className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md text-on-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 value={draft.reading}
                 onChange={(event) => onUpdateDraft({ reading: event.target.value })}
-                placeholder="Kana, romaji, or pronunciation note"
+                placeholder="Kana, romaji, or pronunciation hint"
               />
             </label>
             <label className="block">

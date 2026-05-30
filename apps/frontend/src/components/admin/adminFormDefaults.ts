@@ -1,5 +1,4 @@
 import type {
-  AdminBlogStatus,
   AdminJlptLevel,
   AdminQuestionType,
   AdminQuizType,
@@ -79,17 +78,4 @@ export const emptyAutoJlptQuestions = {
   medium: 0,
   hard: 0,
   expert: 0,
-};
-export const emptyBlog = {
-  title: '',
-  slug: '',
-  excerpt: '',
-  content: '',
-  category: '',
-  tags: '',
-  cover_asset_id: null as number | null,
-  image_url: '',
-  video_asset_id: null as number | null,
-  video_url: '',
-  status: 'draft' as AdminBlogStatus,
 };

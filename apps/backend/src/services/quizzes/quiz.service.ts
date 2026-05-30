@@ -3,7 +3,7 @@ import courseModel from "../../models/courses/course.model.js";
 import enrollmentModel from "../../models/enrollments/enrollment.model.js";
 import quizModel, { QuizAnswerInput } from "../../models/quizzes/quiz.model.js";
 import { ApiError } from "../../utils/http.js";
-import learningActivityService from "../achievements/learningActivity.service.js";
+import learningActivityService from "../learning-activity/learningActivity.service.js";
 import { requireLessonProgressAccess } from "../enrollments/enrollmentAccess.service.js";
 
 export class QuizService {

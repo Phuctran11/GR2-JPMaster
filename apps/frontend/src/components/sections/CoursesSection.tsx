@@ -53,7 +53,7 @@ export function FeaturedCoursesSection() {
   };
 
   return (
-    <Section bgColor="dark">
+    <Section bgColor="muted">
       <div
         className="absolute top-0 right-0 w-full h-full opacity-[0.03] pointer-events-none"
         style={{

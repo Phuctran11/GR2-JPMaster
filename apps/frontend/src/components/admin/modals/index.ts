@@ -1,4 +1,3 @@
-export { BlogFormModal } from './BlogFormModal';
 export { CourseFormModal } from './CourseFormModal';
 export { UserFormModal } from './UserFormModal';
 export { AutoJlptQuestionsModal } from './AutoJlptQuestionsModal';

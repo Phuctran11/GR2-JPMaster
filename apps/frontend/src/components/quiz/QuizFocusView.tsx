@@ -6,13 +6,7 @@ import { QuizFocusResultBanner } from './QuizFocusResultBanner';
 
 type QuizFocusController = ReturnType<typeof useQuizFocusController>;
 
-export function QuizFocusView({
-  controller,
-  lessonId,
-}: {
-  controller: QuizFocusController;
-  lessonId?: string;
-}) {
+export function QuizFocusView({ controller }: { controller: QuizFocusController }) {
   const {
     isFinalTest,
     quiz,
@@ -81,7 +75,6 @@ export function QuizFocusView({
             submitSignal={submitSignal}
             onSubmitted={handleSubmitted}
             onRetake={handleRetake}
-            lessonId={lessonId ? parseInt(lessonId) : quiz.lesson_id ?? undefined}
           />
         </div>
       </Container>

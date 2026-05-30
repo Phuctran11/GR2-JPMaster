@@ -1,23 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header, Footer, Container, Breadcrumbs } from '../components';
 import {
   LessonActions,
-  LessonAiAssistantModal,
   LessonContent,
   LessonFlashcardDialog,
   LessonHeaderSection,
   LessonMedia,
-  LessonNoteDialog,
   LessonSidebarPanels,
   LessonStatusPage,
 } from '../components/lesson';
-import { NoteComposer } from '../components/notes';
-import { useLessonAiAssistant } from '../hooks/lesson/useLessonAiAssistant';
 import { useLessonData } from '../hooks/lesson/useLessonData';
 import { useLessonFlashcards } from '../hooks/lesson/useLessonFlashcards';
 import { useLessonLayout } from '../hooks/lesson/useLessonLayout';
-import { useLessonNotes } from '../hooks/lesson/useLessonNotes';
 import { useLessonProgressActions } from '../hooks/lesson/useLessonProgressActions';
 import { useLessonQuiz } from '../hooks/lesson/useLessonQuiz';
 import { useToastMessages } from '../hooks/useToastMessages';
@@ -37,7 +32,6 @@ export default function Lesson() {
     hasNextLesson,
     progressPercent,
   } = useLessonData({ courseId, lessonId });
-  const [highlightText, setHighlightText] = useState<string | null>(null);
   const {
     isSidebarOpen,
     setIsSidebarOpen,
@@ -48,12 +42,6 @@ export default function Lesson() {
     lessonMainRef,
     handleToggleStudyMode,
   } = useLessonLayout({ loading, lessonId, courseName });
-  const {
-    aiSelectedText,
-    isAiAssistantOpen,
-    handleAskAIAboutSelection,
-    closeAiAssistant,
-  } = useLessonAiAssistant({ lessonId });
   const { lessonQuiz, quizLoading, lessonQuizPassed } = useLessonQuiz({ courseId, currentLesson });
   const {
     actionLoading,
@@ -68,18 +56,6 @@ export default function Lesson() {
     setLessons,
     navigate,
   });
-  const {
-    textNote,
-    videoNotes,
-    highlightNotes,
-    activeHighlightNote,
-    videoNoteDraft,
-    setVideoNoteDraft,
-    handleNoteSaved,
-    handleNoteDeleted,
-    handleSaveAiSummaryNote,
-    handleAddVideoNote,
-  } = useLessonNotes({ currentLesson, highlightText, aiSelectedText });
   const {
     flashcardCollections,
     flashcardCollectionLoading,
@@ -195,9 +171,6 @@ export default function Lesson() {
                 <section className={isStudyMode ? 'min-w-0 xl:self-start' : ''}>
                   <LessonMedia
                     lesson={currentLesson}
-                    videoNotes={videoNotes}
-                    onAddVideoNote={handleAddVideoNote}
-                    onEditVideoNote={(note) => setVideoNoteDraft({ timestamp: note.video_timestamp_seconds ?? 0, note })}
                   />
                 </section>
               )}
@@ -207,47 +180,8 @@ export default function Lesson() {
                   lesson={currentLesson}
                   isStudyMode={isStudyMode}
                   articleRef={lessonContentRef}
-                  onAddHighlightNote={setHighlightText}
                   onSaveFlashcard={handleSaveSelectionFlashcard}
-                  onAskAIAboutSelection={handleAskAIAboutSelection}
-                  highlightNotes={highlightNotes}
                 />
-
-                <NoteComposer
-                  lessonId={currentLesson.lesson_id}
-                  noteType="text_note"
-                  existingNote={textNote}
-                  title="Lesson note"
-                  placeholder="Grammar note, vocabulary tip, lesson summary..."
-                  onSaved={handleNoteSaved}
-                  onDeleted={handleNoteDeleted}
-                />
-
-              {highlightText && (
-                <LessonNoteDialog
-                  lessonId={currentLesson.lesson_id}
-                  noteType="highlight"
-                  selectedText={highlightText}
-                  existingNote={activeHighlightNote}
-                  title="Add highlight note"
-                  onSaved={handleNoteSaved}
-                  onDeleted={handleNoteDeleted}
-                  onClose={() => setHighlightText(null)}
-                />
-              )}
-
-              {videoNoteDraft && (
-                <LessonNoteDialog
-                  lessonId={currentLesson.lesson_id}
-                  noteType="video_note"
-                  videoTimestampSeconds={videoNoteDraft.timestamp ?? 0}
-                  existingNote={videoNoteDraft.note}
-                  title={videoNoteDraft.note ? 'Edit video note' : 'Add video note'}
-                  onSaved={handleNoteSaved}
-                  onDeleted={handleNoteDeleted}
-                  onClose={() => setVideoNoteDraft(null)}
-                />
-              )}
 
               {flashcardDraft && (
                 <LessonFlashcardDialog
@@ -328,15 +262,6 @@ export default function Lesson() {
           </Container>
         </main>
       </div>
-
-      {isAiAssistantOpen && (
-        <LessonAiAssistantModal
-          lesson={currentLesson}
-          selectedText={aiSelectedText}
-          onClose={closeAiAssistant}
-          onSaveAnswer={handleSaveAiSummaryNote}
-        />
-      )}
 
       <Footer />
     </div>

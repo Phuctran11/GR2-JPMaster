@@ -6,7 +6,6 @@ export const tabs: Array<{ id: AdminTab; label: string; icon: string }> = [
   { id: 'courses', label: 'Courses & Lessons', icon: 'school' },
   { id: 'tests', label: 'Quizzes', icon: 'quiz' },
   { id: 'jlpt', label: 'JLPT Tests', icon: 'assignment' },
-  { id: 'blogs', label: 'Blogs', icon: 'article' },
   { id: 'payments', label: 'Payments', icon: 'payments' },
 ];
 

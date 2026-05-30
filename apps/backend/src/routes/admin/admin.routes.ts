@@ -3,7 +3,6 @@ import adminStatsController from "../../controllers/admin/stats.controller.js";
 import adminMiddleware from "../../middlewares/admin.middleware.js";
 import { asyncHandler } from "../../utils/http.js";
 import assetsRoutes from "./assets.routes.js";
-import blogsRoutes from "./blogs.routes.js";
 import coursesRoutes from "./courses.routes.js";
 import jlptRoutes from "./jlpt.routes.js";
 import lessonsRoutes from "./lessons.routes.js";
@@ -22,7 +21,6 @@ router.use("/courses", coursesRoutes);
 router.use("/lessons", lessonsRoutes);
 router.use("/tests", testsRoutes);
 router.use(jlptRoutes);
-router.use("/blogs", blogsRoutes);
 router.use("/payments", paymentsRoutes);
 
 export default router;

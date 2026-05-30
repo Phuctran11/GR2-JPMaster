@@ -24,7 +24,7 @@ INSERT INTO public."User" (user_id, username, email, password_hash, role, create
 ('14', 'admin1', 'admin1@gmail.com', '$2a$10$rClRmgW78xNRP/WAKcdMcePt7BrgzxjtFceb5gHG3YGfMs4Nlec7i', 'admin', '2026-05-21 22:50:20.757418', '2026-05-26 00:46:35.766957', 'active', NULL, 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779731195/jpmaster/avatars/image/upload-1779731193713_pkmnpv.jpg'),
 ('17', 'Phúc Trần', 'trancaobaophuc2019@gmail.com', '$2a$10$be29itNOTDglVp5DnNEvdOeQ79yBWdWeej4NtCZMadXFhuCB.Z1MW', 'learner', '2026-05-26 16:21:36.220804', '2026-05-26 16:21:36.220804', 'active', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocK61ywA772vaN6Wz-npc2hpEb-WNokb8q-1YhqxIhT8o9eHZQ=s96-c');
 
--- CloudinaryAsset: 74 rows
+-- CloudinaryAsset: 60 rows
 INSERT INTO public."CloudinaryAsset" (asset_id, public_id, secure_url, resource_type, media_kind, format, bytes, width, height, duration_seconds, folder, original_filename, uploaded_by, created_at, updated_at) VALUES
 ('1', 'jpmaster/courses/image/file_yoo8l3', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779383412/jpmaster/courses/image/file_yoo8l3.jpg', 'image', 'image', 'jpg', '14627', '301', '167', NULL, 'jpmaster/courses/image', 'hoian1.jfif', '14', '2026-05-22 00:10:14.404753', '2026-05-22 00:10:14.404753'),
 ('2', 'jpmaster/lessons/audio/file_ohwckm', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779384048/jpmaster/lessons/audio/file_ohwckm.wav', 'video', 'audio', 'wav', '526890', '0', '0', '5.49', 'jpmaster/lessons/audio', 'course25_lesson1.mp3', '14', '2026-05-22 00:20:50.01684', '2026-05-22 00:20:50.01684'),
@@ -57,14 +57,7 @@ INSERT INTO public."CloudinaryAsset" (asset_id, public_id, secure_url, resource_
 ('29', 'jpmaster/reading-passages/image/file_kuyfny', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779555232/jpmaster/reading-passages/image/file_kuyfny.jpg', 'image', 'image', 'jpg', '10878', '297', '170', NULL, 'jpmaster/reading-passages/image', 'take_picture.jfif', '15', '2026-05-23 23:53:55.298916', '2026-05-23 23:53:55.298916'),
 ('30', 'jpmaster/jlpt-sections/audio/file_fnsjdy', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779555482/jpmaster/jlpt-sections/audio/file_fnsjdy.mp3', 'video', 'audio', 'mp3', '38736', '0', '0', '6.46', 'jpmaster/jlpt-sections/audio', 'course25_lesson1.mp3', '15', '2026-05-23 23:58:04.243066', '2026-05-23 23:58:04.243066'),
 ('31', 'jpmaster/flashcards/image/file_nxckfy', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779597658/jpmaster/flashcards/image/file_nxckfy.jpg', 'image', 'image', 'jpg', '94252', '900', '600', NULL, 'jpmaster/flashcards/image', 'hakone1.jpg', '8', '2026-05-24 11:41:01.19261', '2026-05-24 11:41:01.19261'),
-('32', 'jpmaster/blogs/image/file_gunut4', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779600228/jpmaster/blogs/image/file_gunut4.jpg', 'image', 'image', 'jpg', '183028', '1200', '630', NULL, 'jpmaster/blogs/image', 'giffu 1.jpg', '15', '2026-05-24 12:23:50.640055', '2026-05-24 12:23:50.640055'),
-('33', 'jpmaster/blogs/video/file_iruhz3', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779600240/jpmaster/blogs/video/file_iruhz3.mp4', 'video', 'video', 'mp4', '11323332', '1280', '720', '86.03', 'jpmaster/blogs/video', 'todolist.mp4', '15', '2026-05-24 12:24:04.216995', '2026-05-24 12:24:04.216995'),
-('34', 'jpmaster/blogs/image/file_krcowi', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779600401/jpmaster/blogs/image/file_krcowi.jpg', 'image', 'image', 'jpg', '15518', '275', '183', NULL, 'jpmaster/blogs/image', 'gion1.jfif', '15', '2026-05-24 12:26:44.625633', '2026-05-24 12:26:44.625633'),
-('35', 'jpmaster/blogs/video/file_o4lniw', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779600409/jpmaster/blogs/video/file_o4lniw.mp4', 'video', 'video', 'mp4', '11323332', '1280', '720', '86.03', 'jpmaster/blogs/video', 'todolist.mp4', '15', '2026-05-24 12:26:53.088764', '2026-05-24 12:26:53.088764'),
 ('36', 'jpmaster/questions/image/file_hy9c2e', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779601140/jpmaster/questions/image/file_hy9c2e.jpg', 'image', 'image', 'jpg', '94252', '900', '600', NULL, 'jpmaster/questions/image', 'hakone1.jpg', '15', '2026-05-24 12:39:03.284891', '2026-05-24 12:39:03.284891'),
-('37', 'jpmaster/blog/image/file_sqhgjp', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779601517/jpmaster/blog/image/file_sqhgjp.webp', 'image', 'image', 'webp', '104294', '800', '600', NULL, 'jpmaster/blog/image', 'hakone3.webp', '14', '2026-05-24 12:45:19.903564', '2026-05-24 12:45:19.903564'),
-('38', 'jpmaster/blog/image/hakone2_jwrmwi', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779601716/jpmaster/blog/image/hakone2_jwrmwi.webp', 'image', 'image', 'webp', '34336', '750', '500', NULL, 'jpmaster/blog/image', 'hakone2.webp', '14', '2026-05-24 12:48:38.787642', '2026-05-24 12:48:38.787642'),
-('39', 'jpmaster/blog/video/file_vi465w', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779601755/jpmaster/blog/video/file_vi465w.mp4', 'video', 'video', 'mp4', '33794249', '1920', '1080', '98.27', 'jpmaster/blog/video', 'COMSLATOR VERS 2.mp4', '14', '2026-05-24 12:49:20.380828', '2026-05-24 12:49:20.380828'),
 ('40', 'jpmaster/courses/image/upload-1779602197837_a2h6gv', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779602197/jpmaster/courses/image/upload-1779602197837_a2h6gv.webp', 'image', 'image', 'webp', '104294', '800', '600', NULL, 'jpmaster/courses/image', 'hakone3.webp', '14', '2026-05-24 12:56:40.285798', '2026-05-24 12:56:40.285798'),
 ('41', 'jpmaster/lessons/audio/upload-1779602340943_dr5ki6', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779602398/jpmaster/lessons/audio/upload-1779602340943_dr5ki6.mp3', 'video', 'audio', 'mp3', '38736', '0', '0', '6.46', 'jpmaster/lessons/audio', 'course25_lesson1.mp3', '14', '2026-05-24 13:00:01.54828', '2026-05-24 13:00:01.54828'),
 ('42', 'jpmaster/lessons/video/upload-1779602534768_j7t8hx', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779602537/jpmaster/lessons/video/upload-1779602534768_j7t8hx.mp4', 'video', 'video', 'mp4', '19015820', '1920', '1080', '148.72', 'jpmaster/lessons/video', 'Frontend_Demo.mp4', '14', '2026-05-24 13:02:20.13676', '2026-05-24 13:02:20.13676'),
@@ -73,26 +66,19 @@ INSERT INTO public."CloudinaryAsset" (asset_id, public_id, secure_url, resource_
 ('45', 'jpmaster/questions/image/upload-1779602805189_rujvms', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779602805/jpmaster/questions/image/upload-1779602805189_rujvms.png', 'image', 'image', 'png', '2450513', '1024', '1536', NULL, 'jpmaster/questions/image', 'Image20251208101812.png', '14', '2026-05-24 13:06:48.11137', '2026-05-24 13:06:48.11137'),
 ('46', 'jpmaster/lessons/video/upload-1779602822781_xe5qmg', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779602828/jpmaster/lessons/video/upload-1779602822781_xe5qmg.mp4', 'video', 'video', 'mp4', '33794249', '1920', '1080', '98.27', 'jpmaster/lessons/video', 'COMSLATOR VERS 2.mp4', '14', '2026-05-24 13:07:14.15463', '2026-05-24 13:07:14.15463'),
 ('47', 'jpmaster/lessons/audio/upload-1779602843183_gnryjx', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779602846/jpmaster/lessons/audio/upload-1779602843183_gnryjx.mp3', 'video', 'audio', 'mp3', '687721', '0', '0', '42.97', 'jpmaster/lessons/audio', 'evangelion.mp3', '14', '2026-05-24 13:07:28.954123', '2026-05-24 13:07:28.954123'),
-('48', 'jpmaster/blog/image/upload-1779602966542_rz401k', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779602966/jpmaster/blog/image/upload-1779602966542_rz401k.jpg', 'image', 'image', 'jpg', '94252', '900', '600', NULL, 'jpmaster/blog/image', 'hakone1.jpg', '14', '2026-05-24 13:09:28.773868', '2026-05-24 13:09:28.773868'),
 ('49', 'jpmaster/question-bank/image/upload-1779603051239_ph6kuv', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779603050/jpmaster/question-bank/image/upload-1779603051239_ph6kuv.jpg', 'image', 'image', 'jpg', '95947', '900', '606', NULL, 'jpmaster/question-bank/image', 'gion2.jpg', '14', '2026-05-24 13:10:53.335456', '2026-05-24 13:10:53.335456'),
 ('50', 'jpmaster/question-bank/image/upload-1779603065276_jhexoy', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779603064/jpmaster/question-bank/image/upload-1779603065276_jhexoy.png', 'image', 'image', 'png', '224819', '508', '365', NULL, 'jpmaster/question-bank/image', 'image.png', '14', '2026-05-24 13:11:07.400546', '2026-05-24 13:11:07.400546'),
 ('51', 'jpmaster/lessons/audio/upload-1779603079112_kkz0ky', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779603082/jpmaster/lessons/audio/upload-1779603079112_kkz0ky.mp3', 'video', 'audio', 'mp3', '687721', '0', '0', '42.97', 'jpmaster/lessons/audio', 'evangelion.mp3', '14', '2026-05-24 13:11:24.996529', '2026-05-24 13:11:24.996529'),
-('52', 'jpmaster/blog/image/upload-1779603237258_u3uda3', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779603236/jpmaster/blog/image/upload-1779603237258_u3uda3.jpg', 'image', 'image', 'jpg', '6535', '275', '183', NULL, 'jpmaster/blog/image', 'relax.gif', '14', '2026-05-24 13:13:58.649671', '2026-05-24 13:13:58.649671'),
 ('53', 'jpmaster/avatars/image/upload-1779636572573_qc6nkf', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779636573/jpmaster/avatars/image/upload-1779636572573_qc6nkf.png', 'image', 'image', 'png', '15701', '500', '500', NULL, 'jpmaster/avatars/image', 'JP Master_transparent-.png', '8', '2026-05-24 22:29:34.217831', '2026-05-24 22:29:34.217831'),
 ('54', 'jpmaster/avatars/image/upload-1779636579979_jaxegf', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779636580/jpmaster/avatars/image/upload-1779636579979_jaxegf.png', 'image', 'image', 'png', '18100', '500', '500', NULL, 'jpmaster/avatars/image', 'JP Master-.png', '8', '2026-05-24 22:29:41.359833', '2026-05-24 22:29:41.359833'),
 ('55', 'jpmaster/flashcards/image/upload-1779718180477_nqwvoz', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779718181/jpmaster/flashcards/image/upload-1779718180477_nqwvoz.jpg', 'image', 'image', 'jpg', '6535', '275', '183', NULL, 'jpmaster/flashcards/image', 'relax.gif', '8', '2026-05-25 21:09:42.040254', '2026-05-25 21:09:42.040254'),
 ('56', 'jpmaster/flashcards/audio/upload-1779718187139_t7lxnp', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779718188/jpmaster/flashcards/audio/upload-1779718187139_t7lxnp.mp3', 'video', 'audio', 'mp3', '38736', '0', '0', '6.46', 'jpmaster/flashcards/audio', 'course25_lesson1.mp3', '8', '2026-05-25 21:09:48.596482', '2026-05-25 21:09:48.596482'),
 ('57', 'jpmaster/flashcards/image/upload-1779718387953_qu402z', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779718389/jpmaster/flashcards/image/upload-1779718387953_qu402z.jpg', 'image', 'image', 'jpg', '62405', '800', '533', NULL, 'jpmaster/flashcards/image', 'soba-cuoi-nam.jpg', '8', '2026-05-25 21:13:09.847517', '2026-05-25 21:13:09.847517'),
 ('58', 'jpmaster/question-bank/image/upload-1779730793712_hk476i', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779730797/jpmaster/question-bank/image/upload-1779730793712_hk476i.png', 'image', 'image', 'png', '9806750', '2816', '1536', NULL, 'jpmaster/question-bank/image', 'course.png', '14', '2026-05-26 00:39:58.43886', '2026-05-26 00:39:58.43886'),
-('59', 'jpmaster/blog/image/upload-1779730939145_cg0di9', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779730942/jpmaster/blog/image/upload-1779730939145_cg0di9.png', 'image', 'image', 'png', '9806750', '2816', '1536', NULL, 'jpmaster/blog/image', 'course.png', '14', '2026-05-26 00:42:23.409204', '2026-05-26 00:42:23.409204'),
-('60', 'jpmaster/blog/video/upload-1779730947196_spjqcz', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779730960/jpmaster/blog/video/upload-1779730947196_spjqcz.mp4', 'video', 'video', 'mp4', '42819279', '1920', '1080', '84.20', 'jpmaster/blog/video', 'Project demo 2.mp4', '14', '2026-05-26 00:42:43.734202', '2026-05-26 00:42:43.734202'),
-('61', 'jpmaster/blog/video/upload-1779730972243_b8ufuz', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779730975/jpmaster/blog/video/upload-1779730972243_b8ufuz.mp4', 'video', 'video', 'mp4', '11323332', '1280', '720', '86.03', 'jpmaster/blog/video', 'todolist.mp4', '14', '2026-05-26 00:42:56.91909', '2026-05-26 00:42:56.91909'),
-('62', 'jpmaster/blog/image/upload-1779731108627_scckih', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779731109/jpmaster/blog/image/upload-1779731108627_scckih.jpg', 'image', 'image', 'jpg', '9716', '275', '183', NULL, 'jpmaster/blog/image', 'sapa2.jfif', '14', '2026-05-26 00:45:09.800336', '2026-05-26 00:45:09.800336'),
 ('63', 'jpmaster/avatars/image/upload-1779731193713_pkmnpv', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779731195/jpmaster/avatars/image/upload-1779731193713_pkmnpv.jpg', 'image', 'image', 'jpg', '76415', '1024', '1024', NULL, 'jpmaster/avatars/image', 'logo1.jfif', '14', '2026-05-26 00:46:35.74328', '2026-05-26 00:46:35.74328'),
 ('64', 'jpmaster/flashcards/image/upload-1779873388611_mmmimn', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779873391/jpmaster/flashcards/image/upload-1779873388611_mmmimn.jpg', 'image', 'image', 'jpg', '1132227', '1920', '2560', NULL, 'jpmaster/flashcards/image', '5d1191a16b5fe101b84e.jpg', '14', '2026-05-27 16:16:32.081721', '2026-05-27 16:16:32.081721'),
 ('65', 'jpmaster/question-bank/image/upload-1779875141528_hb4u8e', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779875144/jpmaster/question-bank/image/upload-1779875141528_hb4u8e.png', 'image', 'image', 'png', '475791', '800', '600', NULL, 'jpmaster/question-bank/image', 'moana_sapa_1_4a32de81a0.png', '14', '2026-05-27 16:45:45.644779', '2026-05-27 16:45:45.644779'),
 ('66', 'jpmaster/question-bank/image/upload-1779875212840_yqtxvk', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779875214/jpmaster/question-bank/image/upload-1779875212840_yqtxvk.jpg', 'image', 'image', 'jpg', '6071', '300', '168', NULL, 'jpmaster/question-bank/image', 'halong1.jfif', '14', '2026-05-27 16:46:55.191502', '2026-05-27 16:46:55.191502'),
-('67', 'jpmaster/blog/image/upload-1779875233066_dr1lc0', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779875234/jpmaster/blog/image/upload-1779875233066_dr1lc0.jpg', 'image', 'image', 'jpg', '14627', '301', '167', NULL, 'jpmaster/blog/image', 'hoian1.jfif', '14', '2026-05-27 16:47:15.049641', '2026-05-27 16:47:15.049641'),
 ('68', 'jpmaster/flashcards/image/upload-1779892017350_odgv5t', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779892018/jpmaster/flashcards/image/upload-1779892017350_odgv5t.jpg', 'image', 'image', 'jpg', '110038', '800', '450', NULL, 'jpmaster/flashcards/image', 'dalat1.jpg', '8', '2026-05-27 21:26:59.695502', '2026-05-27 21:26:59.695502'),
 ('69', 'jpmaster/flashcards/image/upload-1779898432131_pmzvvm', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779898433/jpmaster/flashcards/image/upload-1779898432131_pmzvvm.jpg', 'image', 'image', 'jpg', '62405', '800', '533', NULL, 'jpmaster/flashcards/image', 'soba-cuoi-nam.jpg', '8', '2026-05-27 23:13:54.223346', '2026-05-27 23:13:54.223346'),
 ('70', 'jpmaster/flashcards/audio/upload-1779898437462_hmeklp', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779898437/jpmaster/flashcards/audio/upload-1779898437462_hmeklp.mp3', 'video', 'audio', 'mp3', '38736', '0', '0', '6.46', 'jpmaster/flashcards/audio', 'course25_lesson1.mp3', '8', '2026-05-27 23:13:58.825913', '2026-05-27 23:13:58.825913'),
@@ -110,160 +96,6 @@ INSERT INTO public."Course" (course_id, title, description, price, created_by, c
 ('19', 'Japanese for Beginners N5', 'A beginner Japanese course for N5 learners. In this course, students will learn Hiragana and Katakana, basic vocabulary, simple sentence structures, and essential communication skills for everyday situations.', '3000.00', '6', '2026-05-14 16:04:04.018332', '2026-05-22 00:29:08.844743', 'beginner', '300', '6', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779384545/jpmaster/courses/image/file_iyxcir.webp', NULL),
 ('24', 'Free Japanese Culture Course', 'A free course introducing Japanese culture, customs, and traditions. Students will explore Japanese festivals, cuisine, arts, and unique cultural practices.', '0.00', '10', '2026-05-14 16:04:04.018332', '2026-05-22 00:29:43.773446', 'beginner', '300', '8', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779384579/jpmaster/courses/image/file_kcnqnv.jpg', NULL),
 ('23', 'Advanced Japanese Course N1', 'An advanced Japanese course designed for learners aiming to achieve the highest Japanese proficiency level. Students will study advanced grammar, specialized vocabulary, and master listening, speaking, reading, and writing skills.', '3000.00', '8', '2026-05-14 16:04:04.018332', '2026-05-22 00:29:19.295071', 'advanced', '300', '7', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779384555/jpmaster/courses/image/file_j6wwfm.jpg', NULL);
-
--- BlogCategory: 4 rows
-INSERT INTO public."BlogCategory" (category_id, name, slug, description, created_at, updated_at) VALUES
-('7', 'Japanese Study', 'japanese-study', NULL, '2026-05-24 12:28:11.970607', '2026-05-24 12:28:11.970607'),
-('13', 'Japanese Culture', 'japanese-culture', NULL, '2026-05-24 13:14:02.324008', '2026-05-24 13:14:02.324008'),
-('15', 'Japanese Entertainment', 'japanese-entertainment', NULL, '2026-05-26 00:43:00.099816', '2026-05-26 00:43:00.099816'),
-('17', 'Life in Japan', 'life-in-japan', NULL, '2026-05-26 00:45:12.900638', '2026-05-26 00:45:12.900638');
-
--- Blog: 5 rows
-INSERT INTO public."Blog" (blog_id, title, slug, excerpt, content, image_url, status, author_id, published_at, created_at, updated_at, cover_asset_id, category_id, deleted_at, video_asset_id, video_url) VALUES
-('1', '10 Essential Japanese Phrases Every Beginner Should Know', '10-essential-japanese-phrases-for-beginners', 'Master the most useful Japanese phrases for daily conversations and start speaking naturally from day one.', 'Learning a few practical Japanese phrases can dramatically improve your confidence as a beginner. Instead of memorizing isolated vocabulary, focus on expressions that Japanese people actually use every day.
-
-Here are 10 essential phrases:
-
-1. おはようございます (Ohayou gozaimasu) — Good morning
-2. こんにちは (Konnichiwa) — Hello
-3. ありがとうございます (Arigatou gozaimasu) — Thank you
-4. すみません (Sumimasen) — Excuse me / Sorry
-5. はじめまして (Hajimemashite) — Nice to meet you
-6. おねがいします (Onegaishimasu) — Please
-7. わかりません (Wakarimasen) — I don''t understand
-8. だいじょうぶです (Daijoubu desu) — It''s okay
-9. いくらですか (Ikura desu ka) — How much is it?
-10. さようなら (Sayounara) — Goodbye
-
-Practice these phrases daily and try shadowing native pronunciation from anime, dramas, or YouTube videos. Consistency matters more than studying for long hours occasionally.', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779600401/jpmaster/blogs/image/file_krcowi.jpg', 'published', '15', '2026-05-24 12:28:11.970607', '2026-05-24 12:28:11.970607', '2026-05-24 12:28:11.970607', '34', '7', NULL, '35', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779600409/jpmaster/blogs/video/file_o4lniw.mp4'),
-('2', 'How to Study Kanji Without Feeling Overwhelmed', 'how-to-study-kanji-effectively', 'Kanji may look intimidating at first, but with the right strategy you can learn them naturally and efficiently.', 'Many Japanese learners struggle with kanji because they try to memorize too much at once. The key is to build a sustainable habit.
-
-Here are some effective strategies:
-
-Learn kanji through vocabulary instead of isolated characters.
-Study radicals to recognize common patterns.
-Use spaced repetition systems like Anki.
-Write kanji by hand occasionally to improve memory.
-Review every day, even for 15 minutes.
-
-For example, instead of learning 生 alone, study words such as:
-
-学生 (student)
-先生 (teacher)
-生活 (daily life)
-
-This approach helps you understand both meaning and usage naturally.
-
-Remember: even native Japanese people spent years learning kanji. Progress slowly and consistently.', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779601716/jpmaster/blog/image/hakone2_jwrmwi.webp', 'published', '14', '2026-05-24 12:51:56.227711', '2026-05-24 12:50:19.925354', '2026-05-24 12:51:56.227711', '38', '7', NULL, '39', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779601755/jpmaster/blog/video/file_vi465w.mp4'),
-('3', '5 Japanese Cultural Rules Tourists Often Forget', '5-japanese-cultural-rules-tourists-forget', 'Understanding Japanese etiquette can make your experience in Japan smoother and more respectful.', 'Japanese culture values harmony, cleanliness, and respect for others. Small actions that seem normal in other countries may be considered rude in Japan.
-
-Here are 5 important etiquette rules:
-
-1. Don''t talk loudly on trains
-Public transportation in Japan is usually quiet.
-2. Remove your shoes indoors
-Homes, temples, and some restaurants require shoe removal.
-3. Avoid eating while walking
-In many areas, people prefer eating in designated spaces.
-4. Stand on the correct side of the escalator
-In Tokyo people usually stand on the left, while Osaka often stands on the right.
-5. Be punctual
-Arriving late is considered disrespectful in many situations.
-
-Understanding these customs helps you appreciate Japanese society more deeply and avoid uncomfortable situations.', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779603236/jpmaster/blog/image/upload-1779603237258_u3uda3.jpg', 'published', '14', '2026-05-24 13:14:16.885531', '2026-05-24 13:14:02.324008', '2026-05-24 13:14:16.885531', '52', '13', NULL, NULL, NULL),
-('4', 'Best Anime for Learning Japanese Naturally', 'best-anime-for-learning-japanese', 'Anime can become a powerful immersion tool if you choose the right series for your level.', 'Watching anime is one of the most enjoyable ways to improve listening skills and vocabulary. However, not all anime are beginner-friendly.
-
-Recommended anime for learners:
-
-しろくまカフェ (Shirokuma Cafe)
-Slow and clear conversations.
-よつばと！(Yotsuba)
-Simple daily-life vocabulary.
-君の名は (Your Name)
-Natural conversational Japanese.
-ドラえもん (Doraemon)
-Easy grammar and common expressions.
-
-Tips for studying with anime:
-
-Watch once with subtitles.
-Watch again without subtitles.
-Write down useful phrases.
-Practice shadowing.
-
-Immersion becomes much more effective when combined with active listening and repetition.', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779730942/jpmaster/blog/image/upload-1779730939145_cg0di9.png', 'published', '14', '2026-05-26 00:43:15.739823', '2026-05-26 00:43:00.099816', '2026-05-26 00:43:15.739823', '59', '15', NULL, '61', 'https://res.cloudinary.com/dawzi5py8/video/upload/v1779730975/jpmaster/blog/video/upload-1779730972243_b8ufuz.mp4'),
-('5', 'A Beginner’s Guide to Japanese Convenience Stores', 'beginners-guide-to-japanese-convenience-stores', 'Japanese convenience stores are more than just places to buy snacks — they are part of daily life in Japan.', 'Convenience stores, known as コンビニ (konbini), are everywhere in Japan. Popular chains include 7-Eleven, FamilyMart, and Lawson.
-
-What makes Japanese convenience stores special?
-
-1. Fresh meals available 24/7
-2. Clean and organized environment
-3. ATM and payment services
-4. High-quality coffee and desserts
-5. Ticket purchasing and delivery services
-
-Popular foods to try:
-
-1. おにぎり (rice balls)
-2. サンドイッチ (sandwiches)
-3. からあげ (fried chicken)
-4. メロンパン (melon bread)
-
-For many students and workers in Japan, the konbini is an essential part of everyday life because it is affordable, fast, and convenient.', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779875234/jpmaster/blog/image/upload-1779875233066_dr1lc0.jpg', 'published', '14', '2026-05-26 00:45:34.977994', '2026-05-26 00:45:12.900638', '2026-05-27 16:51:50.013726', '67', '17', NULL, NULL, NULL);
-
--- BlogTag: 23 rows
-INSERT INTO public."BlogTag" (tag_id, name, slug, tag_type, created_at, updated_at) VALUES
-('1', 'japanese', 'japanese', 'topic', '2026-05-24 12:28:11.970607', '2026-05-24 12:28:11.970607'),
-('2', 'beginner', 'beginner', 'topic', '2026-05-24 12:28:11.970607', '2026-05-24 12:28:11.970607'),
-('3', 'phrases', 'phrases', 'topic', '2026-05-24 12:28:11.970607', '2026-05-24 12:28:11.970607'),
-('4', 'conversation', 'conversation', 'topic', '2026-05-24 12:28:11.970607', '2026-05-24 12:28:11.970607'),
-('5', 'N5', 'N5', 'jlpt_level', '2026-05-24 12:28:11.970607', '2026-05-24 12:28:11.970607'),
-('9', 'JLPT', 'jlpt', 'topic', '2026-05-24 12:50:19.925354', '2026-05-24 12:50:19.925354'),
-('6', 'kanji', 'kanji', 'topic', '2026-05-24 12:50:19.925354', '2026-05-24 12:50:19.925354'),
-('7', 'memorization', 'memorization', 'topic', '2026-05-24 12:50:19.925354', '2026-05-24 12:50:19.925354'),
-('8', 'study tips', 'study-tips', 'topic', '2026-05-24 12:50:19.925354', '2026-05-24 12:50:19.925354'),
-('10', 'vocabulary', 'vocabulary', 'skill', '2026-05-24 12:50:19.925354', '2026-05-24 12:50:19.925354'),
-('18', 'etiquette', 'etiquette', 'topic', '2026-05-24 13:14:02.324008', '2026-05-24 13:14:02.324008'),
-('16', 'japan', 'japan', 'topic', '2026-05-24 13:14:02.324008', '2026-05-24 13:14:02.324008'),
-('20', 'manners', 'manners', 'topic', '2026-05-24 13:14:02.324008', '2026-05-24 13:14:02.324008'),
-('26', 'anime', 'anime', 'topic', '2026-05-26 00:43:00.099816', '2026-05-26 00:43:00.099816'),
-('29', 'immersion', 'immersion', 'topic', '2026-05-26 00:43:00.099816', '2026-05-26 00:43:00.099816'),
-('28', 'japanese learning', 'japanese-learning', 'topic', '2026-05-26 00:43:00.099816', '2026-05-26 00:43:00.099816'),
-('27', 'listening', 'listening', 'skill', '2026-05-26 00:43:00.099816', '2026-05-26 00:43:00.099816'),
-('30', 'study', 'study', 'topic', '2026-05-26 00:43:00.099816', '2026-05-26 00:43:00.099816'),
-('17', 'culture', 'culture', 'topic', '2026-05-24 13:14:02.324008', '2026-05-24 13:14:02.324008'),
-('39', 'food', 'food', 'topic', '2026-05-26 00:45:12.900638', '2026-05-26 00:45:12.900638'),
-('36', 'japan life', 'japan-life', 'topic', '2026-05-26 00:45:12.900638', '2026-05-26 00:45:12.900638'),
-('37', 'konbini', 'konbini', 'topic', '2026-05-26 00:45:12.900638', '2026-05-26 00:45:12.900638'),
-('19', 'travel', 'travel', 'topic', '2026-05-24 13:14:02.324008', '2026-05-24 13:14:02.324008');
-
--- BlogTagMap: 25 rows
-INSERT INTO public."BlogTagMap" (blog_id, tag_id, created_at) VALUES
-('1', '1', '2026-05-24 12:28:11.970607'),
-('1', '2', '2026-05-24 12:28:11.970607'),
-('1', '3', '2026-05-24 12:28:11.970607'),
-('1', '4', '2026-05-24 12:28:11.970607'),
-('1', '5', '2026-05-24 12:28:11.970607'),
-('2', '9', '2026-05-24 12:51:56.227711'),
-('2', '6', '2026-05-24 12:51:56.227711'),
-('2', '7', '2026-05-24 12:51:56.227711'),
-('2', '8', '2026-05-24 12:51:56.227711'),
-('2', '10', '2026-05-24 12:51:56.227711'),
-('3', '17', '2026-05-24 13:14:16.885531'),
-('3', '18', '2026-05-24 13:14:16.885531'),
-('3', '16', '2026-05-24 13:14:16.885531'),
-('3', '20', '2026-05-24 13:14:16.885531'),
-('3', '19', '2026-05-24 13:14:16.885531'),
-('4', '26', '2026-05-26 00:43:15.739823'),
-('4', '29', '2026-05-26 00:43:15.739823'),
-('4', '28', '2026-05-26 00:43:15.739823'),
-('4', '27', '2026-05-26 00:43:15.739823'),
-('4', '30', '2026-05-26 00:43:15.739823'),
-('5', '17', '2026-05-27 16:51:50.013726'),
-('5', '39', '2026-05-27 16:51:50.013726'),
-('5', '36', '2026-05-27 16:51:50.013726'),
-('5', '37', '2026-05-27 16:51:50.013726'),
-('5', '19', '2026-05-27 16:51:50.013726');
 
 -- Lesson: 37 rows
 INSERT INTO public."Lesson" (lesson_id, course_id, title, content_text, video_url, order_index, created_at, updated_at, duration, video_asset_id, audio_asset_id, audio_url, deleted_at) VALUES
@@ -526,232 +358,6 @@ INSERT INTO public."Question" (question_id, question_text, question_type, create
 ('173', 'これはテストために質問です。
 よく聞こえますか。', 'single_choice', '2026-05-23 23:59:34.031849', '2026-05-24 13:10:55.673909', '15', 'easy', NULL, '1.00', 'N5', 'listening', NULL, '49', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779603050/jpmaster/question-bank/image/upload-1779603051239_ph6kuv.jpg', NULL, NULL, NULL),
 ('1', '「きのう、友だちと（　）を見ました。」', 'single_choice', '2026-05-17 21:05:05.591796', '2026-05-26 00:40:03.222314', NULL, 'easy', 'Correct answer is 映画 because it means movie.', '1.00', 'N5', 'vocabulary', NULL, '58', 'https://res.cloudinary.com/dawzi5py8/image/upload/v1779730797/jpmaster/question-bank/image/upload-1779730793712_hk476i.png', NULL, NULL, NULL);
-
--- LessonNote: 32 rows
-INSERT INTO public."LessonNote" (note_id, user_id, lesson_id, question_id, note_type, note_content, selected_text, video_timestamp_seconds, is_pinned, is_deleted, created_at, updated_at) VALUES
-('6', '8', '61', NULL, 'text_note', 'NOTHING!!!!!', NULL, NULL, 't', 't', '2026-05-18 23:09:50.886156', '2026-05-18 23:18:25.850816'),
-('7', '8', '61', NULL, 'text_note', 'TEST111', NULL, NULL, 't', 't', '2026-05-18 23:18:42.048695', '2026-05-18 23:21:09.994836'),
-('5', '8', '61', NULL, 'highlight', 'VĂN HÓA', '文化', NULL, 't', 'f', '2026-05-18 23:09:08.47994', '2026-05-18 23:30:02.0106'),
-('8', '8', '61', NULL, 'video_note', 'REMEMBER THIS GRAMMAR', NULL, '1588', 't', 't', '2026-05-18 23:26:29.539717', '2026-05-19 00:07:27.399964'),
-('3', '8', '61', NULL, 'video_note', 'note for test 456', NULL, '6', 't', 't', '2026-05-18 22:41:39.512206', '2026-05-19 00:07:37.447645'),
-('1', '8', '67', NULL, 'highlight', 'it''s so difficult!!', '研究、理論、分析、課題', NULL, 't', 'f', '2026-05-18 22:39:13.581408', '2026-05-19 22:54:04.922299'),
-('4', '8', '62', '1', 'question_note', 'check this out for grammar test', NULL, NULL, 't', 'f', '2026-05-18 22:42:57.952012', '2026-05-19 22:54:09.316049'),
-('10', '8', '61', NULL, 'video_note', 'so difficult mondai', NULL, '3018', 't', 'f', '2026-05-19 22:57:25.602176', '2026-05-19 23:19:06.072521'),
-('9', '8', '61', NULL, 'text_note', '123', NULL, NULL, 't', 't', '2026-05-18 23:30:29.054385', '2026-05-19 23:19:35.136414'),
-('12', '8', NULL, '2', 'question_note', 'check it out later', NULL, NULL, 't', 'f', '2026-05-20 22:12:04.879999', '2026-05-20 22:12:04.879999'),
-('13', '8', NULL, '7', 'question_note', 'so easy game', NULL, NULL, 'f', 'f', '2026-05-20 22:12:25.474622', '2026-05-20 22:12:25.474622'),
-('14', '8', NULL, '6', 'question_note', 'YEAH!!!', NULL, NULL, 't', 'f', '2026-05-20 22:13:52.458158', '2026-05-20 22:13:56.602199'),
-('2', '8', '67', NULL, 'text_note', 'easy game!', NULL, NULL, 't', 'f', '2026-05-18 22:40:00.550819', '2026-05-20 22:49:51.120931'),
-('15', '13', '66', NULL, 'video_note', 'Why does it like that?', NULL, '1829', 't', 'f', '2026-05-21 16:00:47.173852', '2026-05-21 16:00:47.173852'),
-('16', '13', '66', NULL, 'ai_summary', 'This lesson serves as an introduction to your Japanese learning journey.
-
-Key Points
-- Goal Setting: Defining your specific reasons for learning Japanese (e.g., travel, business, JLPT exams) to maintain motivation.
-- Study Methodology: Establishing a consistent routine and selecting appropriate resources (textbooks, apps, or conversation practice).
-
-Grammar and Vocabulary
-The content uses the following structures:
-
-1. ～を紹介します (〜o shōkai shimasu)
-- Pattern: [Noun] + を + 紹介します
-- Usage: Used to introduce or present something to someone.
-- Example: 学習ロードマップを紹介します。
-       (Gakushū rōdomappu o shōkai shimasu.)*
-- I will introduce the learning roadmap.
-
-2. Noun + と + Noun
-- Pattern: [Noun A] + と + [Noun B]
-   Usage: The particle to* acts as "and," connecting two nouns.
-- Example: 目標設定と勉強方法。
-       (Mokuhyō settei to benkyō hōhō.)*
-- Goal setting and study methods.
-
-Important Takeaway
-The roadmap emphasizes that structure is essential. Before diving into grammar or vocabulary, define your goals (what you want to achieve) and your study methods (how you will practice daily) to ensure long-term success.', NULL, NULL, 'f', 'f', '2026-05-21 16:20:12.841933', '2026-05-21 16:20:14.204044'),
-('17', '8', '68', NULL, 'ai_summary', 'This lesson focuses on practicing writing sentences in Japanese based on the topic of your future.
-
-Lesson Summary
-- Goal: To practice creating sentences (writing composition).
-   Topic: "My Future" (私の将来 - Watashi no shōrai*).
-
----
-
-Key Vocabulary
-- 私 (Watashi): I / My
-- 将来 (Shōrai): Future
-- について (ni tsuite): About / Regarding
-- 作文 (Sakubun): Composition / Essay / Writing practice
-
----
-
-Grammar Focus: Using 「について」 (ni tsuite)
-To express that you are writing or talking "about" a specific topic, use the particle phrase 「について」.
-- Pattern: [Topic] ＋ について
-- Usage: Place this after the noun (the topic) to indicate what the content of your writing or speech is.
-
-Examples:
-1.  私の将来について書きます。
-       Watashi no shōrai ni tsuite kakimasu.*
-- I will write about my future.
-2.  日本について勉強します。
-       Nihon ni tsuite benkyō shimasu.*
-- I will study about Japan.
-
----
-
-How to apply this to your lesson
-Since the topic is "My Future," you can start your composition by using the title or the phrase above. Here is a simple structure you can use to start:
-- 私の将来について
-    (Watashi no shōrai ni tsuite)
-    "About My Future"
-- 私は将来、[Job/Goal] になりたいです。
-    (Watashi wa shōrai, [Job/Goal] ni naritai desu.)
-    "In the future, I want to become a [Job/Goal]."
-
-Note: If you have a specific goal or job in mind, feel free to share it, and I can help you translate it into Japanese for your writing practice.', NULL, NULL, 'f', 'f', '2026-05-22 23:35:37.624452', '2026-05-22 23:35:37.624452'),
-('19', '8', '69', NULL, 'highlight', 'need to look up the meaning :00', 'ディスカッション', NULL, 'f', 'f', '2026-05-23 16:33:28.007417', '2026-05-23 16:33:28.007417'),
-('20', '8', '69', NULL, 'highlight', 'Hội thoại', '会話', NULL, 'f', 'f', '2026-05-23 23:07:41.399877', '2026-05-23 23:07:41.399877'),
-('18', '8', '69', NULL, 'ai_summary', 'Lesson 4: Advanced Conversation (上級会話 - Jōkyū Kaiwa)
-
-This lesson focuses on transitioning from basic sentence structures to Advanced Conversation and Discussion Practice.
-
----
-
-Key Objectives
-- Advanced Conversation (上級会話 - Jōkyū Kaiwa): Moving beyond simple daily greetings to expressing opinions, debating topics, and using more complex sentence structures.
-- Discussion Practice (ディスカッション練習 - Disukasshon Renshū): Practicing how to logically organize your thoughts and respond to others in a conversational setting.
-
----
-
-Grammar & Patterns for Discussion
-To participate in advanced discussions, you will need to practice these three essential functions:
-
-1. Expressing an Opinion
-Use this to state your stance clearly.
-- Pattern: [Opinion] + と思います (to omoimasu).
-- Example: 私は、環境を守ることは大切だと思います。
-       Watashi wa, kankyō o mamoru koto wa taisetsu da to omoimasu.*
-- "I think that protecting the environment is important."
-
-2. Giving a Reason
-Use this to support your opinion.
-- Pattern: [Reason] + からです (kara desu).
-- Example: なぜなら、未来の世代のためだからです。
-       Nazenara, mirai no sedai no tame dakara desu.*
-- "That is because it is for future generations."
-
-3. Agreeing or Disagreeing
-Use these phrases to manage the flow of conversation.
-- Agreeing: 同感です (Dōkan desu) — "I agree / I feel the same."
-- Disagreeing (Polite): 確かにそうですが、〜 (Tashika ni sō desu ga,...) — "That is certainly true, but..."
-
----
-
-How to Prepare
-Since the specific topic is not provided, you should prepare by:
-1.  Choosing a current event or social issue (e.g., technology, environment, work-life balance).
-2.  Listing key vocabulary related to that topic.
-3.  Drafting 2–3 sentences using the "Opinion + Reason" structure above.
-
-Note: As the lesson content provided is a general outline, focus on practicing logical flow (stating your point, then explaining why) rather than memorizing complex grammar.', NULL, NULL, 'f', 'f', '2026-05-23 16:30:30.551536', '2026-05-23 16:32:44.62464'),
-('22', '8', '66', NULL, 'video_note', 'WOA!!!! AMAZING!!!!', NULL, '68', 'f', 'f', '2026-05-25 21:12:13.849537', '2026-05-25 21:12:20.317252'),
-('23', '8', '66', NULL, 'ai_summary', 'Meaning
-The word 学習 (gakushū) means "learning" or "study." It typically refers to the process of acquiring knowledge or skills through experience, practice, or study.
-
-Synonyms
-While these words are similar, they have slight nuances in usage:
-
-1.  勉強 (benkyō): The most common word for "study." It is broader and often refers to academic study, practicing skills, or even gaining experience from a situation.
-2.  習得 (shūtoku): Means "acquisition" or "mastery." It is used when you have successfully learned a specific skill or language (e.g., eigo no shūtoku - language acquisition).
-3.  研究 (kenkyū): Means "research" or "investigation." This is used for deeper, more academic study or analyzing a specific subject.
-
-Usage in Lesson Context
-In your lesson title (学習ロードマップ - Gakushū rōdomappu), 学習 is used because it sounds more formal and structured than benkyō. It implies a systematic approach to learning a subject.
-
-Example Sentence:
-- 日本語の学習を始めます。
-   Nihongo no gakushū o hajimemasu.*
-- I will begin my Japanese studies.
-
-Grammar Note:
-- Pattern: [Noun] + を + 学習する (gakushū suru)
-- Usage: You can turn the noun into a verb by adding する (suru).
-   Example: 英語を学習します (Eigo o gakushū shimasu* - I study English).', '学習', NULL, 'f', 'f', '2026-05-25 21:14:43.107566', '2026-05-25 21:14:43.107566'),
-('24', '8', '52', NULL, 'highlight', 'level up', '上級', NULL, 't', 'f', '2026-05-26 13:57:15.055878', '2026-05-26 13:57:15.055878'),
-('25', '8', '52', '17', 'question_note', 'something is wrong! :))', NULL, NULL, 'f', 'f', '2026-05-26 15:58:17.649676', '2026-05-26 15:58:17.649676'),
-('26', '14', '66', NULL, 'video_note', 'so interesting!', NULL, '41', 'f', 'f', '2026-05-27 16:14:36.561429', '2026-05-27 16:14:36.561429'),
-('21', '8', '51', NULL, 'ai_summary', 'This lesson serves as an introduction to an N2-level Japanese course. The focus of this specific section is to introduce three key vocabulary words frequently used in intermediate to advanced Japanese.
-
-New Vocabulary
-
-Here are the three words introduced in your lesson:
-
-1. 経験 (けいけん / keiken)
-- Meaning: Experience
-- Example: 日本で働く経験があります。
-- Romaji: Nihon de hataraku keiken ga arimasu.
-- Translation: I have the experience of working in Japan.
-
-2. 状況 (じょうきょう / joukyou)
-- Meaning: Situation / Circumstances
-- Example: 今の状況を説明してください。
-- Romaji: Ima no joukyou o setsumei shite kudasai.
-- Translation: Please explain the current situation.
-
-3. 社会 (しゃかい / shakai)
-- Meaning: Society
-- Example: 社会の問題について考えます。
-- Romaji: Shakai no mondai ni tsuite kangaemasu.
-- Translation: I will think about problems in society.
-
-Summary
-- Goal: This lesson provides an overview of the N2 course curriculum.
-- Key Takeaway: You are expected to learn and memorize these three nouns, as they are foundational for discussing abstract topics common in the JLPT N2 level.', '新しい単語：経験、状況、社会', NULL, 'f', 'f', '2026-05-24 22:15:25.099337', '2026-05-27 21:26:26.882331'),
-('27', '14', '66', NULL, 'ai_summary', 'Summary: Lesson 1 - Learning Roadmap
-
-This lesson serves as an introduction to your Japanese study plan, focusing on two core pillars: Goal Setting and Study Methodology.
-
----
-
-Key Takeaways
-1.  Goal Setting: Define what you want to achieve (e.g., passing a JLPT exam, conversational fluency, or reading comprehension) to determine your study pace.
-2.  Study Methodology: Establish a consistent routine, balancing vocabulary, grammar, listening, and speaking practice.
-
----
-
-Grammar & Vocabulary
-
-1. Verb: 紹介する (shoukai suru)
-- Meaning: To introduce.
-- Usage: Used when presenting information, people, or plans.
-- Example: 学習ロードマップを紹介します。
-       Gakushuu roodomappu o shoukai shimasu.*
-- "I will introduce the learning roadmap."
-
-2. Noun Compound: 目標設定 (mokuhyou settei)
-- Meaning: Goal setting.
-   Breakdown: 目標 (mokuhyou - goal) + 設定 (settei* - setting/establishment).
-- Example: 目標設定が大切です。
-       Mokuhyou settei ga taisetsu desu.*
-- "Goal setting is important."
-
-3. Noun Compound: 勉強方法 (benkyou houhou)
-- Meaning: Study method / How to study.
-   Breakdown: 勉強 (benkyou - study) + 方法 (houhou* - method).
-- Example: 新しい勉強方法を試します。
-       Atarashii benkyou houhou o tameshimasu.*
-- "I will try a new study method."
-
----
-
-Application
-To apply this lesson, write down one specific goal for your Japanese learning (e.g., "I want to learn 500 words") and choose one consistent study method (e.g., "I will study for 15 minutes every morning").', '紹介', NULL, 'f', 'f', '2026-05-27 16:14:51.553072', '2026-05-27 16:14:51.553072'),
-('29', '14', '67', NULL, 'text_note', 'Amazing! This is so helpful! Should note it and practice more in life.', NULL, NULL, 't', 'f', '2026-05-27 16:17:55.179979', '2026-05-27 16:17:55.179979'),
-('30', '14', '67', '2', 'question_note', 'May be in the next test in Friday.', NULL, NULL, 'f', 'f', '2026-05-27 16:18:27.402769', '2026-05-27 16:18:43.472816'),
-('28', '14', '66', NULL, 'highlight', 'Meaning: Giới thiệu', '紹介します', NULL, 't', 'f', '2026-05-27 16:15:16.002029', '2026-05-27 16:31:57.252999'),
-('31', '14', '67', NULL, 'video_note', 'remember!!!', NULL, '30', 'f', 't', '2026-05-27 20:16:28.079548', '2026-05-27 20:16:41.246357'),
-('32', '14', '67', NULL, 'video_note', 'remember!!', NULL, '30', 'f', 'f', '2026-05-27 20:16:49.122737', '2026-05-27 20:16:49.122737'),
-('33', '8', '51', NULL, 'video_note', 'soudesune.', NULL, '1924', 'f', 'f', '2026-05-27 21:25:18.126259', '2026-05-27 21:25:18.126259');
 
 -- Option: 692 rows
 INSERT INTO public."Option" (option_id, question_id, option_text, is_correct, created_at, updated_at, explanation) VALUES
@@ -2282,57 +1888,6 @@ INSERT INTO public."GoalProgress" (progress_id, goal_id, user_id, progress_date,
 ('1', '1', '8', '2026-05-24', '2', '2', 't', '2026-05-24 17:07:08.388041', '2026-05-24 22:19:27.203246'),
 ('3', '2', '8', '2026-05-25', '2', '2', 't', '2026-05-25 21:08:58.442083', '2026-05-26 16:01:57.80653');
 
--- Achievement: 24 rows
-INSERT INTO public."Achievement" (achievement_id, code, name, description, badge_icon, badge_color, achievement_type, tier, condition_key, condition_value, created_at) VALUES
-('5', 'quiz_10', 'Quiz Explorer', 'Submit 10 quizzes.', 'quiz', 'blue', 'quiz', 'silver', 'completed_quizzes', '10', '2026-05-24 15:56:31.37933'),
-('7', 'streak_7', '7-Day Streak', 'Study 7 days in a row.', 'local_fire_department', 'orange', 'streak', 'silver', 'study_streak_days', '7', '2026-05-24 15:56:31.37933'),
-('8', 'streak_30', '30-Day Streak', 'Study 30 days in a row.', 'local_fire_department', 'red', 'streak', 'gold', 'study_streak_days', '30', '2026-05-24 15:56:31.37933'),
-('1', 'first_lesson', 'First Step', 'Complete your first lesson.', 'menu_book', 'green', 'lesson', 'bronze', 'completed_lessons', '1', '2026-05-24 15:56:31.37933'),
-('2', 'lesson_10', 'Lesson Starter', 'Complete 10 lessons.', 'school', 'bronze', 'lesson', 'bronze', 'completed_lessons', '10', '2026-05-24 15:56:31.37933'),
-('14', 'lesson_20', 'Lesson Builder', 'Complete 20 lessons.', 'school', 'silver', 'lesson', 'silver', 'completed_lessons', '20', '2026-05-24 17:16:33.174921'),
-('3', 'lesson_50', 'Lesson Master', 'Complete 50 lessons.', 'workspace_premium', 'gold', 'lesson', 'gold', 'completed_lessons', '50', '2026-05-24 15:56:31.37933'),
-('16', 'lesson_100', 'Lesson Legend', 'Complete 100 lessons.', 'military_tech', 'platinum', 'lesson', 'platinum', 'completed_lessons', '100', '2026-05-24 17:16:33.174921'),
-('4', 'first_quiz', 'First Quiz', 'Submit your first quiz.', 'quiz', 'green', 'quiz', 'bronze', 'completed_quizzes', '1', '2026-05-24 15:56:31.37933'),
-('18', 'quiz_5', 'Quiz Starter', 'Submit 5 quizzes.', 'quiz', 'bronze', 'quiz', 'bronze', 'completed_quizzes', '5', '2026-05-24 17:16:33.174921'),
-('19', 'quiz_20', 'Quiz Explorer', 'Submit 20 quizzes.', 'quiz', 'silver', 'quiz', 'silver', 'completed_quizzes', '20', '2026-05-24 17:16:33.174921'),
-('20', 'quiz_50', 'Quiz Specialist', 'Submit 50 quizzes.', 'psychology', 'gold', 'quiz', 'gold', 'completed_quizzes', '50', '2026-05-24 17:16:33.174921'),
-('21', 'quiz_100', 'Quiz Champion', 'Submit 100 quizzes.', 'military_tech', 'platinum', 'quiz', 'platinum', 'completed_quizzes', '100', '2026-05-24 17:16:33.174921'),
-('6', 'score_90', 'High Scorer', 'Score at least 90 once.', 'military_tech', 'gold', 'score', 'gold', 'score_at_least', '90', '2026-05-24 15:56:31.37933'),
-('23', 'score_100', 'Perfect Score', 'Score 100 once.', 'workspace_premium', 'platinum', 'score', 'platinum', 'score_at_least', '100', '2026-05-24 17:16:33.174921'),
-('24', 'study_60', 'Focused Starter', 'Study for 60 total minutes.', 'schedule', 'bronze', 'time', 'bronze', 'total_study_minutes', '60', '2026-05-24 17:16:33.174921'),
-('9', 'study_300', 'Focused Learner', 'Study for 300 total minutes.', 'schedule', 'silver', 'time', 'silver', 'total_study_minutes', '300', '2026-05-24 15:56:31.37933'),
-('26', 'study_900', 'Deep Focus', 'Study for 900 total minutes.', 'timer', 'gold', 'time', 'gold', 'total_study_minutes', '900', '2026-05-24 17:16:33.174921'),
-('27', 'study_1800', 'Study Marathon', 'Study for 1800 total minutes.', 'workspace_premium', 'platinum', 'time', 'platinum', 'total_study_minutes', '1800', '2026-05-24 17:16:33.174921'),
-('10', 'goal_7_days', 'Goal Keeper', 'Complete your goals for 7 days.', 'flag', 'silver', 'goal', 'silver', 'completed_goal_days', '7', '2026-05-24 15:56:31.37933'),
-('29', 'goal_30_days', 'Goal Streak', 'Complete your goals for 30 days.', 'flag', 'gold', 'goal', 'gold', 'completed_goal_days', '30', '2026-05-24 17:16:33.174921'),
-('11', 'jlpt_first', 'JLPT Challenger', 'Submit your first JLPT test.', 'language', 'green', 'jlpt', 'bronze', 'completed_jlpt_tests', '1', '2026-05-24 15:56:31.37933'),
-('31', 'jlpt_5', 'JLPT Trainer', 'Submit 5 JLPT tests.', 'language', 'silver', 'jlpt', 'silver', 'completed_jlpt_tests', '5', '2026-05-24 17:16:33.174921'),
-('32', 'jlpt_10', 'JLPT Warrior', 'Submit 10 JLPT tests.', 'workspace_premium', 'gold', 'jlpt', 'gold', 'completed_jlpt_tests', '10', '2026-05-24 17:16:33.174921');
-
--- UserAchievement: 17 rows
-INSERT INTO public."UserAchievement" (user_achievement_id, user_id, achievement_id, earned_at, metadata) VALUES
-('1', '8', '1', '2026-05-24 16:34:20.755417', '{}'),
-('2', '8', '4', '2026-05-24 16:34:20.755417', '{}'),
-('3', '8', '5', '2026-05-24 16:34:20.755417', '{}'),
-('4', '8', '6', '2026-05-24 16:34:20.755417', '{}'),
-('5', '8', '11', '2026-05-24 16:34:20.755417', '{}'),
-('6', '8', '2', '2026-05-24 16:35:44.464517', '{}'),
-('7', '8', '9', '2026-05-24 16:55:28.626278', '{"latest_score": 80}'),
-('8', '8', '18', '2026-05-24 22:19:27.210037', '{}'),
-('9', '8', '19', '2026-05-24 22:19:27.210037', '{}'),
-('10', '8', '23', '2026-05-24 22:19:27.210037', '{}'),
-('11', '8', '24', '2026-05-24 22:19:27.210037', '{}'),
-('12', '8', '31', '2026-05-25 21:08:58.490363', '{"latest_score": 18.52}'),
-('13', '14', '1', '2026-05-27 16:16:47.927567', '{}'),
-('14', '14', '4', '2026-05-27 16:18:49.342684', '{"latest_score": 40}'),
-('15', '14', '6', '2026-05-27 16:35:18.713051', '{"latest_score": 100}'),
-('16', '14', '23', '2026-05-27 16:35:18.713051', '{"latest_score": 100}'),
-('17', '14', '11', '2026-05-27 16:35:18.713051', '{"latest_score": 100}');
-
-SELECT pg_catalog.setval('public."Achievement_achievement_id_seq"', 32, true);
-SELECT pg_catalog.setval('public."BlogCategory_category_id_seq"', 21, true);
-SELECT pg_catalog.setval('public."BlogTag_tag_id_seq"', 55, true);
-SELECT pg_catalog.setval('public."Blog_blog_id_seq"', 5, true);
 SELECT pg_catalog.setval('public."Certificate_certificate_id_seq"', 38, true);
 SELECT pg_catalog.setval('public."CloudinaryAsset_asset_id_seq"', 74, true);
 SELECT pg_catalog.setval('public."CourseEnrollment_enrollment_id_seq"', 28, true);
@@ -2345,7 +1900,6 @@ SELECT pg_catalog.setval('public."JLPTExam_exam_id_seq"', 3, true);
 SELECT pg_catalog.setval('public."JLPTSectionQuestion_id_seq"', 35, true);
 SELECT pg_catalog.setval('public."JLPTSection_section_id_seq"', 12, true);
 SELECT pg_catalog.setval('public."LearningGoal_goal_id_seq"', 2, true);
-SELECT pg_catalog.setval('public."LessonNote_note_id_seq"', 34, true);
 SELECT pg_catalog.setval('public."Lesson_lesson_id_seq"', 73, false);
 SELECT pg_catalog.setval('public."Option_option_id_seq"', 692, true);
 SELECT pg_catalog.setval('public."PaymentTransaction_payment_transaction_id_seq"', 7, true);
@@ -2356,7 +1910,6 @@ SELECT pg_catalog.setval('public."QuizQuestion_quiz_question_id_seq"', 176, fals
 SELECT pg_catalog.setval('public."Quiz_quiz_id_seq"', 22, false);
 SELECT pg_catalog.setval('public."ReadingPassage_passage_id_seq"', 2, true);
 SELECT pg_catalog.setval('public."StudySession_session_id_seq"', 2, true);
-SELECT pg_catalog.setval('public."UserAchievement_user_achievement_id_seq"', 17, true);
 SELECT pg_catalog.setval('public."UserAnswer_user_answer_id_seq"', 396, true);
 SELECT pg_catalog.setval('public."UserLessonProgress_user_lesson_progress_id_seq"', 128, true);
 SELECT pg_catalog.setval('public."User_user_id_seq"', 17, true);

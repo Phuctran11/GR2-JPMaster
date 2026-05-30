@@ -146,7 +146,6 @@ export function OverviewSection({ stats, role }: { stats: AdminStats; role: Admi
         <StatTile label="Course Tests" value={stats.totals.tests} icon="quiz" />
         <StatTile label="JLPT Tests" value={stats.totals.jlptTests} icon="language" />
         <StatTile label="Enrollments" value={stats.totals.enrollments} icon="how_to_reg" />
-        <StatTile label="Blogs" value={stats.totals.blogs} icon="article" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

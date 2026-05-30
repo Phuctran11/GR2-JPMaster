@@ -8,7 +8,6 @@ import { useProfileActions } from '../hooks/profile/useProfileActions';
 import { useProfileForms } from '../hooks/profile/useProfileForms';
 import { useProfilePageData } from '../hooks/profile/useProfilePageData';
 import {
-  ProfileAchievementsTab,
   ProfileGoalsTab,
   ProfileHero,
   ProfileOverviewTab,
@@ -22,7 +21,6 @@ const profileTabs: Array<ProfileTabItem<ProfileTab>> = [
   { id: 'overview', label: 'Overview', icon: 'person' },
   { id: 'progress', label: 'Progress', icon: 'monitoring' },
   { id: 'goals', label: 'Goals', icon: 'flag' },
-  { id: 'achievements', label: 'Achievements', icon: 'workspace_premium' },
 ];
 
 export default function Profile() {
@@ -42,13 +40,8 @@ export default function Profile() {
     jlptAttempts,
     goals,
     setGoals,
-    achievements,
-    achievementFilter,
-    setAchievementFilter,
     completedCourses,
     activeCourses,
-    achievementTracks,
-    filteredAchievementTracks,
   } = useProfilePageData({
     user,
     authLoading,
@@ -157,15 +150,6 @@ export default function Profile() {
                       goalErrors={goalForm.formState.errors}
                       onSubmit={goalForm.handleSubmit(onCreateGoal)}
                       onDisableGoal={(goalId) => void handleDisableGoal(goalId)}
-                    />
-                  )}
-                  {activeTab === 'achievements' && (
-                    <ProfileAchievementsTab
-                      achievements={achievements}
-                      achievementTracks={achievementTracks}
-                      filteredAchievementTracks={filteredAchievementTracks}
-                      achievementFilter={achievementFilter}
-                      onAchievementFilterChange={setAchievementFilter}
                     />
                   )}
                 </MotionSectionFrame>

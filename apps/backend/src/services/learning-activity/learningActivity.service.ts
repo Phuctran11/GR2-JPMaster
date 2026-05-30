@@ -1,5 +1,4 @@
 import databaseService from "../database.service.js";
-import achievementEvaluationService from "./achievementEvaluation.service.js";
 import goalProgressService, { type GoalEventType } from "../goals/goalProgress.service.js";
 
 export class LearningActivityService {
@@ -59,23 +58,27 @@ export class LearningActivityService {
 
   async recordLessonCompleted(userId: number, courseId: number, lessonId: number, durationSeconds?: number) {
     const resolvedDurationSeconds = durationSeconds ?? await this.getLessonDurationSeconds(lessonId);
+    await this.recordStudySession({
+      userId,
+      courseId,
+      lessonId,
+      activityType: "lesson",
+      durationSeconds: resolvedDurationSeconds,
+    });
     await this.incrementGoals(userId, "lesson", 1);
-    if (resolvedDurationSeconds > 0) await this.incrementGoals(userId, "study_minutes", Math.ceil(resolvedDurationSeconds / 60));
-    await this.evaluateAchievements(userId);
+    if (resolvedDurationSeconds > 0) {
+      await this.incrementGoals(userId, "study_minutes", Math.ceil(resolvedDurationSeconds / 60));
+    }
   }
 
-  async recordQuizSubmitted(userId: number, quizId: number, score: number) {
+  async recordQuizSubmitted(userId: number, quizId: number, _score: number) {
+    await this.recordStudySession({ userId, quizId, activityType: "quiz" });
     await this.incrementGoals(userId, "quiz", 1);
-    await this.evaluateAchievements(userId, { latest_score: score });
   }
 
-  async recordJlptSubmitted(userId: number, examId: number, score: number) {
+  async recordJlptSubmitted(userId: number, examId: number, _score: number) {
+    await this.recordStudySession({ userId, jlptExamId: examId, activityType: "jlpt_test" });
     await this.incrementGoals(userId, "jlpt_test", 1);
-    await this.evaluateAchievements(userId, { latest_score: score });
-  }
-
-  async evaluateAchievements(userId: number, metadata: Record<string, unknown> = {}) {
-    await achievementEvaluationService.evaluateAchievements(userId, metadata);
   }
 }
 
