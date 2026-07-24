@@ -1,0 +1,1855 @@
+﻿Initial Win CP for (console input, console output, system): (CP437, CP65001, CP1252)
+I changed them all to CP1252
+Rc files read (in order):
+  NONE
+Latexmk: This is Latexmk, John Collins, 9 March 2026. Version 4.88.
+Force everything to be remade.
+Latexmk: applying rule 'bibtex DoAn'...
+Rule 'bibtex DoAn':  Reasons for rerun
+Category 'other':
+  Rerun of 'bibtex DoAn' forced or previously required:
+    Reason or flag: 'go_mode'
+
+------------
+Run number 1 of rule 'bibtex DoAn'
+------------
+------------
+Running 'bibtex  "DoAn.aux"'
+------------
+This is BibTeX, Version 0.99e (MiKTeX 26.5)
+The top-level auxiliary file: DoAn.aux
+The style file: biblatex.bst
+Database file #1: DoAn-blx.bib
+Database file #2: Danh_sach_tai_lieu_tham_khao.bib
+Warning--I didn't find a database entry for "biblatex-control"
+Biblatex version: 3.21
+(There was 1 warning)
+Latexmk: applying rule 'pdflatex'...
+Rule 'pdflatex':  Reasons for rerun
+Category 'other':
+  Rerun of 'pdflatex' forced or previously required:
+    Reason or flag: 'go_mode'
+
+------------
+Run number 1 of rule 'pdflatex'
+------------
+------------
+Running 'pdflatex  -interaction=nonstopmode -halt-on-error -recorder  "DoAn.tex"'
+------------
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+(DoAn.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-05-26>
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\report.cls
+Document Class: report 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrextend.s
+ty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrkbase.st
+y
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrbase.sty
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile.st
+y
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile-ho
+ok.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlogo.sty
+))) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+))))
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <13> not available
+(Font)              size <12> substituted on input line 3.
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\vietnam.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5enc.def
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5enc.dfu))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5cmr.fd))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\vncaps.tex))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
+fg)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/fancybox\fancybox.sty
+Style option: `fancybox' v1.4 <2010/05/15> (tvz)
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\indentfirst.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amscls\amsthm.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\latexsym.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+For additional information on amsmath, use the `?' option.
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty))
+ (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\times.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/enumitem\enumitem.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/outlines\outlines.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/subfiles\subfiles.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/import\import.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/titlesec\titlesec.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/titlesec\titletoc.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/chngcntr\chngcntr.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape.sty
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape-nom
+etadata.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\lscape.sty)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\afterpage.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/algorithm2e\algorithm2e
+.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/ifoddpage\ifoddpage.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\xspace.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/relsize\relsize.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/capt-of\capt-of.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/multirow\multirow.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/fancyhdr\fancyhdr.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/appendix\appendix.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/caption\subcaption.sty)
+ (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/xurl\xurl.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/base\glossar
+ies.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/xkeyval\xkeyval.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkeyval.tex
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkvutils.tex)
+))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/mfirstuc\mfirstuc.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty))
+ (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/xfor\xfor.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/datatool\datatool-base.
+sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tracklang\tracklang.sty
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/tracklang\tracklang.t
+ex))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/datatool\datatool-l3fp.
+def)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/datatool\datatool-utf8.
+ldf))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-hypernav.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-list.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-long.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-super.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/supertabular\supertabul
+ar.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-tree.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-superragged.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/setspace\setspace.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/parskip\parskip.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\tocbasic.st
+y)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/blindtext\blindtext.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\biblatex.sty
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds
+.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
+ty)) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/logreq\logreq.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/logreq\logreq.def))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-dm.def)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-compat.def
+)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-bibtex.def
+
+Package biblatex Warning: Using fall-back bibtex backend:
+(biblatex)                functionality may be reduced/unavailable.
+
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\biblatex.def
+)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex-ieee\ieee.bbx
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/bbx\numeric-co
+mp.bbx
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/bbx\numeric.bb
+x
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/bbx\standard.b
+bx))))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex-ieee\ieee.cbx
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/cbx\numeric-ve
+rb.cbx))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\biblatex.cfg)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
+tex.def))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-case-expl3
+.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xparse\xpars
+e.sty))) (Tu_viet_tat.tex)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefine
+keys.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.s
+ty) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettit
+lestring.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.s
+ty) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc
+.sty)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
+echeck.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquec
+ounter.sty)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hypcap\hypcap.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/letltxmacro\letltxmacro
+.sty)) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5ptm.fd)
+(DoAn.aux
+
+LaTeX Warning: Label `fig:Bia' multiply defined.
+
+)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
+ii
+[Loading MPS to PDF converter (version 2006.09.02).]
+)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
+ase.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/grfext\grfext.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
+fg))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/caption\ltcaption.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/lbx\english.lb
+x) (DoAn.bbl) (DoAn.out) (DoAn.out) (Bia_lot.tex
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <6.5> not available
+(Font)              size <6> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <13> not available
+(Font)              size <12> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <6.5> not available
+(Font)              size <6> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <13> not available
+(Font)              size <12> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <6.5> not available
+(Font)              size <6> substituted on input line 38.
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\ulasy.fd)
+
+LaTeX Font Warning: Font shape `U/lasy/m/n' in size <13> not available
+(Font)              size <12> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `U/lasy/m/n' in size <6.5> not available
+(Font)              size <6> substituted on input line 38.
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd)
+[1{C:/Users/ADMIN/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/AD
+MIN/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/vntex/t5.enc}])
+(Chuong/0_2_Loi_cam_on.tex) [1] (Chuong/0_3_Tom_tat_noi_dung.tex)
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
+een already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.186 \newpage
+               [1] (Chuong/0_4_Tom_tat_noi_dung_English.tex)
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
+een already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.192 \newpage
+               [1] (DoAn.toc [1] [2]) [3] (DoAn.lof) [4] (DoAn.lot)
+
+Package glossaries Warning: Empty glossary for \printnoidxglossary[type={main}]
+. Rerun may be required (or you may have forgotten to use commands like \gls) o
+n input line 248.
+
+
+Package glossaries Info: Preparing to sort glossary `acronym' (total number of
+(glossaries)             referenced entries: 7)
+
+[5] [6]
+Ch\uhorn \ohorn ng 1.
+(Chuong/1_Gioi_thieu.tex
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.16 
+      [1] [2] [3]) [4]
+Ch\uhorn \ohorn ng 2.
+(Chuong/2_Khao_sat.tex
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd)
+[5{C:/Users/ADMIN/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}]
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 84--85
+[]|\T5/ptm/m/n/11.86258 JPMaster ^^_╖
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+\T5/ptm/m/n/11.86258 hσc trⁿc
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+\T5/ptm/m/n/11.86258 tuy╕n tΩng
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+[]|\T5/ptm/m/n/11.86258 Luy╗n
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+\T5/ptm/m/n/11.86258 thi JLPT
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+[]|\T5/ptm/m/n/11.86258 Ghi nhε
+
+Underfull \hbox (badness 1655) in paragraph at lines 88--88
+[]|\T5/ptm/m/n/11.86258 CΓ, ≡ m∙c
+
+Underfull \hbox (badness 2932) in paragraph at lines 88--88
+[]|\T5/ptm/m/n/11.86258 Khµng phúi
+
+Underfull \hbox (badness 2547) in paragraph at lines 88--89
+[]|\T5/ptm/m/n/11.86258 CΓ, theo khΓa,
+
+Underfull \hbox (badness 1067) in paragraph at lines 88--89
+\T5/ptm/m/n/11.86258 bái hσc vá cºp
+
+Underfull \hbox (badness 1472) in paragraph at lines 90--91
+[]|\T5/ptm/m/n/11.86258 CΓ, g¡n vεi lδ
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]|\T5/ptm/m/n/11.86258 Khµng
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]|\T5/ptm/m/n/11.86258 Rºt mñnh,
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\T5/ptm/m/n/11.86258 lá ch∙c
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+[]|\T5/ptm/m/n/11.86258 Hñn ch╕,
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+\T5/ptm/m/n/11.86258 ph÷ thuδc
+
+Underfull \hbox (badness 1424) in paragraph at lines 96--96
+[]|\T5/ptm/m/n/11.86258 Theo dπi ti╕n ^^_δ
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--97
+[]|\T5/ptm/m/n/11.86258 CΓ dash-board
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--97
+\T5/ptm/m/n/11.86258 ti╕n ^^_δ theo
+
+Underfull \hbox (badness 10000) in paragraph at lines 98--98
+\T5/ptm/m/n/11.86258 ^^_αnh, cªn
+
+Underfull \hbox (badness 10000) in paragraph at lines 100--100
+[]|\T5/ptm/m/n/11.86258 Thanh toín vá
+
+Underfull \hbox (badness 10000) in paragraph at lines 100--100
+\T5/ptm/m/n/11.86258 m÷c ti╢u
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--102
+[]|\T5/ptm/m/n/11.86258 Ph≥ h±p
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--102
+\T5/ptm/m/n/11.86258 lám LMS
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--102
+[]|\T5/ptm/m/n/11.86258 Ph≥ h±p
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--102
+\T5/ptm/m/n/11.86258 luy╗n ^^_╖
+
+Underfull \hbox (badness 4279) in paragraph at lines 102--103
+\T5/ptm/m/n/11.86258 túng hσc ti╕ng
+[7] [8] [9] [10] [11] [12] [13] [14] [15] [16]) [17]
+Ch\uhorn \ohorn ng 3.
+(Chuong/3_Cong_nghe.tex) [18]
+Ch\uhorn \ohorn ng 4.
+(Chuong/4_Ket_qua_thuc_nghiem.tex [19 <./Hinhve/Picture1.png>] [20 <./Hinhve/Pi
+cture2.png>]
+
+LaTeX Warning: Reference `table:my_label' on page 21 undefined on input line 43
+.
+
+[21]) [22]
+Ch\uhorn \ohorn ng 5.
+(Chuong/5_Giai_phap_dong_gop.tex
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <7.58339> not available
+(Font)              size <8> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <5.41673> not available
+(Font)              size <5> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <7.58339> not available
+(Font)              size <8> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <5.41673> not available
+(Font)              size <5> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <7.58339> not available
+(Font)              size <8> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <5.41673> not available
+(Font)              size <5> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `U/lasy/m/n' in size <7.58339> not available
+(Font)              size <8> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `U/lasy/m/n' in size <5.41673> not available
+(Font)              size <5> substituted on input line 4.
+
+) [23] (Chuong/7_Luu_y_tai_lieu_tham_khao.tex
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5pcr.fd)
+[24]) [25] [26] [27]
+Ph\d {u} l\d {u}c A.
+(Chuong/Phu_luc_A.tex [28] [29] [30 <./Hinhve/IoT.png>]
+
+LaTeX Warning: Citation 'scott2013sdn' on page 31 undefined on input line 92.
+
+
+LaTeX Warning: Citation 'ashton2009internet' on page 31 undefined on input line
+ 92.
+
+
+Overfull \hbox (14.86223pt too wide) in paragraph at lines 92--93
+[]\T5/ptm/m/n/13 . C÷ th║, sinh vi╢n s√ d÷ng l╗nh [][]\T5/pcr/m/n/13 \cite{} []
+\T5/ptm/m/n/13 nh≈ sau [].
+) [31] [32 <./Hinhve/Bia.PNG> <./Hinhve/GayBia.PNG>]
+Ph\d {u} l\d {u}c B.
+(Chuong/Phu_luc_B.tex) [33] (DoAn.aux
+! Text line contains an invalid character.
+l.84 ... {subsection}{\numberline {2.2.6}Biß╗âu^^@
+                                                  ^^@^^@^^@^^@^^@^^@^^@^^@^^...
+
+!  ==> Fatal error occurred, no output PDF file produced!
+Transcript written on DoAn.log.
+Latexmk: Getting log file 'DoAn.log'
+Latexmk: Examining 'DoAn.fls'
+Latexmk: Examining 'DoAn.log'
+Latexmk: Found input bbl file 'DoAn.bbl'
+  ===Source file 'DoAn.bbl' for 'pdflatex'
+latexmk : Latexmk: Using bibtex to make bibliography file(s).
+At line:1 char:62
++ ... ation_VIE'; latexmk -g -pdf -interaction=nonstopmode -halt-on-error D ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Latexmk: Using ...graphy file(s). 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Latexmk: Found bibliography file(s):
+  ./Danh_sach_tai_lieu_tham_khao.bib
+  ./DoAn-blx.bib
+Latexmk: Some rule(s) failed, but user file(s) changed so keep trying
+ Reasons for rerun
+Category 'changed_user':
+  ./DoAn-blx.bib
+Category 'rules_to_apply':
+  bibtex DoAn
+
+Latexmk: applying rule 'bibtex DoAn'...
+Rule 'bibtex DoAn':  Reasons for rerun
+Category 'other':
+  Rerun of 'bibtex DoAn' forced or previously required:
+    Reason or flag: 'Changed user file'
+
+------------
+Run number 2 of rule 'bibtex DoAn'
+------------
+------------
+Running 'bibtex  "DoAn.aux"'
+------------
+This is BibTeX, Version 0.99e (MiKTeX 26.5)
+The top-level auxiliary file: DoAn.aux
+The style file: biblatex.bst
+Database file #1: DoAn-blx.bib
+Database file #2: Danh_sach_tai_lieu_tham_khao.bib
+Warning--I didn't find a database entry for "scott2013sdn"
+Warning--I didn't find a database entry for "ashton2009internet"
+Biblatex version: 3.21
+(There were 2 warnings)
+Latexmk: applying rule 'pdflatex'...
+Rule 'pdflatex':  Reasons for rerun
+Changed files or newly in use/created:
+  DoAn.bbl
+Category 'disappeared_gen_this':
+  DoAn.aux
+  DoAn.lof
+  DoAn.lot
+  DoAn.out
+  DoAn.toc
+
+------------
+Run number 2 of rule 'pdflatex'
+------------
+------------
+Running 'pdflatex  -interaction=nonstopmode -halt-on-error -recorder  "DoAn.tex"'
+------------
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+(DoAn.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-05-26>
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\report.cls
+Document Class: report 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrextend.s
+ty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrkbase.st
+y
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrbase.sty
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile.st
+y
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile-ho
+ok.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlogo.sty
+))) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+))))
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <13> not available
+(Font)              size <12> substituted on input line 3.
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\vietnam.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5enc.def
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5enc.dfu))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5cmr.fd))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\vncaps.tex))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
+fg)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/fancybox\fancybox.sty
+Style option: `fancybox' v1.4 <2010/05/15> (tvz)
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\indentfirst.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amscls\amsthm.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\latexsym.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+For additional information on amsmath, use the `?' option.
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty))
+ (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\times.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/enumitem\enumitem.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/outlines\outlines.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/subfiles\subfiles.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/import\import.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/titlesec\titlesec.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/titlesec\titletoc.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/chngcntr\chngcntr.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape.sty
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape-nom
+etadata.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/graphics\lscape.sty)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\afterpage.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/algorithm2e\algorithm2e
+.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/ifoddpage\ifoddpage.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\xspace.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/relsize\relsize.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/capt-of\capt-of.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/multirow\multirow.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/fancyhdr\fancyhdr.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/appendix\appendix.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/caption\subcaption.sty)
+ (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/xurl\xurl.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/base\glossar
+ies.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/xkeyval\xkeyval.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkeyval.tex
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkvutils.tex)
+))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/mfirstuc\mfirstuc.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty))
+ (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/xfor\xfor.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/datatool\datatool-base.
+sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tracklang\tracklang.sty
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/tracklang\tracklang.t
+ex))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/datatool\datatool-l3fp.
+def)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/datatool\datatool-utf8.
+ldf))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-hypernav.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-list.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-long.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-super.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/supertabular\supertabul
+ar.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-tree.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/glossaries/styles\gloss
+ary-superragged.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/setspace\setspace.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/parskip\parskip.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\tocbasic.st
+y)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/blindtext\blindtext.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\biblatex.sty
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds
+.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
+ty)) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/logreq\logreq.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/logreq\logreq.def))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-dm.def)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-compat.def
+)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-bibtex.def
+
+Package biblatex Warning: Using fall-back bibtex backend:
+(biblatex)                functionality may be reduced/unavailable.
+
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\biblatex.def
+)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex-ieee\ieee.bbx
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/bbx\numeric-co
+mp.bbx
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/bbx\numeric.bb
+x
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/bbx\standard.b
+bx))))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex-ieee\ieee.cbx
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/cbx\numeric-ve
+rb.cbx))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\biblatex.cfg)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
+tex.def))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex\blx-case-expl3
+.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xparse\xpars
+e.sty))) (Tu_viet_tat.tex)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefine
+keys.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.s
+ty) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettit
+lestring.sty))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.s
+ty) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
+) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc
+.sty)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
+echeck.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquec
+ounter.sty)))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/hypcap\hypcap.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/letltxmacro\letltxmacro
+.sty)) (C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5ptm.fd)
+(DoAn.aux)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
+ii
+[Loading MPS to PDF converter (version 2006.09.02).]
+)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
+ase.sty
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/grfext\grfext.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
+fg))
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/caption\ltcaption.sty)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/biblatex/lbx\english.lb
+x) (DoAn.bbl) (DoAn.out) (DoAn.out) (Bia_lot.tex
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <6.5> not available
+(Font)              size <6> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <13> not available
+(Font)              size <12> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <6.5> not available
+(Font)              size <6> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <13> not available
+(Font)              size <12> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <6.5> not available
+(Font)              size <6> substituted on input line 38.
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/base\ulasy.fd)
+
+LaTeX Font Warning: Font shape `U/lasy/m/n' in size <13> not available
+(Font)              size <12> substituted on input line 38.
+
+
+LaTeX Font Warning: Font shape `U/lasy/m/n' in size <6.5> not available
+(Font)              size <6> substituted on input line 38.
+
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd)
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd)
+[1{C:/Users/ADMIN/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/AD
+MIN/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/vntex/t5.enc}])
+(Chuong/0_2_Loi_cam_on.tex) [1] (Chuong/0_3_Tom_tat_noi_dung.tex)
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
+een already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.186 \newpage
+               [1] (Chuong/0_4_Tom_tat_noi_dung_English.tex)
+pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
+een already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.192 \newpage
+               [1] (DoAn.toc) [1] (DoAn.lof) [2] (DoAn.lot)
+
+Package glossaries Warning: Empty glossary for \printnoidxglossary[type={main}]
+. Rerun may be required (or you may have forgotten to use commands like \gls) o
+n input line 248.
+
+
+Package glossaries Warning: Empty glossary for \printnoidxglossary[type={acrony
+m}]. Rerun may be required (or you may have forgotten to use commands like \gls
+) on input line 248.
+
+[3]
+Ch\uhorn \ohorn ng 1.
+(Chuong/1_Gioi_thieu.tex
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.16 
+      [1] [2] [3]) [4]
+Ch\uhorn \ohorn ng 2.
+(Chuong/2_Khao_sat.tex
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd)
+[5{C:/Users/ADMIN/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}]
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 84--85
+[]|\T5/ptm/m/n/11.86258 JPMaster ^^_╖
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+\T5/ptm/m/n/11.86258 hσc trⁿc
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+\T5/ptm/m/n/11.86258 tuy╕n tΩng
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+[]|\T5/ptm/m/n/11.86258 Luy╗n
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+\T5/ptm/m/n/11.86258 thi JLPT
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--86
+[]|\T5/ptm/m/n/11.86258 Ghi nhε
+
+Underfull \hbox (badness 1655) in paragraph at lines 88--88
+[]|\T5/ptm/m/n/11.86258 CΓ, ≡ m∙c
+
+Underfull \hbox (badness 2932) in paragraph at lines 88--88
+[]|\T5/ptm/m/n/11.86258 Khµng phúi
+
+Underfull \hbox (badness 2547) in paragraph at lines 88--89
+[]|\T5/ptm/m/n/11.86258 CΓ, theo khΓa,
+
+Underfull \hbox (badness 1067) in paragraph at lines 88--89
+\T5/ptm/m/n/11.86258 bái hσc vá cºp
+
+Underfull \hbox (badness 1472) in paragraph at lines 90--91
+[]|\T5/ptm/m/n/11.86258 CΓ, g¡n vεi lδ
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]|\T5/ptm/m/n/11.86258 Khµng
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]|\T5/ptm/m/n/11.86258 Rºt mñnh,
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\T5/ptm/m/n/11.86258 lá ch∙c
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+[]|\T5/ptm/m/n/11.86258 Hñn ch╕,
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+\T5/ptm/m/n/11.86258 ph÷ thuδc
+
+Underfull \hbox (badness 1424) in paragraph at lines 96--96
+[]|\T5/ptm/m/n/11.86258 Theo dπi ti╕n ^^_δ
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--97
+[]|\T5/ptm/m/n/11.86258 CΓ dash-board
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--97
+\T5/ptm/m/n/11.86258 ti╕n ^^_δ theo
+
+Underfull \hbox (badness 10000) in paragraph at lines 98--98
+\T5/ptm/m/n/11.86258 ^^_αnh, cªn
+
+Underfull \hbox (badness 10000) in paragraph at lines 100--100
+[]|\T5/ptm/m/n/11.86258 Thanh toín vá
+
+Underfull \hbox (badness 10000) in paragraph at lines 100--100
+\T5/ptm/m/n/11.86258 m÷c ti╢u
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--102
+[]|\T5/ptm/m/n/11.86258 Ph≥ h±p
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--102
+\T5/ptm/m/n/11.86258 lám LMS
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--102
+[]|\T5/ptm/m/n/11.86258 Ph≥ h±p
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--102
+\T5/ptm/m/n/11.86258 luy╗n ^^_╖
+
+Underfull \hbox (badness 4279) in paragraph at lines 102--103
+\T5/ptm/m/n/11.86258 túng hσc ti╕ng
+[7] [8] [9] [10] [11] [12] [13] [14] [15] [16]) [17]
+Ch\uhorn \ohorn ng 3.
+(Chuong/3_Cong_nghe.tex) [18]
+Ch\uhorn \ohorn ng 4.
+(Chuong/4_Ket_qua_thuc_nghiem.tex
+
+LaTeX Warning: Reference `fig:Fig1' on page 19 undefined on input line 10.
+
+
+LaTeX Warning: Reference `fig:Fig2' on page 19 undefined on input line 18.
+
+
+LaTeX Warning: Reference `fig:Fig2' on page 19 undefined on input line 20.
+
+[19 <./Hinhve/Picture1.png>] [20 <./Hinhve/Picture2.png>]
+
+LaTeX Warning: Reference `table:my_label' on page 21 undefined on input line 43
+.
+
+[21]) [22]
+Ch\uhorn \ohorn ng 5.
+(Chuong/5_Giai_phap_dong_gop.tex
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <7.58339> not available
+(Font)              size <8> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <5.41673> not available
+(Font)              size <5> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <7.58339> not available
+(Font)              size <8> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <5.41673> not available
+(Font)              size <5> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <7.58339> not available
+(Font)              size <8> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <5.41673> not available
+(Font)              size <5> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `U/lasy/m/n' in size <7.58339> not available
+(Font)              size <8> substituted on input line 4.
+
+
+LaTeX Font Warning: Font shape `U/lasy/m/n' in size <5.41673> not available
+(Font)              size <5> substituted on input line 4.
+
+) [23] (Chuong/7_Luu_y_tai_lieu_tham_khao.tex
+(C:\Users\ADMIN\AppData\Local\Programs\MiKTeX\tex/latex/vntex\t5pcr.fd)
+[24]) [25] [26] [27]
+Ph\d {u} l\d {u}c A.
+(Chuong/Phu_luc_A.tex [28] [29]
+
+LaTeX Warning: Reference `table:1' on page 30 undefined on input line 74.
+
+
+LaTeX Warning: Reference `fig:iot' on page 30 undefined on input line 85.
+
+[30 <./Hinhve/IoT.png>]
+
+LaTeX Warning: Citation 'scott2013sdn' on page 31 undefined on input line 92.
+
+
+LaTeX Warning: Citation 'ashton2009internet' on page 31 undefined on input line
+ 92.
+
+
+Overfull \hbox (14.86223pt too wide) in paragraph at lines 92--93
+[]\T5/ptm/m/n/13 . C÷ th║, sinh vi╢n s√ d÷ng l╗nh [][]\T5/pcr/m/n/13 \cite{} []
+\T5/ptm/m/n/13 nh≈ sau [].
+
+LaTeX Warning: Reference `pt31' on page 31 undefined on input line 98.
+
+
+LaTeX Warning: Reference `pt31' on page 31 undefined on input line 102.
+
+
+LaTeX Warning: Reference `fig:Bia' on page 31 undefined on input line 108.
+
+) [31] [32 <./Hinhve/Bia.PNG> <./Hinhve/GayBia.PNG>]
+Ph\d {u} l\d {u}c B.
+(Chuong/Phu_luc_B.tex)
+
+Package glossaries Warning: entry `AI' indexing changed since previous run (or 
+no previous run) on input line 331.
+
+
+Package glossaries Warning: entry `JLPT' indexing changed since previous run (o
+r no previous run) on input line 331.
+
+
+Package glossaries Warning: entry `iaas' indexing changed since previous run (o
+r no previous run) on input line 331.
+
+
+Package glossaries Warning: entry `API' indexing changed since previous run (or
+ no previous run) on input line 331.
+
+
+Package glossaries Warning: entry `EUD' indexing changed since previous run (or
+ no previous run) on input line 331.
+
+
+Package glossaries Warning: entry `GWT' indexing changed since previous run (or
+ no previous run) on input line 331.
+
+
+Package glossaries Warning: entry `HTML' indexing changed since previous run (o
+r no previous run) on input line 331.
+
+
+Package glossaries Warning: Rerun required to get \printnoidxglossary up to dat
+e on input line 331.
+
+[33] (DoAn.aux)
+
+LaTeX Font Warning: Size substitutions with differences
+(Font)              up to 1.0pt have occurred.
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `DoAn.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+
+Package biblatex Warning: Please (re)run BibTeX on the file(s):
+(biblatex)                DoAn
+(biblatex)                and rerun LaTeX afterwards.
+
+ )
+(see the transcript file for additional information)<C:/Users/ADMIN/AppData/Loc
+al/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/ADMIN/Ap
+pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Users
+/ADMIN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><
+C:/Users/ADMIN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr
+12.pfb><C:/Users/ADMIN/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
+s/cm/cmr9.pfb><C:/Users/ADMIN/AppData/Local/Programs/MiKTeX/fonts/type1/public/
+amsfonts/cm/cmsy10.pfb><C:/Users/ADMIN/AppData/Local/Programs/MiKTeX/fonts/type
+1/public/amsfonts/cm/cmsy9.pfb><C:/Users/ADMIN/AppData/Local/Programs/MiKTeX/fo
+nts/type1/vntex/urwvn/ucrr8v.pfb><C:/Users/ADMIN/AppData/Local/Programs/MiKTeX/
+fonts/type1/vntex/urwvn/utmb8v.pfb><C:/Users/ADMIN/AppData/Local/Programs/MiKTe
+X/fonts/type1/urw/times/utmr8a.pfb><C:/Users/ADMIN/AppData/Local/Programs/MiKTe
+X/fonts/type1/vntex/urwvn/utmr8v.pfb><C:/Users/ADMIN/AppData/Local/Programs/MiK
+TeX/fonts/type1/vntex/urwvn/utmri8v.pfb>
+Output written on DoAn.pdf (40 pages, 936981 bytes).
+Transcript written on DoAn.log.
+Latexmk: Getting log file 'DoAn.log'
+Latexmk: First line of .log file 'DoAn.log' is not in standard format.
+Latexmk: Examining 'DoAn.fls'
+Latexmk: Examining 'DoAn.log'
+Latexmk: Error on first line of 'DoAn.log'.
+  This is apparently not a TeX log file.    The first line is:
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                         sary up to dat
+Latexmk: Using bibtex to make bibliography file(s).
+  ===Source file 'DoAn.bbl' for 'pdflatex'
+Latexmk: Found bibliography file(s):
+  ./Danh_sach_tai_lieu_tham_khao.bib
+  ./DoAn-blx.bib
+Latexmk: Errors, so I did not complete making targets
+----------------------
+This message may duplicate earlier message.
+Latexmk: Failure in processing file 'DoAn.tex':
+
+   Log file 'DoAn.log' appears to have wrong format.
+----------------------
+Latexmk: Sometimes, the -f option can be used to get latexmk
+  to try to force complete processing.
+  But normally, you will need to correct the file(s) that caused the
+  error, and then rerun latexmk.
+  In some cases, it is best to clean out generated files before rerunning
+  latexmk after you've corrected the files.
+Reverting Windows console CPs to (in,out) = (437,65001)
+

@@ -1,0 +1,100 @@
+<mxGraphModel dx="1422" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <!-- Browser window outline -->
+    <mxCell id="adm_win" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=2;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="50" y="50" width="1000" height="700" as="geometry" />
+    </mxCell>
+    <!-- Left Admin Menu (Sidebar) -->
+    <mxCell id="adm_sidebar" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#001529;strokeColor=none;" vertex="1" parent="1">
+      <mxGeometry x="50" y="50" width="220" height="700" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_logo" value="JPMaster Admin" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=16;fontColor=#ffffff;" vertex="1" parent="1">
+      <mxGeometry x="50" y="70" width="220" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_m1" value="📊 Dashboard tổng quan" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=none;strokeColor=none;fontColor=#a6adb4;" vertex="1" parent="1">
+      <mxGeometry x="50" y="130" width="220" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_m2" value="🎓 Quản lý khóa học" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=none;strokeColor=none;fontColor=#a6adb4;" vertex="1" parent="1">
+      <mxGeometry x="50" y="180" width="220" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_m3" value="[ 📝 Ngân hàng câu hỏi ]" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=#1890ff;strokeColor=none;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="50" y="230" width="220" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_m4" value="🏆 Đề thi thử JLPT" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=none;strokeColor=none;fontColor=#a6adb4;" vertex="1" parent="1">
+      <mxGeometry x="50" y="280" width="220" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_m5" value="💳 Phê duyệt hóa đơn" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=none;strokeColor=none;fontColor=#a6adb4;" vertex="1" parent="1">
+      <mxGeometry x="50" y="330" width="220" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_m6" value="👤 Quản lý người dùng" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=none;strokeColor=none;fontColor=#a6adb4;" vertex="1" parent="1">
+      <mxGeometry x="50" y="380" width="220" height="45" as="geometry" />
+    </mxCell>
+    <!-- Top Header -->
+    <mxCell id="adm_header" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e8e8e8;" vertex="1" parent="1">
+      <mxGeometry x="270" y="50" width="780" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_htitle" value="Quản lý ngân hàng câu hỏi" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=18;" vertex="1" parent="1">
+      <mxGeometry x="300" y="65" width="300" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_hprofile" value="Quản trị viên (Admin) ▼" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="870" y="65" width="160" height="30" as="geometry" />
+    </mxCell>
+    <!-- Main Content: Question Manager Form & List -->
+    <mxCell id="adm_main" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0f2f5;strokeColor=none;" vertex="1" parent="1">
+      <mxGeometry x="270" y="110" width="780" height="640" as="geometry" />
+    </mxCell>
+    <!-- Create / Filter Panel -->
+    <mxCell id="adm_card_top" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e8e8e8;" vertex="1" parent="1">
+      <mxGeometry x="290" y="130" width="740" height="250" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_ct_title" value="SOẠN THẢO CÂU HỎI MỚI (TRẮC NGHIỆM)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#1890ff;" vertex="1" parent="1">
+      <mxGeometry x="310" y="140" width="400" height="30" as="geometry" />
+    </mxCell>
+    <!-- Form Fields -->
+    <mxCell id="adm_f1" value="Cấp độ JLPT: [ N3 ▼ ]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d9d9d9;align=left;spacingLeft=10;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="310" y="180" width="170" height="35" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_f2" value="Phân mục: [ Kiến thức ngôn ngữ ▼ ]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d9d9d9;align=left;spacingLeft=10;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="500" y="180" width="220" height="35" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_f3" value="Mã nhóm câu hỏi: [ Chọn nhóm ▼ ]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d9d9d9;align=left;spacingLeft=10;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="740" y="180" width="270" height="35" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_f4" value="Nội dung câu hỏi: Nhập câu hỏi chữ Hán/Ngữ pháp tại đây..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d9d9d9;align=left;spacingLeft=10;fontSize=12;fontColor=#888888;" vertex="1" parent="1">
+      <mxGeometry x="310" y="230" width="700" height="35" as="geometry" />
+    </mxCell>
+    <!-- Options row -->
+    <mxCell id="adm_f5_A" value="A: Netsushin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d9d9d9;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="310" y="280" width="155" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_f5_B" value="[X] B: Nesshin (Đúng)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f6ffed;strokeColor=#b7eb8f;align=left;spacingLeft=10;fontSize=11;fontColor=#52c41a;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="480" y="280" width="155" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_f5_C" value="C: Neshin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d9d9d9;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="650" y="280" width="155" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_f5_D" value="D: Nesshi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d9d9d9;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="820" y="280" width="155" height="30" as="geometry" />
+    </mxCell>
+    <!-- Buttons -->
+    <mxCell id="adm_btn_save" value="Lưu câu hỏi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#52c41a;strokeColor=#52c41a;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="870" y="330" width="140" height="35" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_btn_reset" value="Làm lại" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d9d9d9;fontColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="720" y="330" width="130" height="35" as="geometry" />
+    </mxCell>
+    <!-- Question Table (Bottom) -->
+    <mxCell id="adm_card_btm" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e8e8e8;" vertex="1" parent="1">
+      <mxGeometry x="290" y="400" width="740" height="320" as="geometry" />
+    </mxCell>
+    <mxCell id="adm_tbl_hdr" value="DANH SÁCH CÂU HỎI TRONG NGÂN HÀNG (LỌC THEO N3)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#555555;" vertex="1" parent="1">
+      <mxGeometry x="310" y="410" width="400" height="30" as="geometry" />
+    </mxCell>
+    <!-- Table Mockup -->
+    <mxCell id="adm_tbl" value="STT  |  Nội dung câu hỏi                             |  Phân mục        |  Đáp án đúng  |  Thao tác&#x0a;---------------------------------------------------------------------------------------------------------------------&#x0a;1     |  彼は日本語を「熱心」に...            | Từ vựng          | B. ねっしん    | [Sửa]  [Xóa]&#x0a;2     |  日本の「首相」gặp mặt...           | Từ vựng          | A. しゅしょう  | [Sửa]  [Xóa]&#x0a;3     |  あの人は「誠実」な人です...        | Ngữ pháp         | C. せいじつ    | [Sửa]  [Xóa]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#cccccc;align=left;spacingLeft=10;verticalAlign=top;spacingTop=10;fontFamily=Courier New;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="310" y="450" width="700" height="250" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>

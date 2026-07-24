@@ -1,0 +1,313 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này trình bày khảo sát hiện trạng, phân tích các yêu cầu chức năng và phi chức năng của hệ thống JPMaster dựa trên việc định hình phạm vi nghiên cứu tốt nghiệp 2.
+
+\section{Khảo sát hiện trạng}
+\label{section:2.1}
+
+Học tiếng Nhật là một quá trình đòi hỏi người học phải tiếp thu đồng thời nhiều thành phần phức tạp: hệ thống chữ viết đa dạng (Hiragana, Katakana, Kanji), cấu trúc ngữ pháp có tính phân cấp theo ngữ cảnh giao tiếp, và kỹ năng nghe hiểu đặc thù. Đối với việc tự học trực tuyến, người học thường phải sử dụng kết hợp nhiều công cụ rời rạc để đáp ứng nhu cầu tích lũy từ vựng, luyện nghe, nắm vững ngữ pháp và luyện thi chứng chỉ năng lực Nhật ngữ (JLPT). Điều này dẫn đến sự phân mảnh dữ liệu học tập, làm giảm động lực học và giảm hiệu quả ghi nhớ lâu dài.
+
+Để định hình phạm vi tính năng và thiết kế kiến trúc cho hệ thống JPMaster, ba nền tảng hỗ trợ học tiếng Nhật phổ biến nhất hiện nay trên thị trường đã được tiến hành khảo sát và đánh giá chi tiết:
+
+\begin{itemize}
+    \item \textbf{Moodle (Hệ quản trị học tập - LMS)}: Là một hệ thống quản lý học tập nguồn mở vô cùng mạnh mẽ, hỗ trợ tốt cho việc quản trị khóa học, phân phối bài giảng và theo dõi tiến độ của học viên. Tuy nhiên, Moodle mang tính chất tổng quát cho mọi ngành học, thiếu các công cụ học ngoại ngữ chuyên dụng. Việc tổ chức các bộ thẻ học từ vựng (flashcards) lặp lại ngắt quãng hay thiết kế giao diện ôn tập tương tác trên Moodle rất phức tạp và không tối ưu. Đặc biệt, phân hệ kiểm tra đánh giá của Moodle chỉ hỗ trợ các dạng bài thi trắc nghiệm cơ bản, không thể giả lập chính xác cấu trúc phân chia phần thi (Kiến thức ngôn ngữ, Đọc hiểu, Nghe hiểu) cũng như cách thức tính điểm đỗ/trượt theo quy định điểm liệt từng phân môn của kỳ thi JLPT thật.
+    
+    \item \textbf{Migii JLPT (Hệ thống luyện đề chuyên sâu)}: Là một ứng dụng chuyên biệt nổi bật với kho đề thi thử JLPT khổng lồ và hệ thống giải thích đáp án chi tiết. Dù vậy, điểm yếu lớn nhất của Migii là thiếu một lộ trình học tập lý thuyết mang tính hệ thống. Người học chỉ có thể làm đề trắc nghiệm mà không được tiếp cận các bài giảng video, bài đọc phân tích ngữ pháp một cách bài bản từ đầu. Trải nghiệm học bị đứt gãy giữa việc học lý thuyết và thực hành luyện đề, đồng thời nền tảng chưa tích hợp trợ lý trí tuệ nhân tạo (AI) cá nhân hóa để hỗ trợ giải thích trực tiếp theo thời gian thực dựa trên các vướng mắc cụ thể của từng học viên.
+    
+    \item \textbf{Anki (Thẻ học thông minh sử dụng thuật toán lặp lại ngắt quãng SRS - Spaced Repetition System)}: Là công cụ hàng đầu giúp ghi nhớ từ vựng hiệu quả nhờ thuật toán lặp lại ngắt quãng. Tuy nhiên, Anki là một ứng dụng độc lập, giao diện sử dụng tương đối thô sơ và có độ dốc học tập (learning curve) khá cao đối với người mới bắt đầu. Dữ liệu từ vựng trên Anki hoàn toàn tách biệt với các khóa học lý thuyết và đề thi thử của người học. Người học phải tự xây dựng các bộ thẻ từ vựng một cách thủ công hoặc tải về các bộ thẻ chia sẻ sẵn vốn thường thiếu tính cập nhật hoặc không khớp với lộ trình học trên lớp. Nền tảng cũng thiếu hoàn toàn sự tương tác hai chiều và sự giải thích ngữ cảnh từ giáo viên hay trợ lý thông minh.
+\end{itemize}
+
+Bảng~\ref{tab:comparison_existing_systems} thực hiện so sánh đối chiếu chi tiết các tiêu chí chức năng cốt lõi giữa ba hệ thống tham chiếu trên và giải pháp tích hợp của hệ thống JPMaster.
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.25}
+
+
+\begin{tabular}{|p{3.4cm}|p{2.15cm}|p{2.15cm}|p{2.0cm}|p{2.85cm}|}
+\hline
+Tiêu chí & Moodle & Migii JLPT & Anki & JPMaster \\
+\hline
+Phạm vi đào tạo & Đa ngành (LMS) & Luyện đề JLPT & Ghi nhớ chung & Tiếng Nhật tích hợp \\
+\hline
+Lộ trình khóa học & Có & Không & Không & Có \\
+\hline
+Luyện đề thi JLPT & Hạn chế & Có (chính) & Không & Có (phân môn, điểm liệt) \\
+\hline
+Ôn tập Flashcard & Không hỗ trợ & Hạn chế & Có (chính) & Có (tích hợp bài học) \\
+\hline
+Trợ lý AI hỗ trợ & Không & Hạn chế & Không & Trợ lý AI ngữ cảnh (Gemini) \\
+\hline
+Tự động hóa thanh toán & Không hỗ trợ & Có & Không & Cổng thanh toán (PayOS Webhook) \\
+\hline
+Tích hợp quy trình & Thấp & Trung bình & Rất thấp & Rất cao (Đồng bộ All-in-One) \\
+\hline
+\end{tabular}
+\caption{So sánh các hệ thống tham chiếu và JPMaster}
+\label{tab:comparison_existing_systems}
+\end{table}
+
+\subsection*{Các tính năng độc đáo mang tính đột phá của JPMaster}
+
+Nhằm khắc phục những hạn chế của các hệ thống hiện hành, JPMaster được xây dựng như một nền tảng đồng bộ hóa trải nghiệm học tập với các tính năng vượt trội:
+
+\begin{enumerate}
+    \item \textbf{Hệ sinh thái học tập khép kín (All-in-One)}: JPMaster kết nối chặt chẽ giữa học lý thuyết (bài giảng video), thực hành tức thời (mini-test trong bài học), tích lũy từ vựng trực tiếp vào kho thẻ học cá nhân (Flashcards) và thi đánh giá năng lực (JLPT mock-test). Dữ liệu học tập được liên thông hoàn toàn, giúp người học chuyển đổi linh hoạt giữa các hoạt động mà không gặp rào cản về phân mảnh dữ liệu.
+    
+    \item \textbf{Trợ lý AI nhúng ngữ cảnh sâu (Context-Aware AI Assistant)}: Khác với các chatbot hội thoại thông thường, trợ lý AI sử dụng mô hình ngôn ngữ lớn Google Gemini được tích hợp trực tiếp vào giao diện học bài và ôn tập flashcard của JPMaster. AI tự động thu thập từ vựng, cấu trúc ngữ pháp hoặc câu hỏi hiện tại mà người học đang xem làm dữ liệu đầu vào (context) để đưa ra các giải thích ngữ nghĩa, cách phát âm, phân tích từ Hán tự (Kanji) và ví dụ thực tế một cách chính xác mà người học không cần mất thời gian soạn thảo câu lệnh (prompt).
+    
+    \item \textbf{Thi thử JLPT mô phỏng chuẩn hóa với cơ chế điểm sàn và điểm liệt}: Hệ thống thi thử của JPMaster được thiết kế riêng biệt để mô phỏng hoàn toàn cấu trúc đề thi JLPT thật từ N5 đến N1. Điểm đặc biệt là hệ thống chấm điểm tự động tích hợp thuật toán kiểm tra điểm sàn tổng và điểm liệt cho từng phần thi thành phần. Điều này giúp đưa ra kết quả đánh giá năng lực chân thực nhất, giúp người học chuẩn bị tâm lý và kiến thức tốt nhất cho kỳ thi chính thức.
+    
+    \item \textbf{Ghi danh tự động qua cổng thanh toán PayOS}: JPMaster tích hợp cổng thanh toán trực tuyến PayOS thông qua cơ chế quét mã QR động. Việc đồng bộ hóa dữ liệu thanh toán thông qua cơ chế phản hồi tự động (Webhook) giúp kích hoạt trạng thái mở khóa học liệu của học viên ngay tức thì sau khi giao dịch thành công mà không cần bất kỳ sự can thiệp thủ công nào từ phía quản trị viên.
+\end{enumerate}
+
+\section{Yêu cầu chức năng và Đặc tả Use Case}
+\label{section:2.2}
+
+Hệ thống JPMaster được thiết kế phân quyền rõ rệt để đáp ứng nhu cầu tương tác của học viên và quản trị học liệu của giáo viên. Các tác nhân tham gia vào hệ thống bao gồm:
+\begin{itemize}
+    \item \textbf{Learner (Học viên)}: Là tác nhân trung tâm của hệ thống, thực hiện các chức năng đăng ký, đăng nhập tài khoản, ghi danh khóa học, xem bài giảng video, làm bài kiểm tra ngắn (quiz), tạo bộ sưu tập từ vựng, học flashcard, gửi câu hỏi hỗ trợ cho trợ lý AI và làm bài thi thử JLPT.
+    \item \textbf{Admin/Owner (Quản trị viên / Giáo viên)}: Có toàn quyền quản lý hệ thống, bao gồm phê duyệt và cập nhật danh mục khóa học, bài học; soạn thảo ngân hàng câu hỏi dùng chung; lắp ghép các đề thi thử JLPT; theo dõi thông tin người dùng và các giao dịch mua khóa học.
+    \item \textbf{PayOS (Cổng thanh toán)}: Hệ thống thanh toán bên thứ ba được tích hợp để sinh mã QR động và tự động gửi phản hồi Webhook khi giao dịch hoàn tất.
+    \item \textbf{AI Assistant (Trợ lý AI)}: Dịch vụ trí tuệ nhân tạo bên thứ ba (Google Gemini) xử lý và trả lời các thắc mắc về mặt từ vựng và ngữ pháp của học viên theo thời gian thực.
+\end{itemize}
+
+Sơ đồ Use Case tổng quát mô tả bức tranh toàn cảnh về các chức năng chính của hệ thống JPMaster được trình bày tại Hình~\ref{fig:overall_usecase}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth]{JPMaster_UseCase.png}
+    \caption{Biểu đồ use case tổng quát của hệ thống JPMaster}
+    \label{fig:overall_usecase}
+\end{figure}
+
+\subsection{Các phân hệ chức năng của hệ thống}
+
+Để đáp ứng đầy đủ nhu cầu tự học tiếng Nhật của học viên và quản trị học liệu của giáo viên, hệ thống JPMaster được phân chia thành các phân hệ chức năng chính sau:
+
+\begin{enumerate}
+    \item \textbf{Phân hệ Xác thực và Tài khoản (Authentication \& User Profile)}:
+    \begin{itemize}
+        \item Đăng ký, đăng nhập tài khoản qua cơ chế xác thực email/mật khẩu truyền thống.
+        \item Đăng nhập nhanh bằng tài khoản Google sử dụng giao thức OAuth 2.0.
+        \item Quản lý hồ sơ cá nhân: cập nhật ảnh đại diện, thay đổi mật khẩu và quản lý thông tin tài khoản.
+    \end{itemize}
+
+    \item \textbf{Phân hệ Quản lý Khóa học và Tiến trình Học tập (LMS - Learning Management System)}:
+    \begin{itemize}
+        \item Khám phá và duyệt danh mục khóa học theo các cấp độ JLPT (Japanese Language Proficiency Test - Kỳ thi Năng lực Nhật ngữ) từ N5 đến N1.
+        \item Xem chi tiết lộ trình khóa học và các bài học thành phần.
+        \item Học tập trực quan qua video bài giảng nhúng từ Cloudinary, kết hợp đọc tài liệu lý thuyết.
+        \item Tự động theo dõi tiến trình học tập của học viên thông qua việc lưu phần trăm xem video bài giảng thực tế (\texttt{UserLessonProgress}).
+    \end{itemize}
+
+    \item \textbf{Phân hệ Đánh giá năng lực và Luyện tập (Quiz \& Testing)}:
+    \begin{itemize}
+        \item Bài tập ngắn (mini quiz) cuối bài học giúp củng cố kiến thức tức thời.
+        \item Bài kiểm tra tổng hợp cuối khóa học (Final Test) làm cơ sở đánh giá điều kiện hoàn thành khóa học.
+        \item Cơ chế làm bài thi có giới hạn thời gian thực, tự động lưu trữ câu trả lời từng câu (\texttt{UserAnswer}) để chống mất mát dữ liệu khi gặp sự cố mạng.
+    \end{itemize}
+
+    \item \textbf{Phân hệ Ôn tập thẻ học thông minh (Flashcard)}:
+    \begin{itemize}
+        \item Tạo và quản lý các bộ sưu tập flashcard từ vựng cá nhân ở chế độ công khai (public) hoặc riêng tư (private).
+        \item Ôn tập từ vựng qua giao diện lật thẻ tương tác hai mặt (front-back, đọc âm Kanji, phiên âm và ví dụ câu tiếng Nhật).
+        \item Tính năng tạo thẻ học nhanh trực tiếp từ phần văn bản tiếng Nhật được bôi đen trong bài học, tự động đồng bộ từ vựng vào kho thẻ cá nhân.
+    \end{itemize}
+
+    \item \textbf{Phân hệ Tra cứu tại chỗ và Trợ lý AI (Popup Dictionary \& AI Assistant)}:
+    \begin{itemize}
+        \item Popup JP Dictionary: Học viên bôi đen bất kỳ từ vựng tiếng Nhật nào trên màn hình bài học để hiển thị popup tra cứu nhanh cách đọc Hiragana, Hán tự và nghĩa tiếng Việt tại chỗ mà không cần mở tab mới.
+        \item Nút hỗ trợ nổi đa năng (Floating Action Button) kết nối nhanh tới trợ lý AI, bảng phím tắt tương tác và báo cáo lỗi học liệu cho quản trị viên.
+        \item Trợ lý AI tích hợp mô hình ngôn ngữ lớn Google Gemini: Tự động thu thập từ vựng, chữ Hán hoặc câu hỏi hiện tại làm ngữ cảnh nền để đưa ra lời giải thích chi tiết về mặt ngữ nghĩa và ngữ pháp cá nhân hóa.
+    \end{itemize}
+
+    \item \textbf{Phân hệ Thi thử JLPT mô phỏng (JLPT Mock-Test)}:
+    \begin{itemize}
+        \item Cung cấp đề thi thử JLPT giả lập theo cấu trúc đề thật (Kiến thức ngôn ngữ, Đọc hiểu, Nghe hiểu) kèm file nghe choukai tự động phát.
+        \item Thuật toán chấm điểm tự động tích hợp cơ chế điểm sàn tổng và điểm liệt cho từng phần thi thành phần để đưa ra kết quả đánh giá chân thực nhất.
+    \end{itemize}
+
+    \item \textbf{Phân hệ Giao dịch và Chứng chỉ (Purchase \& Certificate)}:
+    \begin{itemize}
+        \item Thanh toán tự động tích hợp cổng PayOS thông qua việc sinh mã QR (Quick Response) code động và phản hồi tự động (Webhook SHA-256).
+        \item Tự động cấp chứng chỉ số độc bản (\texttt{Certificate}) đi kèm mã số chứng chỉ định danh khi học viên hoàn thành 100\% nội dung bài học và đạt điểm đỗ ở bài kiểm tra cuối khóa.
+    \end{itemize}
+
+    \item \textbf{Phân hệ Quản trị hệ thống (Admin Dashboard)}:
+    \begin{itemize}
+        \item Quản lý người dùng: Xem, phân quyền và khóa/mở khóa tài khoản học viên.
+        \item Biên soạn học liệu: Thêm, sửa, xóa khóa học, bài học, video bài giảng, tệp âm thanh nghe hiểu.
+        \item Quản lý ngân hàng đề thi: Thiết lập ngân hàng câu hỏi trắc nghiệm dùng chung, lắp ghép đề thi JLPT và tự động phân bổ câu hỏi vào phân môn đề thi.
+        \item Thống kê tổng quan: Theo dõi doanh thu, trạng thái giao dịch và số lượng người học.
+    \end{itemize}
+\end{enumerate}
+
+Dưới đây là đặc tả chi tiết của ba Use Case cốt lõi đóng vai trò quan trọng nhất trong việc vận hành nghiệp vụ của hệ thống:
+
+\subsubsection*{Use Case 1: Đăng ký và thanh toán khóa học}
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+
+
+\begin{tabular}{|p{3.5cm}|p{11.0cm}|}
+\hline
+\textbf{Tên Use Case} & Đăng ký và thanh toán khóa học \\
+\hline
+\textbf{Tác nhân} & Learner (Học viên), PayOS (Cổng thanh toán) \\
+\hline
+\textbf{Mô tả ngắn} & Học viên thanh toán học phí qua mã QR động của cổng PayOS để tự động ghi danh và mở khóa học liệu có phí trên JPMaster. \\
+\hline
+\textbf{Tiền điều kiện} & Học viên đã đăng nhập thành công và chưa sở hữu khóa học có phí đang xem. \\
+\hline
+\textbf{Luồng sự kiện chính} & 
+1. Học viên nhấn nút "Mua khóa học" trên giao diện chi tiết khóa học.\newline
+2. Hệ thống backend tạo một hóa đơn thanh toán ở trạng thái chờ và gọi API PayOS sinh liên kết thanh toán đi kèm mã QR động.\newline
+3. Học viên thực hiện quét mã QR bằng ứng dụng ngân hàng di động để chuyển khoản.\newline
+4. Cổng PayOS ghi nhận tiền chuyển khoản thành công và gửi phản hồi Webhook bảo mật về backend JPMaster.\newline
+5. Backend JPMaster kiểm tra chữ ký Webhook, cập nhật trạng thái hóa đơn thành hoàn thành và tự động thêm học viên vào danh sách ghi danh khóa học.\newline
+6. Giao diện frontend hiển thị thông báo thanh toán thành công và mở khóa toàn bộ học liệu. \\
+\hline
+\textbf{Hậu điều kiện} & Học viên sở hữu khóa học, có quyền truy cập video bài học và bài kiểm tra đi kèm. \\
+\hline
+\end{tabular}
+\caption{Đặc tả Use Case Đăng ký và thanh toán khóa học}
+\label{tab:spec_payment}
+\end{table}
+
+\subsubsection*{Use Case 2: Ôn tập Flashcard hỗ trợ AI}
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+
+
+\begin{tabular}{|p{3.5cm}|p{11.0cm}|}
+\hline
+\textbf{Tên Use Case} & Ôn tập Flashcard và hỗ trợ AI \\
+\hline
+\textbf{Tác nhân} & Learner (Học viên), AI Assistant (Trợ lý AI) \\
+\hline
+\textbf{Mô tả ngắn} & Học viên học từ vựng qua thẻ lật flashcard và gửi yêu cầu trợ lý AI giải thích chi tiết nghĩa hoặc ngữ pháp theo ngữ cảnh từ vựng đó. \\
+\hline
+\textbf{Tiền điều kiện} & Học viên đã đăng nhập và đã tạo hoặc truy cập một bộ sưu tập flashcard có từ vựng cần học. \\
+\hline
+\textbf{Luồng sự kiện chính} & 
+1. Học viên mở bộ sưu tập flashcard và nhấn bắt đầu ôn tập.\newline
+2. Học viên tương tác lật mặt thẻ (xem từ vựng mặt trước, xem nghĩa và ví dụ mặt sau).\newline
+3. Học viên gặp cấu trúc ngữ pháp hoặc từ khó hiểu và nhấn nút "Yêu cầu AI giải thích".\newline
+4. Frontend tự động đóng gói từ vựng, chữ Hán, câu ví dụ hiện tại làm dữ liệu ngữ cảnh gửi lên backend.\newline
+5. Backend kết hợp dữ liệu ngữ cảnh vào prompt mẫu và gọi API Google Gemini.\newline
+6. Trợ lý AI phân tích ngữ cảnh, sinh phản hồi chi tiết về sắc thái từ, cách dùng và ví dụ bổ sung.\newline
+7. Frontend hiển thị nội dung giải thích của AI trực quan ngay trên Popup ôn tập. \\
+\hline
+\textbf{Hậu điều kiện} & Học viên nắm vững nghĩa từ vựng, lịch sử hỏi đáp được lưu trữ tạm thời trong phiên. \\
+\hline
+\end{tabular}
+\caption{Đặc tả Use Case Ôn tập Flashcard hỗ trợ AI}
+\label{tab:spec_flashcard_ai}
+\end{table}
+
+\subsubsection*{Use Case 3: Thi thử JLPT}
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+
+
+\begin{tabular}{|p{3.5cm}|p{11.0cm}|}
+\hline
+\textbf{Tên Use Case} & Thi thử JLPT \\
+\hline
+\textbf{Tác nhân} & Learner (Học viên) \\
+\hline
+\textbf{Mô tả ngắn} & Học viên thực hiện làm đề thi thử JLPT giả lập thời gian thực với cấu trúc phân môn và nhận điểm đánh giá tự động chứa điểm sàn/điểm liệt. \\
+\hline
+\textbf{Tiền điều kiện} & Học viên lựa chọn đề thi thử JLPT và có kết nối mạng ổn định. \\
+\hline
+\textbf{Luồng sự kiện chính} & 
+1. Học viên nhấn "Bắt đầu thi thử", hệ thống hiển thị đồng hồ đếm ngược và khóa điều hướng ngoài đề thi.\newline
+2. Học viên làm bài lần lượt qua các phân môn (Từ vựng, Ngữ pháp - Đọc hiểu, Nghe hiểu).\newline
+3. Hệ thống tự động sao lưu câu trả lời xuống cơ sở dữ liệu sau mỗi câu để chống mất mát dữ liệu.\newline
+4. Học viên nộp bài hoặc hệ thống tự động thu bài khi hết giờ.\newline
+5. Backend chấm điểm tự động đối chiếu với bảng đáp án, tính toán điểm tổng và điểm thành phần của từng phân môn.\newline
+6. Backend áp dụng thuật toán kiểm tra điểm liệt phân môn và điểm đỗ sàn để xác định kết quả Đạt/Không đạt.\newline
+7. Giao diện hiển thị bảng điểm chi tiết và biểu đồ năng lực cho học viên. \\
+\hline
+\textbf{Hậu điều kiện} & Lượt thi thử được lưu vào cơ sở dữ liệu lịch sử và kết quả được công bố tức thì. \\
+\hline
+\end{tabular}
+\caption{Đặc tả Use Case Thi thử JLPT}
+\label{tab:spec_jlpt}
+\end{table}
+
+\section{Quy trình nghiệp vụ chi tiết}
+\label{section:2.3}
+
+Để hiểu rõ hơn cách thức vận hành nghiệp vụ của hệ thống JPMaster, bốn luồng quy trình nghiệp vụ cốt lõi được mô tả chi tiết từng bước như sau:
+
+\subsection{Quy trình đăng ký và thanh toán khóa học}
+Quy trình tự động hóa ghi danh thông qua cổng thanh toán PayOS được thực hiện qua các bước:
+\begin{enumerate}
+    \item \textbf{Yêu cầu mua khóa học}: Học viên duyệt danh mục khóa học, truy cập trang chi tiết của một khóa học trả phí và nhấn chọn đăng ký mua.
+    \item \textbf{Khởi tạo đơn hàng}: Máy chủ backend JPMaster nhận yêu cầu, kiểm tra thông tin khóa học và tạo một bản ghi hóa đơn trong bảng \texttt{"Purchase"} ở trạng thái \texttt{pending}.
+    \item \textbf{Tạo liên kết thanh toán}: Backend gửi yêu cầu tạo link thanh toán động tới cổng PayOS qua API bảo mật. PayOS trả về các thông tin bao gồm mã QR động chứa số tiền, mã đơn hàng định danh và đường dẫn checkout.
+    \item \textbf{Hiển thị giao diện quét mã}: Giao diện JPMaster hiển thị mã QR động cùng thông tin hướng dẫn chuyển khoản trực tiếp cho học viên.
+    \item \textbf{Thực hiện thanh toán}: Học viên sử dụng ứng dụng ngân hàng di động (Mobile Banking) để quét mã QR và xác nhận chuyển khoản. Giao dịch được xử lý qua hệ thống Napas của ngân hàng.
+    \item \textbf{Phản hồi giao dịch (Webhook)}: Khi tiền được chuyển thành công vào tài khoản đích, máy chủ cổng thanh toán PayOS tự động gửi một tín hiệu Webhook an toàn chứa thông tin mã đơn hàng và chữ ký SHA-256 về máy chủ JPMaster.
+    \item \textbf{Xử lý mở khóa tự động}: Backend JPMaster xác thực tính toàn vẹn của chữ ký Webhook. Nếu thông tin khớp, hệ thống cập nhật trạng thái bản ghi \texttt{"Purchase"} thành \texttt{completed}, tạo giao dịch trong \texttt{"PaymentTransaction"}, và tự động ghi tên học viên vào bảng ghi danh học tập \texttt{"CourseEnrollment"}.
+    \item \textbf{Cập nhật giao diện người dùng}: Giao diện tự động chuyển trạng thái từ màn hình chờ thanh toán sang giao diện bài học đầu tiên, mở quyền truy cập học liệu trọn đời cho học viên.
+\end{enumerate}
+
+\subsection{Quy trình học bài và theo dõi tiến độ}
+Quy trình giúp người học xem bài giảng, làm mini-test và nhận chứng chỉ hoàn thành khóa học tự động:
+\begin{enumerate}
+    \item \textbf{Truy cập bài học}: Học viên mở bài học trong khóa học đã đăng ký. Hệ thống tải nội dung bài học bao gồm video bài giảng, tệp âm thanh nghe và tài liệu hướng dẫn.
+    \item \textbf{Xem video bài giảng}: Học viên phát video bài học. Frontend bắt đầu lắng nghe sự kiện phát của trình phát video và định kỳ 10 giây một lần gửi cập nhật phần trăm đã xem (\texttt{video\_watched\_percent}) lên backend để lưu vào bảng \texttt{"UserLessonProgress"}.
+    \item \textbf{Hoàn thành bài tập đính kèm (Quiz)}: Sau khi xem xong lý thuyết hoặc video, học viên nhấn làm bài quiz ngắn đính kèm cuối bài học để kiểm tra mức độ hiểu bài.
+    \item \textbf{Đánh giá kết quả bài học}: Trạng thái bài học chuyển sang \texttt{completed} chỉ khi học viên xem tối thiểu 80\% thời lượng video bài giảng và hoàn thành bài quiz đạt điểm số tối thiểu để vượt qua (passing score, thường là 70\%).
+    \item \textbf{Cấp chứng chỉ tự động}: Học viên tiếp tục học lần lượt các bài học. Khi 100\% số lượng bài học trong khóa học được đánh dấu \texttt{completed}, hệ thống backend tự động khởi tạo mã chứng chỉ độc bản bằng thuật toán sinh mã UUID, lưu thông tin vào bảng \texttt{"Certificate"} và hiển thị chứng chỉ số hoàn thành khóa học dưới dạng tệp ảnh đẹp mắt cho học viên tải về.
+\end{enumerate}
+
+\subsection{Quy trình ôn tập flashcard và hỗ trợ AI}
+Quy trình giúp học viên ghi nhớ từ vựng thông minh kết hợp hỏi đáp ngữ cảnh với trợ lý ảo:
+\begin{enumerate}
+    \item \textbf{Khởi động ôn tập}: Học viên lựa chọn một bộ sưu tập flashcard cá nhân hoặc bộ sưu tập từ vựng được giáo viên chia sẻ sẵn đi kèm bài học.
+    \item \textbf{Học từ vựng hai mặt}: Học viên xem từ vựng tiếng Nhật và chữ Hán ở mặt trước thẻ, sau đó nhấn click để lật mặt sau xem cách đọc âm ôn, âm huấn, nghĩa tiếng Việt và câu ví dụ tiếng Nhật đi kèm nghĩa dịch.
+    \item \textbf{Gặp vướng mắc ngữ cảnh}: Khi học viên đọc câu ví dụ nhưng chưa hiểu rõ lý do vì sao từ vựng lại biến âm như vậy, hoặc không rõ cấu trúc ngữ pháp sử dụng trong ví dụ có nghĩa là gì, học viên nhấn vào nút "Trợ lý AI".
+    \item \textbf{Đóng gói ngữ cảnh}: Hệ thống frontend lấy thông tin chi tiết của thẻ flashcard hiện tại (mặt trước, mặt sau, chữ Hán, câu ví dụ mẫu) kết hợp với nội dung thắc mắc tùy chọn do học viên gõ thêm vào ô chat và gửi yêu cầu lên API backend.
+    \item \textbf{Tạo prompt tối ưu}: Backend tiếp nhận thông tin, đưa dữ liệu vào cấu trúc prompt đã được kiểm thử để đảm bảo Gemini AI tập trung trả lời đúng trọng tâm giải thích tiếng Nhật, tránh đưa ra các phản hồi lạc đề.
+    \item \textbf{Xử lý bằng mô hình Gemini}: Backend gửi prompt lên máy chủ Google Gemini qua API an toàn. Mô hình ngôn ngữ lớn phân tích ngữ cảnh từ vựng và câu ví dụ để sinh nội dung hướng dẫn chi tiết về mặt ngữ nghĩa và ngữ pháp.
+    \item \textbf{Hiển thị giải thích}: Phản hồi sau khi nhận về được backend làm sạch các định dạng markdown thừa và trả về hiển thị tức thì trên khung chat của giao diện lật thẻ flashcard của học viên.
+\end{enumerate}
+
+\subsection{Quy trình làm bài thi thử JLPT}
+Quy trình giả lập kỳ thi JLPT nghiêm ngặt trên môi trường số:
+\begin{enumerate}
+    \item \textbf{Khởi tạo lượt thi}: Học viên chọn đề thi thử JLPT theo cấp độ (N1 - N5). Hệ thống tạo bản ghi lượt làm bài \texttt{"QuizAttempt"} có trạng thái \texttt{in\_progress} và kích hoạt đồng hồ đếm ngược tương ứng với thời lượng đề thi quy định.
+    \item \textbf{Làm bài theo phân môn}: Học viên làm bài lần lượt qua các phân môn lớn của kỳ thi JLPT (Chữ hán - Từ vựng, Ngữ pháp - Đọc hiểu, Nghe hiểu). Phân môn nghe hiểu sẽ tự động phát âm thanh choukai tương ứng.
+    \item \textbf{Lưu trữ kết quả tạm thời}: Mỗi khi học viên lựa chọn một đáp án trắc nghiệm, câu trả lời được lưu trữ bất đồng bộ xuống cơ sở dữ liệu bảng \texttt{"UserAnswer"} ngay tức thì. Điều này bảo vệ bài thi của học viên không bị mất dữ liệu khi xảy ra các sự cố đột ngột như mất điện, ngắt kết nối internet hoặc vô tình tải lại trình duyệt.
+    \item \textbf{Nộp bài thi}: Khi hoàn thành bài thi và nhấn nút "Nộp bài", hoặc khi đồng hồ đếm ngược chỉ về 0, hệ thống tự động khóa toàn bộ thao tác nhập liệu của giao diện và gửi gói dữ liệu nộp bài thi về backend.
+    \item \textbf{Chấm điểm tự động}: Backend JPMaster kiểm tra đáp án của học viên với đáp án đúng trong bảng \texttt{"Option"}. Điểm số được cộng dồn theo từng phần thi thành phần.
+    \item \textbf{Kiểm tra điều kiện điểm liệt}: Hệ thống kiểm tra xem điểm tổng đạt được có vượt qua điểm sàn yêu cầu hay không. Đồng thời, hệ thống duyệt qua điểm số của từng phân môn thành phần để kiểm tra xem có phân môn nào bị dưới ngưỡng điểm sàn thành phần (bị điểm liệt) hay không.
+    \item \textbf{Công bố và lưu lịch sử}: Trạng thái kết quả đạt/không đạt được ghi nhận. Học viên được chuyển hướng đến trang báo cáo kết quả, nơi họ có thể xem lại chi tiết bài làm, đáp án đúng và các lời giải thích chi tiết cho từng câu hỏi bị làm sai.
+\end{enumerate}
+
+\section{Yêu cầu phi chức năng}
+\label{section:2.4}
+
+Hệ thống JPMaster tuân thủ các yêu cầu phi chức năng sau để đảm bảo chất lượng vận hành thực tế:
+\begin{itemize}
+    \item \textbf{Hiệu năng}: Các API nghiệp vụ thông thường phản hồi dưới 2 giây; danh sách dữ liệu được phân trang.
+    \item \textbf{Bảo mật}: Mật khẩu được băm bảo mật bằng Bcrypt; xác thực bằng JWT qua HTTP-only cookies; phân quyền chặt chẽ giữa các vai trò Guest, Learner, Owner và Admin.
+    \item \textbf{Khả năng sử dụng}: Giao diện trực quan, tương thích đa thiết bị (Responsive Design) và hỗ trợ đầy đủ hai chế độ giao diện Sáng/Tối (Light/Dark Mode).
+    \item \textbf{Khả năng mở rộng và bảo trì}: Thiết kế monorepo dạng Modular Monolith giúp tách biệt backend thành các module domain độc lập, dễ dàng bổ sung loại câu hỏi hay các cấp độ JLPT mới.
+    \item \textbf{Độ tin cậy và toàn vẹn}: Giao dịch thanh toán an toàn, có webhook PayOS tự động đối soát; lưu trữ bất đồng bộ câu trả lời thi thử JLPT để đề phòng sự cố mạng.
+\end{itemize}
+
+\end{document}

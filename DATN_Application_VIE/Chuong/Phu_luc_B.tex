@@ -1,0 +1,74 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Trong phần phụ lục này, em xin hướng dẫn chi tiết các bước cài đặt thư viện phụ thuộc, khởi chạy toàn bộ hệ thống JPMaster trong môi trường phát triển cục bộ và cung cấp danh sách tài khoản kiểm thử đại diện cho các vai trò trong hệ thống.
+
+\section{Cài đặt thư viện phụ thuộc}
+Tại thư mục gốc của dự án (\texttt{DATN-JPMaster}), khởi chạy terminal và thực hiện lệnh cài đặt sau:
+\begin{lstlisting}[language=bash]
+pnpm install
+\end{lstlisting}
+Trình quản lý gói pnpm sẽ tự động quét cấu hình Monorepo trong tệp \texttt{pnpm-workspace.yaml} để tải xuống và cài đặt đầy đủ các gói thư viện phụ thuộc cho cả hai phân hệ Frontend và Backend.
+
+\section{Hướng dẫn khởi chạy hệ thống}
+Để vận hành hệ thống ở chế độ phát triển (Development mode), cần chạy song song cả máy chủ Backend và Frontend. Có hai cách thực hiện như sau:
+
+\subsection{Cách 1: Khởi chạy trực tiếp từ thư mục gốc Monorepo}
+Mở hai cửa sổ Terminal độc lập tại thư mục gốc của dự án và chạy các lệnh sau:
+\begin{itemize}
+    \item \textbf{Cửa sổ 1 (Khởi chạy Backend API)}:
+    \begin{lstlisting}[language=bash]
+pnpm --filter backend dev
+    \end{lstlisting}
+    \item \textbf{Cửa sổ 2 (Khởi chạy Frontend Web)}:
+    \begin{lstlisting}[language=bash]
+pnpm --filter frontend dev
+    \end{lstlisting}
+\end{itemize}
+
+\subsection{Cách 2: Truy cập vào từng thư mục dự án con}
+Hoặc có thể di chuyển trực tiếp vào từng thư mục con để khởi chạy:
+\begin{itemize}
+    \item \textbf{Khởi chạy Backend API}:
+    \begin{lstlisting}[language=bash]
+cd apps/backend
+pnpm dev
+    \end{lstlisting}
+    \item \textbf{Khởi chạy Frontend Web}:
+    \begin{lstlisting}[language=bash]
+cd apps/frontend
+pnpm dev
+    \end{lstlisting}
+\end{itemize}
+
+Sau khi khởi chạy thành công:
+\begin{itemize}
+    \item \textbf{Giao diện Frontend} sẽ hoạt động tại địa chỉ: \url{http://localhost:5173}
+    \item \textbf{API Backend} sẽ hoạt động tại địa chỉ: \url{http://localhost:5000} (Đường dẫn cơ sở gọi API: \url{http://localhost:5000/api})
+\end{itemize}
+
+\section{Danh sách tài khoản kiểm thử hệ thống}
+Sau khi phục hồi thành công dữ liệu từ tệp cơ sở dữ liệu mẫu, hệ thống cung cấp sẵn các tài khoản kiểm thử đại diện cho các vai trò phân quyền khác nhau trong hệ thống học tập JPMaster:
+
+\begin{itemize}
+    \item \textbf{Tài khoản Học viên (Learner)}:
+    \begin{itemize}
+        \item Email đăng nhập: \texttt{test1@example.com}
+        \item Quyền hạn: Đăng ký khóa học, học bài học, làm bài thi thử JLPT, tạo và ôn tập thẻ học thông minh (Flashcard) và trao đổi với trợ lý AI.
+    \end{itemize}
+    
+    \item \textbf{Tài khoản Chủ nội dung (Owner/Teacher)}:
+    \begin{itemize}
+        \item Email đăng nhập: \texttt{owner1@gmail.com}
+        \item Quyền hạn: Truy cập trang quản trị (\url{http://localhost:5173/admin}), quản lý danh sách khóa học được phân công, chỉnh sửa bài học, quiz và ngân hàng câu hỏi riêng.
+    \end{itemize}
+    
+    \item \textbf{Tài khoản Quản trị viên tối cao (Admin)}:
+    \begin{itemize}
+        \item Email đăng nhập: \texttt{admin1@gmail.com}
+        \item Quyền hạn: Quản trị toàn quyền hệ thống, phê duyệt trạng thái giao dịch thanh toán mua khóa học, quản lý người dùng và cấu hình các kỳ thi năng lực tiếng Nhật JLPT.
+    \end{itemize}
+\end{itemize}
+\textit{Lưu ý}: Mật khẩu của các tài khoản kiểm thử này đã được băm bảo mật (hashed) trong cơ sở dữ liệu. Để kiểm thử dòng luồng đăng ký mới, người kiểm thử có thể tự tạo tài khoản Learner mới trực tiếp trên giao diện Đăng ký (\url{http://localhost:5173/signup}) hoặc sử dụng tính năng Đăng nhập bằng Google.
+
+\end{document}

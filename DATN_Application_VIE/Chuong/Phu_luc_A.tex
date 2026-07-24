@@ -1,0 +1,112 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+\lstset{breaklines=true, basicstyle=\ttfamily\small}
+
+Trong phần phụ lục này, em xin trình bày chi tiết quy trình chuẩn bị môi trường, cấu hình hệ thống cơ sở dữ liệu PostgreSQL và thiết lập các tệp cấu hình môi trường cho cả hai phân hệ Frontend và Backend của nền tảng JPMaster.
+
+\section{Yêu cầu về môi trường hệ thống}
+Để triển khai và vận hành hệ thống JPMaster cục bộ (local development) hoặc trên các nền tảng đám mây, hệ thống yêu cầu các thành phần môi trường cơ bản sau:
+\begin{itemize}
+    \item \textbf{Node.js}: Phiên bản từ v18.0.0 trở lên (khuyến nghị phiên bản v20 LTS hoặc v22 LTS để đảm bảo tính ổn định và tương thích tốt nhất).
+    \item \textbf{Trình quản lý gói pnpm}: Phiên bản v9.0.0 trở lên. Hệ thống sử dụng cơ chế pnpm Workspaces để quản lý kiến trúc Monorepo, giúp tối ưu hóa việc cài đặt thư viện dùng chung giữa các phân hệ.
+    \item \textbf{Hệ quản trị cơ sở dữ liệu PostgreSQL}: Phiên bản từ v15.0 trở lên để hỗ trợ đầy đủ các tính năng nâng cao và tối ưu hóa hiệu năng chỉ mục.
+\end{itemize}
+
+\section{Cài đặt và phục hồi cơ sở dữ liệu PostgreSQL}
+Hệ thống JPMaster sử dụng PostgreSQL làm cơ sở dữ liệu quan hệ chính. Các bước cài đặt và import dữ liệu được thực hiện như sau:
+
+\begin{enumerate}
+    \item \textbf{Khởi tạo cơ sở dữ liệu}: 
+    Sử dụng công cụ giao diện trực quan (như pgAdmin, DBeaver) hoặc dòng lệnh CLI của PostgreSQL để tạo một cơ sở dữ liệu mới có tên là \texttt{DATN\_JPMaster}. Lệnh khởi tạo bằng SQL:
+    \begin{lstlisting}[language=SQL]
+CREATE DATABASE "DATN_JPMaster" 
+WITH ENCODING = 'UTF8';
+    \end{lstlisting}
+
+    \item \textbf{Nạp cấu trúc và dữ liệu kiểm thử}:
+    Hệ thống cung cấp hai tệp SQL chuẩn bị sẵn phục vụ việc nạp dữ liệu tại thư mục gốc của dự án:
+    \begin{itemize}
+        \item \texttt{full\_dump.sql}: Chứa toàn bộ cấu trúc bảng (schema) và dữ liệu được trích xuất trực tiếp từ môi trường phát triển cục bộ.
+        \item \texttt{supabase\_data\_import\_inserts\_utf8\_fixed.sql}: Chứa các lệnh \texttt{INSERT} thuần túy, dùng để nạp dữ liệu nếu triển khai cơ sở dữ liệu trên đám mây như dịch vụ Supabase Database.
+    \end{itemize}
+    Để nạp dữ liệu cục bộ qua dòng lệnh, sử dụng lệnh:
+    \begin{lstlisting}[language=bash]
+psql -U postgres -d DATN_JPMaster -f full_dump.sql
+    \end{lstlisting}
+
+    \item \textbf{Tối ưu hóa hiệu năng truy vấn (Chỉ mục)}:
+    Sau khi nạp dữ liệu thành công, cần tạo thêm các chỉ mục tối ưu hiệu năng để hệ thống hoạt động ổn định khi tìm kiếm khóa học và bài học. Chạy lệnh nạp chỉ mục từ tệp script tối ưu:
+    \begin{lstlisting}[language=bash]
+psql -U postgres -d DATN_JPMaster -f \
+  apps/backend/src/config/performance_indexes.sql
+    \end{lstlisting}
+\end{enumerate}
+
+\section{Cấu hình các biến môi trường (.env)}
+Cả hai phân hệ Frontend và Backend đều yêu cầu các tệp cấu hình \texttt{.env} riêng biệt để kết nối các dịch vụ bên thứ ba (Google OAuth, Gemini AI, Cloudinary, PayOS).
+
+\subsection{Cấu hình phân hệ API Backend (apps/backend/.env)}
+Cấu hình Backend tại tệp \texttt{apps/backend/.env} với các biến chính:
+\begin{itemize}
+    \item \textbf{Cấu hình kết nối cơ sở dữ liệu}:
+    \begin{lstlisting}[language=bash]
+DB_USER=<username_postgresql>
+DB_PASSWORD=<password_postgresql>
+DB_HOST=<host_postgresql>
+DB_PORT=<port_postgresql>
+DB_NAME=<database_name>
+DATABASE_URL=<connection_url_postgresql>
+    \end{lstlisting}
+
+    \item \textbf{Cấu hình Server và Xác thực}:
+    \begin{lstlisting}[language=bash]
+PORT=<port_chay_backend_server>
+NODE_ENV=<development_hoac_production>
+# Khoa bi mat JWT
+JWT_SECRET=<jwt_secret_key>
+JWT_ACCESS_EXPIRES_IN=<thoi_gian_het_han_access_token>
+JWT_REFRESH_EXPIRES_IN=<thoi_gian_het_han_refresh_token>
+REFRESH_COOKIE_NAME=<ten_cookie_chua_refresh_token>
+    \end{lstlisting}
+
+    \item \textbf{Cấu hình tích hợp trợ lý AI (Google Gemini)}:
+    \begin{lstlisting}[language=bash]
+# Khoa API Gemini
+GEMINI_API_KEY=<gemini_api_key>
+GEMINI_MODEL=<ten_model_gemini>
+    \end{lstlisting}
+
+    \item \textbf{Cấu hình lưu trữ tệp tin (Cloudinary)}:
+    \begin{lstlisting}[language=bash]
+CLOUDINARY_CLOUD_NAME=<cloudinary_cloud_name>
+CLOUDINARY_API_KEY=<cloudinary_api_key>
+CLOUDINARY_API_SECRET=<cloudinary_api_secret>
+    \end{lstlisting}
+
+    \item \textbf{Cấu hình cổng thanh toán trực tuyến (PayOS)}:
+    \begin{lstlisting}[language=bash]
+PAYOS_CLIENT_ID=<payos_client_id>
+PAYOS_API_KEY=<payos_api_key>
+PAYOS_CHECKSUM_KEY=<payos_checksum_key>
+PAYOS_RETURN_URL=<url_quay_lai_khi_thanh_toan_thanh_cong>
+PAYOS_CANCEL_URL=<url_quay_lai_khi_huy_thanh_toan>
+    \end{lstlisting}
+
+    \item \textbf{Cấu hình CORS và đăng nhập Google}:
+    \begin{lstlisting}[language=bash]
+FRONTEND_URL=<url_cua_frontend_app>
+CORS_ORIGINS=<url_cho_phep_truy_cap_cors>
+# Google OAuth Client ID
+GOOGLE_CLIENT_ID=<google_oauth_client_id_backend>
+    \end{lstlisting}
+\end{itemize}
+
+\subsection{Cấu hình phân hệ giao diện Frontend (apps/frontend/.env)}
+Cấu hình Frontend tại tệp \texttt{apps/frontend/.env} với các biến chính:
+\begin{lstlisting}[language=bash]
+VITE_API_BASE_URL=<api_url_cua_backend>
+# Google OAuth Client ID
+VITE_GOOGLE_CLIENT_ID=<google_oauth_client_id_frontend>
+\end{lstlisting}
+
+\end{document}

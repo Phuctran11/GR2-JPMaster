@@ -1,0 +1,50 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này mô tả chi tiết cách áp dụng các công nghệ trong việc thiết kế và phát triển hệ thống JPMaster.
+
+\section{Công nghệ phía frontend}
+\label{section:3.1}
+
+Frontend của JPMaster được xây dựng như một ứng dụng đơn trang (SPA - Single Page Application) với các công cụ chính:
+\begin{itemize}
+    \item \textbf{React và Vite}: React đóng vai trò thư viện xây dựng các component giao diện (khóa học, bài học, thẻ flashcard, giao diện làm bài thi), giúp quản lý trạng thái động mượt mà. Vite được áp dụng làm môi trường phát triển và đóng gói ứng dụng tốc độ cao.
+    \item \textbf{TypeScript}: Kiểm soát kiểu dữ liệu tĩnh trong toàn bộ giao diện (ví dụ cấu trúc Course, Lesson, Quiz, JWT (JSON Web Token) token, AI (Artificial Intelligence - Trí tuệ nhân tạo) response), ngăn chặn lỗi truyền sai tham số từ sớm.
+    \item \textbf{React Router DOM}: Điều hướng các trang học tập và bảo vệ các route (Protected Routes) yêu cầu đăng nhập đối với Học viên và Quản trị viên.
+    \item \textbf{React Hook Form}: Quản lý biểu mẫu nhập liệu (đăng nhập, đăng ký, soạn thảo flashcard) hiệu quả, giảm số lần render thừa của component.
+    \item \textbf{Tailwind CSS}: Thiết kế giao diện Responsive và xử lý giao diện Sáng/Tối (Light/Dark Mode) thông qua bộ điều chỉnh lớp (class modifier) kết hợp lưu trữ trạng thái tại bộ nhớ LocalStorage của trình duyệt.
+    \item \textbf{Framer Motion}: Framer Motion tạo các hiệu ứng lật thẻ từ vựng và các chuyển động vi mô (micro-animations) mượt mà, giúp tăng tính tương tác và sinh động cho giao diện học viên.
+\end{itemize}
+
+\section{Công nghệ phía backend}
+\label{section:3.2}
+
+Backend JPMaster sử dụng cấu trúc API REST (Representational State Transfer - Chuyển đổi trạng thái đại diện)ful được phát triển trên:
+\begin{itemize}
+    \item \textbf{Express và TypeScript}: Express đóng vai trò khung ứng dụng backend chịu trách nhiệm định tuyến (routing) và xử lý trung gian (middleware). TypeScript đồng nhất các kiểu dữ liệu dùng chung với frontend.
+    \item \textbf{Mô hình Modular Monolith}: Backend được tổ chức thành các module nghiệp vụ riêng biệt theo domain (auth, courses, lessons, quizzes, flashcards, payments, ai, jlpt, admin). Các request đi qua các lớp Route $\rightarrow$ Controller $\rightarrow$ Model/Service.
+    \item \textbf{Xác thực JWT và Cookies}: Hệ thống sử dụng token truy cập (Access Token) có thời hạn ngắn và token làm mới (Refresh Token) được lưu trữ dưới dạng HTTP-only cookie để tăng tính bảo mật cho phiên làm việc.
+    \item \textbf{Bảo mật}: Mật khẩu học viên được băm bằng thư viện Bcryptjs trước khi ghi xuống cơ sở dữ liệu. Hệ thống sử dụng các middleware kiểm tra vai trò (Learner, Owner, Admin) trước khi cho phép thực hiện các thao tác nhạy cảm.
+\end{itemize}
+
+\section{Cơ sở dữ liệu}
+\label{section:3.3}
+
+Hệ thống sử dụng \textbf{PostgreSQL} làm hệ quản trị cơ sở dữ liệu quan hệ chính. Cơ sở dữ liệu được thiết kế chuẩn hóa cao, bảo đảm toàn vẹn dữ liệu thông qua các ràng buộc khóa ngoại (Foreign Keys), ràng buộc kiểm tra loại trừ (CHECK constraints) và giao dịch cơ sở dữ liệu (Database Transactions). Các thực thể dữ liệu cốt lõi bao gồm:
+\begin{itemize}
+    \item \textbf{Người dùng \& Học tập}: \texttt{"User"} (người dùng), \texttt{"Course"} (khóa học), \texttt{"Lesson"} (bài học), \texttt{"UserLessonProgress"} (tiến trình xem bài giảng), \texttt{"Certificate"} (chứng chỉ hoàn thành khóa học).
+    \item \textbf{Kiểm tra \& Đề thi}: \texttt{"Quiz"} (bài tập bài học), \texttt{"Question"} (ngân hàng câu hỏi dùng chung), \texttt{"Option"} (đáp án lựa chọn), \texttt{"QuizAttempt"} (lượt làm bài), \texttt{"JLPTExam"} (đề thi thử JLPT), \texttt{"JLPTSection"} (phần thi JLPT).
+    \item \textbf{Giao dịch \& Ôn tập}: \texttt{"Purchase"} (đơn mua khóa học), \texttt{"PaymentTransaction"} (giao dịch cổng PayOS), \texttt{"CourseEnrollment"} (bảng ghi danh học tập), \texttt{"FlashcardCollection"} (bộ sưu tập flashcards), \texttt{"Flashcard"} (thẻ từ vựng).
+\end{itemize}
+
+\section{Tích hợp dịch vụ ngoài}
+\label{section:3.4}
+
+JPMaster mở rộng tính năng thông qua ba cổng dịch vụ API:
+\begin{itemize}
+    \item \textbf{PayOS API}: Đồng bộ hóa quá trình thanh toán. Khi học viên mua khóa học, backend gọi API PayOS sinh mã QR động. Khi học viên chuyển khoản thành công, PayOS gửi tín hiệu Webhook an toàn (được ký SHA-256 (Secure Hash Algorithm 256-bit - Băm an toàn 256-bit)) về API backend để tự động kích hoạt quyền ghi danh cho người học.
+    \item \textbf{Google Gemini AI API}: Cung cấp trợ lý AI học tập. Backend đóng vai trò lớp biên dịch, thu thập ngữ cảnh bài học hoặc flashcard hiện tại để chèn vào prompt mẫu trước khi gửi lên mô hình Gemini AI, nhận về kết quả giải thích ngữ pháp cá nhân hóa trả về cho frontend.
+    \item \textbf{Cloudinary SDK}: Quản lý và phân phối tối ưu các tài nguyên đa phương tiện (ảnh đại diện, video bài giảng, tệp âm thanh nghe hiểu choukai) cho hệ thống JPMaster.
+\end{itemize}
+
+\end{document}

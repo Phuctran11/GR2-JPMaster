@@ -1,0 +1,101 @@
+<mxGraphModel dx="1422" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <!-- Browser window outline -->
+    <mxCell id="test_win" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=2;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="50" y="50" width="1000" height="700" as="geometry" />
+    </mxCell>
+    <!-- Header Area -->
+    <mxCell id="test_header" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#001529;strokeColor=none;" vertex="1" parent="1">
+      <mxGeometry x="50" y="50" width="1000" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="test_title" value="ĐỀ THI GIẢ LẬP JLPT N3 - ĐỀ SỐ 1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=16;fontColor=#ffffff;" vertex="1" parent="1">
+      <mxGeometry x="80" y="65" width="350" height="30" as="geometry" />
+    </mxCell>
+    <mxCell id="test_timer" value="⏳ Thời gian còn lại: 134:25" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2e8;strokeColor=#ffbb96;fontColor=#d4380d;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="640" y="62" width="220" height="36" as="geometry" />
+    </mxCell>
+    <mxCell id="test_submit" value="NỘP BÀI THI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff4d4f;strokeColor=#ff4d4f;fontColor=#ffffff;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="880" y="62" width="140" height="36" as="geometry" />
+    </mxCell>
+    <!-- Section Tabs -->
+    <mxCell id="test_tabs" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#cccccc;" vertex="1" parent="1">
+      <mxGeometry x="50" y="110" width="700" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="test_tab1" value="[ 1. Kiến thức ngôn ngữ (Từ vựng/Chữ Hán) ]" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontColor=#1890ff;" vertex="1" parent="1">
+      <mxGeometry x="50" y="110" width="300" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="test_tab2" value="2. Đọc hiểu" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+      <mxGeometry x="350" y="110" width="170" height="50" as="geometry" />
+    </mxCell>
+    <mxCell id="test_tab3" value="3. Nghe hiểu (Choukai)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+      <mxGeometry x="520" y="110" width="200" height="50" as="geometry" />
+    </mxCell>
+    <!-- Test Content Area (Left) -->
+    <mxCell id="test_main" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#cccccc;" vertex="1" parent="1">
+      <mxGeometry x="50" y="160" width="700" height="590" as="geometry" />
+    </mxCell>
+    <mxCell id="test_q_title" value="Câu 1: Từ viết bằng chữ Kanji dưới đây có cách đọc Hiragana đúng nhất là gì?" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="80" y="190" width="640" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="test_q_body" value="Mẫu câu: 彼は日本語を「熱心」に勉強しています。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#d9d9d9;align=left;spacingLeft=15;fontSize=14;" vertex="1" parent="1">
+      <mxGeometry x="80" y="240" width="640" height="50" as="geometry" />
+    </mxCell>
+    <!-- Radio Options -->
+    <mxCell id="test_opt1" value="◯ A. ねつしん (Netsushin)" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=none;strokeColor=#d9d9d9;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="80" y="320" width="640" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="test_opt2" value="● B. ねっしん (Nesshin)" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=#e6f7ff;strokeColor=#1890ff;fontColor=#1890ff;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="80" y="380" width="640" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="test_opt3" value="◯ C. ねしん (Neshin)" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=none;strokeColor=#d9d9d9;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="80" y="440" width="640" height="45" as="geometry" />
+    </mxCell>
+    <mxCell id="test_opt4" value="◯ D. ねっし (Nesshi)" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=15;fillColor=none;strokeColor=#d9d9d9;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="80" y="500" width="640" height="45" as="geometry" />
+    </mxCell>
+    <!-- Support Widget / AI Flag -->
+    <mxCell id="test_flag_notes" value="✎ Ghi chú câu này" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e6;strokeColor=#ffd591;fontColor=#d46b08;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="80" y="580" width="150" height="35" as="geometry" />
+    </mxCell>
+    <!-- Navigation Panel (Right) -->
+    <mxCell id="test_sidebar" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#dddddd;" vertex="1" parent="1">
+      <mxGeometry x="750" y="110" width="300" height="640" as="geometry" />
+    </mxCell>
+    <mxCell id="test_sb_title" value="BẢNG THEO DÕI CÂU TRẢ LỜI" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="760" y="130" width="280" height="30" as="geometry" />
+    </mxCell>
+    <!-- Question Numbers Grid -->
+    <mxCell id="test_num1" value="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1890ff;strokeColor=#1890ff;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="780" y="180" width="40" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="test_num2" value="2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#cccccc;" vertex="1" parent="1">
+      <mxGeometry x="830" y="180" width="40" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="test_num3" value="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#cccccc;" vertex="1" parent="1">
+      <mxGeometry x="880" y="180" width="40" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="test_num4" value="4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#cccccc;" vertex="1" parent="1">
+      <mxGeometry x="930" y="180" width="40" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="test_num5" value="5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#cccccc;" vertex="1" parent="1">
+      <mxGeometry x="980" y="180" width="40" height="40" as="geometry" />
+    </mxCell>
+    <!-- Row 2 -->
+    <mxCell id="test_num6" value="6" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#cccccc;" vertex="1" parent="1">
+      <mxGeometry x="780" y="240" width="40" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="test_num7" value="7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d9d9d9;strokeColor=#cccccc;" vertex="1" parent="1">
+      <mxGeometry x="830" y="240" width="40" height="40" as="geometry" />
+    </mxCell>
+    <!-- Note stats -->
+    <mxCell id="test_stats" value="Đã làm: 1 / 50 câu (2%)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="770" y="550" width="260" height="30" as="geometry" />
+    </mxCell>
+    <!-- Legend -->
+    <mxCell id="test_lgd" value="■ Đã trả lời  |  □ Chưa trả lời" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#888888;" vertex="1" parent="1">
+      <mxGeometry x="770" y="590" width="260" height="30" as="geometry" />
+    </mxCell>
+  </root>
+</mxGraphModel>

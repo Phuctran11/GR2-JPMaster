@@ -1,0 +1,114 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này tổng kết lại những kết quả nghiên cứu và thực nghiệm đạt được trong suốt quá trình thực hiện đề tài nghiên cứu tốt nghiệp 2 JPMaster. Đồng thời, chương này cũng thẳng thắn tự đánh giá những điểm hạn chế hiện tại của sản phẩm và vạch ra định hướng công việc cụ thể trong tương lai nhằm nâng cấp và hoàn thiện hệ thống e-learning học tiếng Nhật một cách toàn diện.
+
+\section{Kết luận}
+
+\subsection{So sánh hệ thống JPMaster với các sản phẩm tương tự}
+Để đánh giá chính xác vị thế và giá trị thực tế của JPMaster, em đã tiến hành so sánh hệ thống với các ứng dụng học tiếng Nhật và nền tảng e-learning phổ biến hiện nay tại Bảng~\ref{tab:comparison}.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.2cm}|p{3.0cm}|p{3.0cm}|p{3.8cm}|}
+\hline
+\textbf{Tính năng} & \textbf{Duolingo / Memrise} & \textbf{Từ điển Mazii} & \textbf{JPMaster (Hệ thống đề xuất)} \\
+\hline
+Khóa học cấu trúc & Có (dạng cơ bản, trò chơi hóa) & Không (chỉ tra cứu từ điển) & Có (phân chia chương, bài học hệ thống theo giáo trình) \\
+\hline
+Ôn tập Flashcard & Có (cố định) & Có (tự tạo) & Có (tự tạo và liên kết trực tiếp bài học của hệ thống) \\
+\hline
+Trợ lý AI & Có (tính năng trả phí rất cao) & Không có dịch vụ AI bản xứ & Có (tích hợp Gemini AI cá nhân hóa theo ngữ cảnh bài học) \\
+\hline
+Thi thử JLPT & Không hỗ trợ đề thi chuẩn & Có (dạng ngân hàng đề tĩnh) & Có (giả lập thi thử phân mục, giới hạn thời gian, chấm điểm liệt) \\
+\hline
+Thanh toán tự động & Qua App Store/Google Play & Chuyển khoản thủ công / thẻ cào & Tự động hoàn toàn qua cổng PayOS (QR code thời gian thực) \\
+\hline
+\end{tabular}
+\caption{Bảng so sánh tính năng giữa JPMaster và các ứng dụng phổ biến}
+\label{tab:comparison}
+\end{table}
+
+Qua bảng so sánh trên, có thể rút ra những phân tích cụ thể về ưu, nhược điểm và sự khác biệt về mặt giải pháp công nghệ giữa hệ thống JPMaster và các sản phẩm hiện hành:
+
+\begin{itemize}
+    \item \textbf{Đối với các ứng dụng học ngôn ngữ toàn cầu (Duolingo, Memrise)}: Những ứng dụng này rất mạnh về mặt trò chơi hóa (gamification) để tạo động lực học tập cho người mới bắt đầu. Tuy nhiên, hạn chế lớn nhất của chúng là thiếu một lộ trình học tập bài bản, có chiều sâu và bám sát các giáo trình tiếng Nhật chuẩn hóa (như Minna no Nihongo hay Shinkanzen Masuta). Hệ thống bài học của các ứng dụng này mang tính rời rạc, chủ yếu hướng tới giao tiếp cơ bản ở cấp độ thấp. Mặc dù gần đây một số ứng dụng đã thử nghiệm tích hợp trợ lý AI (như Duolingo Max), nhưng chi phí đăng ký lại cực kỳ đắt đỏ đối với học viên Việt Nam (khoảng $30$/tháng) và không hỗ trợ kết nối ngữ cảnh động trực tiếp với từng bài giảng cụ thể. Ngoài ra, học viên không có công cụ tra cứu từ vựng nhanh trực tiếp tại màn hình học mà phải sử dụng thêm ứng dụng từ điển bên ngoài.
+    \item \textbf{Đối với ứng dụng từ điển chuyên dụng (Mazii)}: Mazii là một công cụ tra cứu từ vựng, ngữ pháp tiếng Nhật hàng đầu với cơ sở dữ liệu phong phú và đã phát triển thêm tính năng thi thử JLPT dưới dạng ngân hàng câu hỏi trắc nghiệm tĩnh. Tuy nhiên, Mazii không được thiết kế như một hệ quản lý học tập (LMS). Học viên không thể tham gia các khóa học bài bản dưới dạng video bài giảng, không có cơ chế tự động ghi nhận và phân tích tiến độ học tập đồng bộ, và thiếu một trợ lý AI bản xứ đồng hành giải thích sâu theo ngữ cảnh. Khi người học cần học lý thuyết hoặc ôn tập flashcard tự động hóa gắn liền với bài giảng của giáo viên, họ bắt buộc phải chuyển đổi sang các nền tảng học tập khác.
+    \item \textbf{Lợi thế tích hợp và trải nghiệm liền mạch của JPMaster}: JPMaster được thiết kế như một nền tảng hợp nhất toàn diện. Người học được trải nghiệm một hành trình học tập khép kín: xem bài giảng video, ghi lại bài học trực quan, ôn tập từ vựng qua flashcard tự động và làm đề thi thử JLPT chuẩn hóa có tính điểm sàn/điểm liệt. Điểm nhấn đột phá của JPMaster chính là khả năng hỗ trợ tại chỗ thông qua hai công cụ:
+    \begin{itemize}
+        \item \textbf{Popup JP Dictionary}: Người học chỉ cần thực hiện thao tác bôi đen (select text) bất kỳ từ vựng tiếng Nhật nào trên màn hình bài học để lập tức hiển thị popup tra cứu âm đọc Hiragana, Hán tự và nghĩa tiếng Việt mà không cần mở tab mới.
+        \item \textbf{Nút Support đa năng}: Một nút hỗ trợ nổi (FAB) cố định ở góc dưới bên phải giúp gọi nhanh trợ lý AI Gemini (được tự động điền sẵn ngữ cảnh bài học hiện tại), cho phép gửi phản hồi báo lỗi học liệu trực tiếp cho quản trị viên, mở khung tra cứu từ điển thủ công, hoặc tra cứu nhanh hệ thống phím tắt tương tác.
+    \end{itemize}
+    Sự tích hợp chặt chẽ này giúp loại bỏ hoàn toàn sự gián đoạn trong trải nghiệm người dùng (Context-Switching), nâng cao hiệu quả tự học và tối ưu hóa chi phí vận hành thông qua việc tích hợp các API dịch vụ đám mây thay vì các giải pháp độc quyền đắt đỏ.
+\end{itemize}
+
+
+\subsection{Những kết quả hệ thống đã đạt được}
+Trong suốt quá trình thực hiện nghiên cứu tốt nghiệp 2, đề tài JPMaster đã hoàn thành đầy đủ các mục tiêu thiết kế và yêu cầu kỹ thuật đề ra, cụ thể bao gồm:
+\begin{itemize}
+    \item \textbf{Về mặt giao diện (Frontend)}: Xây dựng thành công ứng dụng Single Page Application (SPA) hiện đại bằng React và TypeScript. Bố cục trang được tối ưu hóa responsive, hiệu ứng chuyển trang mượt mà bằng Framer Motion và hiển thị biểu đồ thống kê tiến độ học tập trực quan bằng Recharts.
+    \item \textbf{Về mặt máy chủ (Backend)}: Thiết kế kiến trúc dạng Modular Monolith bằng Express và TypeScript, quản lý cơ sở dữ liệu quan hệ PostgreSQL gồm 30 bảng chuẩn hóa cao qua tệp cấu hình cơ sở dữ liệu \texttt{erd.sql}.
+    \item \textbf{Về mặt tích hợp dịch vụ}: Kết nối thành công cổng thanh toán PayOS xử lý giao dịch tự động qua webhook; tích hợp cơ chế đăng nhập nhanh bằng tài khoản Google (OAuth 2.0 / OpenID Connect); tích hợp Google Gemini AI giải đáp từ vựng/ngữ pháp và nén ảnh/audio/video qua Cloudinary.
+    \item \textbf{Về mặt kiểm thử chất lượng}: Thiết lập hệ thống 16 bộ tệp kiểm thử tự động (tích hợp và hồi quy) với tỷ lệ vượt qua đạt 100\%, bảo vệ tối đa tính ổn định của các hàm nghiệp vụ chấm điểm thi, kiểm soát quyền bài học và thanh toán.
+\end{itemize}
+
+\subsection{Những điểm hạn chế của hệ thống}
+Mặc dù đã đạt được nhiều kết quả tích cực, hệ thống JPMaster vẫn tồn tại một số điểm hạn chế cần khắc phục:
+\begin{itemize}
+    \item Hệ thống chưa có tính năng ghi âm và nhận diện giọng nói (Voice AI) để đánh giá khả năng phát âm tiếng Nhật (Kaiwa) của học viên.
+    \item Thiếu các tính năng mang tính cộng đồng học tập như diễn đàn thảo luận dưới mỗi bài giảng, kênh trò chuyện trực tiếp (chat room) giữa các học viên để tăng tính tương tác xã hội.
+    \item Hệ thống hoạt động phụ thuộc hoàn toàn vào kết nối Internet, chưa hỗ trợ học tập ngoại tuyến (offline mode) cho phần Flashcard từ vựng.
+\end{itemize}
+
+\subsection{Bài học kinh nghiệm rút ra}
+Quá trình nghiên cứu và phát triển hệ thống JPMaster mang lại cho người thực hiện nhiều bài học quý báu về mặt công nghệ và quản lý dự án phần mềm:
+\begin{itemize}
+    \item Nắm vững kỹ thuật quản lý mã nguồn Monorepo bằng công cụ \texttt{pnpm} và cấu trúc workspace, giúp quản lý các dependencies đồng nhất giữa frontend và backend, tối ưu hóa tốc độ build dự án.
+    \item Nhận thức sâu sắc tầm quan trọng của việc chuẩn hóa cơ sở dữ liệu quan hệ và tối ưu hóa hiệu năng truy vấn thông qua việc thiết lập các chỉ mục (Database Indexes) cho các trường thường xuyên lọc dữ liệu như \texttt{status}, \texttt{deleted\_at}, \texttt{user\_id}...
+    \item Rút ra kinh nghiệm thực tế về kiểm thử phần mềm: Việc viết test tự động ban đầu có thể tốn thời gian, nhưng nó đem lại giá trị vô giá trong việc phát hiện hồi quy lỗi khi refactor mã nguồn hoặc nâng cấp các phiên bản thư viện.
+\end{itemize}
+
+\section{Hướng phát triển}
+
+Để khắc phục các điểm hạn chế còn tồn tại và nâng cao năng lực cạnh tranh công nghệ của hệ thống JPMaster, em vạch ra định hướng nâng cấp hệ thống theo hai giai đoạn cụ thể:
+
+\subsection{Định hướng phát triển ngắn hạn}
+Trong tương lai gần, các nỗ lực kỹ thuật tập trung vào việc tối ưu hiệu năng và nâng cấp trải nghiệm tương tác trực tiếp của các chức năng hiện tại:
+\begin{itemize}
+    \item \textbf{Tích hợp hệ thống lưu trữ đệm (Redis Caching)}:
+    \begin{itemize}
+        \item \textit{Kiến trúc}: Triển khai Redis làm lớp trung gian lưu trữ đệm (In-Memory Cache) nằm trước cơ sở dữ liệu PostgreSQL. Các dữ liệu tĩnh hoặc ít thay đổi nhưng có tần suất truy cập cực kỳ lớn như danh mục khóa học (\texttt{/api/courses}) sẽ được tuần tự hóa (serialize) thành JSON và lưu trong Redis với thuật toán đào thải khóa LRU (Least Recently Used).
+        \item \textit{Đồng bộ dữ liệu}: Sử dụng chiến lược Cache-Aside (Lazy Loading). Khi quản trị viên cập nhật học liệu (thêm/sửa/xóa), hệ thống sẽ kích hoạt sự kiện phát thải (cache invalidation) để xóa khóa tương ứng trong Redis, buộc lần truy cập tiếp theo phải đọc từ PostgreSQL và nạp lại vào cache. Giải pháp này giúp giảm tải hơn 80\% truy vấn cơ sở dữ liệu và hạ độ trễ phản hồi API xuống dưới 30ms cho người dùng vãng lai.
+    \end{itemize}
+    
+    \item \textbf{Đồng bộ thời gian xem video bài học (Video Resume Sync)}:
+    \begin{itemize}
+        \item \textit{Luồng nghiệp vụ}: Thay vì chỉ cập nhật trạng thái hoàn thành tĩnh, trình phát video sẽ theo dõi thuộc tính \texttt{currentTime} của phần tử video HTML5. Định kỳ mỗi 10 giây (sử dụng kỹ thuật throttle để tránh quá tải API) hoặc khi kích hoạt sự kiện đóng trình duyệt (\texttt{beforeunload}), frontend sẽ gửi một yêu cầu bất đồng bộ lưu \texttt{video\_timestamp} (dưới dạng giây) vào bảng \texttt{"UserLessonProgress"} ở backend.
+        \item \textit{Trải nghiệm}: Khi học viên quay lại bài học, trình phát video sẽ tự động đọc tham số này từ database và tự động phát tiếp từ thời điểm học viên tạm dừng trước đó, đảm bảo tính liền mạch tuyệt đối khi học tập.
+    \end{itemize}
+    
+    \item \textbf{Tối ưu hóa băng thông truyền tải tài nguyên đa phương tiện}:
+    \begin{itemize}
+        \item Tích hợp các bộ lọc và middleware tự động nén tệp tin trước khi tải lên Cloudinary. Đối với ảnh bài học, chuyển đổi toàn bộ sang định dạng WebP (giảm 30\% dung lượng so với PNG/JPEG nhưng giữ nguyên chất lượng).
+        \item Đối với các tệp âm thanh nghe hiểu, cấu hình bộ chuyển mã tự động hạ bitrate xuống mức 96kbps Mono (đủ tiêu chuẩn luyện nghe) để giảm tối đa độ trễ tải tệp tin khi sử dụng mạng di động yếu.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Định hướng phát triển dài hạn}
+Về mặt chiến lược công nghệ lâu dài, JPMaster sẽ hướng tới việc phát triển các module thông minh sâu và mở rộng nền tảng phân phối học tập:
+\begin{itemize}
+    \item \textbf{Xây dựng Trợ lý đánh giá hội thoại Kaiwa bằng AI (Voice AI)}:
+    \begin{itemize}
+        \item \textit{Quy trình kỹ thuật}: Tích hợp thư viện Web Audio API trên trình duyệt để ghi âm giọng nói trực tiếp của học viên khi luyện đọc câu ví dụ tiếng Nhật, xuất ra tệp âm thanh định dạng WAV/WebM. Tệp này được truyền lên backend và chuyển tiếp tới dịch vụ chuyển giọng nói thành văn bản (Speech-to-Text như OpenAI Whisper hoặc Google Speech-to-Text) để trích xuất văn bản tương ứng.
+        \item \textit{Đánh giá AI}: Backend sẽ sử dụng prompt chuyên biệt gửi kèm văn bản gốc của bài học và văn bản nhận diện được sang mô hình Gemini AI. Trợ lý AI sẽ tiến hành so sánh, phân tích các lỗi phát âm sai (như trường âm, âm ngắt, biến âm), chấm điểm độ chính xác theo thang điểm 100, đồng thời đưa ra phản hồi hướng dẫn sửa khẩu hình và ngữ điệu chi tiết cho người học.
+    \end{itemize}
+    
+    \item \textbf{Phát triển ứng dụng di động đa nền tảng tích hợp chế độ ngoại tuyến}:
+    \begin{itemize}
+        \item \textit{Kiến trúc phát triển}: Sử dụng công nghệ React Native (hoặc Expo) để xây dựng ứng dụng di động cho hai hệ điều hành iOS và Android. Điểm ưu việt là ứng dụng di động sẽ được đặt chung trong cấu trúc Monorepo hiện tại (\texttt{apps/mobile}) để tái sử dụng toàn bộ định nghĩa kiểu dữ liệu TypeScript, các hàm tiện ích và các dịch vụ gọi API đã viết ở frontend Web.
+        \item \textit{Học tập ngoại tuyến}: Tích hợp cơ sở dữ liệu cục bộ siêu nhẹ như SQLite hoặc MMKV trên thiết bị di động. Ứng dụng di động cho phép tải và lưu trữ đệm các bộ thẻ từ vựng flashcard cùng tệp phát âm dạng nén. Học viên có thể tiến hành ôn tập lật thẻ flashcard ngay cả khi không có kết nối mạng Internet. Hệ thống sẽ tự động đồng bộ hóa lịch sử ôn tập (\texttt{StudySession}) lên máy chủ backend Express ngay khi phát hiện trạng thái thiết bị có kết nối Internet trở lại.
+    \end{itemize}
+\end{itemize}
+
+\end{document}

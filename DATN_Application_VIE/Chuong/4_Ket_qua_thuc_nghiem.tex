@@ -1,0 +1,778 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này trình bày kiến trúc phần mềm và thiết kế cơ sở dữ liệu chi tiết của hệ thống JPMaster.
+
+\section{Kiến trúc hệ thống}
+\label{section:4.1}
+
+Hệ thống JPMaster được xây dựng và triển khai theo mô hình kiến trúc phân tán Client-Server tách biệt, tối ưu hóa việc phân chia trách nhiệm (Separation of Concerns). Toàn bộ hệ thống hoạt động thông qua sự tương tác bất đồng bộ giữa ba thành phần cốt lõi: Ứng dụng khách (Frontend Client), Máy chủ ứng dụng (Backend RESTful API Server), và Hệ quản trị cơ sở dữ liệu (PostgreSQL Database), kết hợp linh hoạt với các dịch vụ đám mây bên thứ ba.
+
+Cụ thể, luồng vận hành kiến trúc tổng thể của hệ thống được mô tả chi tiết như sau:
+\begin{enumerate}
+    \item \textbf{Phân hệ Phục vụ Giao diện (Frontend Client)}: Hoạt động như một ứng dụng đơn trang (SPA - Single Page Application) được phát triển bằng React, Vite và TypeScript. Frontend chạy trực tiếp trên trình duyệt của người dùng, tự động kết xuất giao diện động và gửi các yêu cầu truy vấn dữ liệu dưới dạng JSON thông qua giao thức HTTPS. Frontend không tương tác trực tiếp với cơ sở dữ liệu mà phải đi qua lớp bảo mật API của Backend.
+    \item \textbf{Phân hệ Xử lý Nghiệp vụ (Backend API Server)}: Được xây dựng bằng khung ứng dụng Express kết hợp TypeScript. Backend đóng vai trò như một cầu nối xử lý trung tâm, tiếp nhận các yêu cầu từ Frontend, thực hiện các bước xác thực thông tin đăng nhập (JWT và HTTP-only Cookies), kiểm tra tính toàn vẹn và hợp lệ của dữ liệu truyền vào, sau đó thực thi các logic nghiệp vụ và tương tác với cơ sở dữ liệu PostgreSQL.
+    \item \textbf{Phân hệ Cơ sở dữ liệu (Database Store)}: Sử dụng PostgreSQL làm cơ sở dữ liệu quan hệ chính. Máy chủ backend thiết lập kết nối an toàn tới cơ sở dữ liệu thông qua cơ chế quản lý hồ chứa kết nối (Connection Pooling) của thư viện \texttt{pg}. Điều này giúp tối ưu hóa hiệu năng bằng cách tái sử dụng các kết nối hiện có, giảm độ trễ khi có nhiều yêu cầu truy vấn đồng thời từ người dùng.
+    \item \textbf{Phân hệ Tích hợp dịch vụ đám mây ngoài}:
+    \begin{itemize}
+        \item \textit{Cổng thanh toán PayOS}: Khi người học thực hiện đăng ký khóa học, backend gọi API PayOS để sinh liên kết thanh toán và mã QR động. Sau khi giao dịch chuyển khoản thành công, PayOS gửi tín hiệu Webhook an toàn được ký SHA-256 về endpoint của backend để tự động kích hoạt quyền ghi danh.
+        \item \textit{Trí tuệ nhân tạo Google Gemini AI}: Hỗ trợ tính năng giải thích ngữ pháp và từ vựng cá nhân hóa theo ngữ cảnh học tập. Backend đóng vai trò thu thập dữ liệu (Kanji, câu ví dụ hiện tại) tạo prompt chuẩn hóa và gửi yêu cầu lên API của Google Gemini, sau đó làm sạch kết quả trả về cho học viên.
+        \item \textit{Dịch vụ lưu trữ Cloudinary}: Toàn bộ các học liệu đa phương tiện dung lượng lớn như video bài giảng, hình ảnh minh họa flashcard, tệp âm thanh nghe hiểu (.mp3) được lưu trữ và tối ưu hóa phân phối thông qua CDN (Content Delivery Network) của Cloudinary để đảm bảo tốc độ tải mượt mà.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Phân lớp và phân gói hệ thống}
+Hệ thống JPMaster được tổ chức phát triển dưới cấu trúc monorepo thông qua công cụ quản lý gói \texttt{pnpm}. Mã nguồn dự án được tách biệt rõ ràng thành hai thư mục lớn tương ứng với hai vai trò chính trong cấu trúc client-server: \texttt{apps/frontend} (giao diện người dùng) và \texttt{apps/backend} (xử lý nghiệp vụ và lưu trữ). Dưới đây là mô tả chi tiết cấu trúc phân lớp và phân gói của từng thành phần trong hệ thống:
+
+\subsubsection{Cấu trúc phân gói phía Frontend (React \& TypeScript)}
+Thư mục gốc của frontend đặt tại \texttt{apps/frontend/src/}, được tổ chức thành các gói chức năng chuyên biệt:
+\begin{itemize}
+    \item \textbf{assets/}: Lưu trữ các tài nguyên tĩnh như hình ảnh minh họa, logo, tệp tin định dạng tĩnh phục vụ hiển thị giao diện.
+    \item \textbf{components/}: Gói chứa toàn bộ các component giao diện người dùng được phân chia theo hai cấp độ:
+    \begin{itemize}
+        \item \textit{Component dùng chung (Shared UI)}: Đặt trong thư mục \texttt{components/ui} như các nút bấm (\texttt{button}), khung nhập liệu, thanh tiến trình (\texttt{progress}), thanh điều hướng (\texttt{header}).
+        \item \textit{Component theo nghiệp vụ (Domain-specific UI)}: Phân chia theo từng module như bài học (\texttt{lesson/}), ôn tập từ vựng (\texttt{flashcards/}), thi thử (\texttt{jlpt/}), ngân hàng câu hỏi (\texttt{questions/}), trợ lý ảo (\texttt{ai/}), và giao diện quản trị (\texttt{admin/}).
+    \end{itemize}
+    \item \textbf{contexts/}: Quản lý các trạng thái toàn cục của ứng dụng như thông tin đăng nhập và phiên làm việc (\texttt{AuthContext}), giao diện sáng/tối (\texttt{ThemeContext}), và hệ thống thông báo đẩy (\texttt{ToastContext}).
+    \item \textbf{hooks/}: Chứa các custom hooks để tách biệt logic xử lý dữ liệu và tương tác ra khỏi giao diện hiển thị. Các hook được tổ chức đồng bộ theo miền nghiệp vụ tương ứng, ví dụ \texttt{hooks/course} (quản lý khóa học), \texttt{hooks/lesson} (tiến trình bài học), \texttt{hooks/jlpt} (tiến trình làm đề thi).
+    \item \textbf{pages/}: Định nghĩa các trang giao diện đại diện cho các route chính trong hệ thống như trang chủ, trang chi tiết khóa học, màn hình học bài, trang ôn tập flashcard, trang làm bài thi thử, và trang thống kê hồ sơ cá nhân.
+    \item \textbf{services/}: Gói API client tập trung (\texttt{api.ts}) sử dụng thư viện kết nối mạng, chịu trách nhiệm định nghĩa các endpoint và xử lý đồng bộ hóa kiểu dữ liệu phản hồi từ backend.
+    \item \textbf{styles/}: Lưu trữ cấu hình Tailwind CSS mở rộng để tùy biến hệ màu sắc, phông chữ và hiệu ứng chuyển động.
+    \item \textbf{utils/}: Các hàm bổ trợ thuần túy (helper functions) phục vụ định dạng thời gian, tính toán dữ liệu hoặc xác thực định dạng dữ liệu đầu vào.
+\end{itemize}
+
+\subsubsection{Cấu trúc phân lớp phía Backend (Express \& TypeScript)}
+Backend hoạt động theo mô hình phân lớp Modular Monolith kết hợp kiến trúc phân tầng MVC (Model - View - Controller) cải tiến. Mã nguồn đặt tại \texttt{apps/backend/src/} được phân chia rõ rệt thành các lớp từ ngoài vào trong:
+\begin{itemize}
+    \item \textbf{Lớp định tuyến (Routes - \texttt{routes/})}: Là cổng tiếp nhận đầu tiên của các request từ frontend. Các file định tuyến chịu trách nhiệm ánh xạ đường dẫn URL tới đúng controller xử lý, đồng thời gắn kèm các middleware kiểm tra quyền hạn.
+    \item \textbf{Lớp điều khiển (Controllers - \texttt{controllers/})}: Đóng vai trò thu thập tham số truyền vào từ HTTP request (bao gồm \texttt{params}, \texttt{query}, và \texttt{body}), thực hiện chuyển đổi kiểu dữ liệu cơ bản và chuyển tiếp yêu cầu tới lớp dịch vụ. Controller hoàn toàn độc lập với việc truy vấn cơ sở dữ liệu và chỉ chịu trách nhiệm trả về phản hồi HTTP Response chuẩn hóa.
+    \item \textbf{Lớp dịch vụ (Services - \texttt{services/})}: Nơi chứa toàn bộ logic nghiệp vụ cốt lõi của hệ thống (Business Logic Layer). Lớp này thực thi các quy tắc kiểm tra quyền truy cập (ví dụ kiểm tra học viên đã mua khóa học hay chưa), gọi các mô hình dữ liệu để thực hiện nghiệp vụ, điều phối giao dịch cơ sở dữ liệu (Database Transactions), và giao tiếp với các cổng dịch vụ bên thứ ba (Google Gemini, PayOS, Cloudinary).
+    \item \textbf{Lớp mô hình dữ liệu (Models - \texttt{models/})}: Lớp duy nhất tương tác trực tiếp với hệ quản trị cơ sở dữ liệu PostgreSQL. Các model chứa các câu lệnh SQL thuần được viết tối ưu hóa để thực hiện truy vấn và thay đổi dữ liệu, định dạng cấu trúc dữ liệu trả về cho lớp dịch vụ.
+    \item \textbf{Lớp cấu hình (Config - \texttt{config/})}: Quản lý các biến môi trường hệ thống, thiết lập kết nối PostgreSQL Pool (\texttt{database.ts}), cấu hình bảo mật CORS, và cấu hình các hằng số vận hành hệ thống (\texttt{runtime.ts}).
+    \item \textbf{Lớp trung gian (Middlewares - \texttt{middlewares/})}: Thực thi các tác vụ kiểm tra trước khi request đi vào controller như xác thực mã JWT (\texttt{auth.middleware.ts}), kiểm tra vai trò quản trị (\texttt{admin.middleware.ts}), và bắt lỗi tập trung (\texttt{error.middleware.ts}).
+\end{itemize}
+
+Sự phân lớp nghiêm ngặt này bảo đảm tính độc lập cao giữa các tầng: controller không truy cập trực tiếp database, model không chứa các khái niệm HTTP request/response, và mọi thay đổi về cơ sở dữ liệu chỉ cần sửa đổi duy nhất tại tầng Model.
+
+\section{Thiết kế cơ sở dữ liệu}
+\label{section:4.2}
+
+Hệ thống JPMaster sử dụng PostgreSQL làm hệ quản trị cơ sở dữ liệu quan hệ chính. Cơ sở dữ liệu được thiết kế tuân thủ các quy tắc chuẩn hóa (từ dạng chuẩn 1NF đến 3NF) nhằm hạn chế tối đa việc dư thừa dữ liệu và loại bỏ các dị thường khi thêm, sửa, xóa thông tin.
+
+Mối liên kết giữa các thực thể trong cơ sở dữ liệu của JPMaster được xây dựng thông qua hệ thống khóa ngoại (\textit{Foreign Keys}) chặt chẽ kết hợp cơ chế xóa tầng (\textit{ON DELETE CASCADE} hoặc \textit{ON DELETE SET NULL}):
+\begin{itemize}
+    \item \textbf{Mối quan hệ người dùng và tiến trình}: Thực thể \texttt{User} đóng vai trò khóa ngoại trong hầu hết các bảng nghiệp vụ cá nhân như mua khóa học (\texttt{Purchase}), ghi danh (\texttt{CourseEnrollment}), bộ sưu tập từ vựng (\texttt{FlashcardCollection}), lượt làm bài thi (\texttt{QuizAttempt}), tiến độ xem video bài học (\texttt{UserLessonProgress}), và chứng chỉ số (\texttt{Certificate}).
+    \item \textbf{Mối quan hệ phân cấp nội dung học}: Khóa học (\texttt{Course}) chứa nhiều bài học (\texttt{Lesson}) qua quan hệ một - nhiều. Mỗi bài học có thể liên kết với một bài tập ngắn (\texttt{Quiz}) và các thẻ từ vựng (\texttt{Flashcard}) tương ứng.
+    \item \textbf{Mối quan hệ thi cử và chấm điểm}: Một đề thi thử JLPT (\texttt{JLPTExam}) chứa nhiều phân môn thi (\texttt{JLPTSection}). Mỗi phân môn liên kết với ngân hàng câu hỏi trắc nghiệm (\texttt{Question}) và các câu trả lời tương ứng (\texttt{Option}) qua các bảng trung gian để tối ưu hóa việc quản lý.
+    \item \textbf{Mối quan hệ thanh toán}: Mỗi bản ghi mua khóa học (\texttt{Purchase}) liên kết chặt chẽ với một giao dịch thanh toán chi tiết (\texttt{PaymentTransaction}) lưu mã đơn hàng cổng PayOS để đối soát bất đồng bộ qua Webhook.
+\end{itemize}
+
+Danh sách và cấu trúc chi tiết các bảng trong cơ sở dữ liệu quan hệ của hệ thống JPMaster được trình bày dưới đây. Các trường dữ liệu liên quan đến các tính năng đã xóa (như Goals, Study Session, Blog, Lesson Notes, Achievements) đều đã được loại bỏ để phản ánh chính xác cấu trúc thực tế.
+
+\subsubsection*{1. Bảng User (Tài khoản người dùng)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{user\_id} & SERIAL & PRIMARY KEY, mã định danh người dùng tăng tự động \\
+\hline
+\texttt{username} & VARCHAR(50) & UNIQUE, NOT NULL, tên tài khoản đăng nhập \\
+\hline
+\texttt{email} & VARCHAR(100) & UNIQUE, NOT NULL, địa chỉ thư điện tử \\
+\hline
+\texttt{password\_hash} & VARCHAR(255) & NOT NULL, chuỗi mã hóa mật khẩu \\
+\hline
+\texttt{avatar\_url} & TEXT & Đường dẫn ảnh đại diện \\
+\hline
+\texttt{role} & VARCHAR(20) & NOT NULL, vai trò người dùng (learner, owner, admin) \\
+\hline
+\texttt{status} & VARCHAR(20) & NOT NULL, trạng thái tài khoản (active, suspended, deleted) \\
+\hline
+\texttt{created\_at} & TIMESTAMP & Thời điểm đăng ký tài khoản \\
+\hline
+\texttt{updated\_at} & TIMESTAMP & Thời điểm cập nhật thông tin tài khoản gần nhất \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng User}
+\label{tab:schema_user}
+\end{table}
+
+\subsubsection*{2. Bảng CloudinaryAsset (Quản lý tệp đa phương tiện)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{asset\_id} & SERIAL & PRIMARY KEY, mã định danh tài nguyên \\
+\hline
+\texttt{public\_id} & VARCHAR(255) & UNIQUE, NOT NULL, mã định danh của tài nguyên trên Cloudinary \\
+\hline
+\texttt{secure\_url} & TEXT & NOT NULL, đường dẫn HTTPS truy cập tài nguyên \\
+\hline
+\texttt{resource\_type} & VARCHAR(20) & NOT NULL, kiểu tài nguyên (image, video, raw) \\
+\hline
+\texttt{media\_kind} & VARCHAR(20) & NOT NULL, nhóm phương tiện (image, video, audio) \\
+\hline
+\texttt{format} & VARCHAR(30) & Định dạng tệp tin (ví dụ: mp3, mp4, png) \\
+\hline
+\texttt{bytes} & BIGINT & Dung lượng tệp tin tính bằng byte \\
+\hline
+\texttt{width} & INT & Chiều rộng (đối với ảnh/video) \\
+\hline
+\texttt{height} & INT & Chiều cao (đối với ảnh/video) \\
+\hline
+\texttt{duration\_seconds} & NUMERIC(10,2) & Thời lượng của video hoặc tệp âm thanh tính bằng giây \\
+\hline
+\texttt{folder} & VARCHAR(255) & Thư mục chứa tệp trên Cloudinary \\
+\hline
+\texttt{original\_filename} & VARCHAR(255) & Tên tệp tin gốc khi tải lên \\
+\hline
+\texttt{uploaded\_by} & INT & Khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{created\_at} & TIMESTAMP & Thời điểm tải tệp lên \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng CloudinaryAsset}
+\label{tab:schema_cloudinaryasset}
+\end{table}
+
+\subsubsection*{3. Bảng Course (Danh mục khóa học)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{course\_id} & SERIAL & PRIMARY KEY, mã định danh khóa học \\
+\hline
+\texttt{title} & VARCHAR(255) & NOT NULL, tiêu đề khóa học \\
+\hline
+\texttt{description} & TEXT & Mô tả chi tiết về khóa học \\
+\hline
+\texttt{level} & VARCHAR(50) & Cấp độ khóa học (beginner, intermediate, advanced) \\
+\hline
+\texttt{duration} & INT & Tổng thời lượng ước tính (phút) \\
+\hline
+\texttt{price} & NUMERIC(10,2) & NOT NULL, học phí khóa học (VND) \\
+\hline
+\texttt{cover\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id) \\
+\hline
+\texttt{image\_url} & TEXT & Đường dẫn ảnh bìa dự phòng \\
+\hline
+\texttt{created\_by} & INT & Khóa ngoại REFERENCES \texttt{"User"}(user\_id), người tạo khóa học \\
+\hline
+\texttt{created\_at} & TIMESTAMP & Thời điểm tạo khóa học \\
+\hline
+\texttt{updated\_at} & TIMESTAMP & Thời điểm cập nhật khóa học gần nhất \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng Course}
+\label{tab:schema_course}
+\end{table}
+
+\subsubsection*{4. Bảng Lesson (Bài học thuộc khóa học)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{lesson\_id} & SERIAL & PRIMARY KEY, mã định danh bài học \\
+\hline
+\texttt{course\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Course"}(course\_id) \\
+\hline
+\texttt{title} & VARCHAR(255) & NOT NULL, tiêu đề bài học \\
+\hline
+\texttt{content\_text} & TEXT & Nội dung chữ hoặc hướng dẫn bài học \\
+\hline
+\texttt{video\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id), video bài giảng \\
+\hline
+\texttt{video\_url} & TEXT & Đường dẫn video dự phòng \\
+\hline
+\texttt{audio\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id), tệp âm thanh nghe \\
+\hline
+\texttt{audio\_url} & TEXT & Đường dẫn tệp âm thanh dự phòng \\
+\hline
+\texttt{order\_index} & INT & NOT NULL, thứ tự bài học trong khóa học \\
+\hline
+\texttt{duration} & INT & Thời lượng bài học (phút) \\
+\hline
+\texttt{created\_at} & TIMESTAMP & Thời điểm tạo bài học \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng Lesson}
+\label{tab:schema_lesson}
+\end{table}
+
+\subsubsection*{5. Bảng FlashcardCollection (Bộ sưu tập Flashcard)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{collection\_id} & SERIAL & PRIMARY KEY, mã định danh bộ sưu tập \\
+\hline
+\texttt{user\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{title} & VARCHAR(255) & NOT NULL, tiêu đề bộ sưu tập từ vựng \\
+\hline
+\texttt{description} & TEXT & Mô tả bộ sưu tập \\
+\hline
+\texttt{visibility} & VARCHAR(20) & Quyền riêng tư (private, public) \\
+\hline
+\texttt{created\_at} & TIMESTAMP & Thời điểm tạo bộ sưu tập \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng FlashcardCollection}
+\label{tab:schema_flashcardcollection}
+\end{table}
+
+\subsubsection*{6. Bảng Flashcard (Thẻ từ vựng chi tiết)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{flashcard\_id} & SERIAL & PRIMARY KEY, mã định danh thẻ flashcard \\
+\hline
+\texttt{collection\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"FlashcardCollection"}(collection\_id) ON DELETE CASCADE \\
+\hline
+\texttt{lesson\_id} & INT & Khóa ngoại REFERENCES \texttt{"Lesson"}(lesson\_id) ON DELETE SET NULL \\
+\hline
+\texttt{front\_text} & TEXT & NOT NULL, mặt trước thẻ (từ vựng tiếng Nhật) \\
+\hline
+\texttt{back\_text} & TEXT & NOT NULL, mặt sau thẻ (nghĩa dịch tiếng Việt) \\
+\hline
+\texttt{reading} & TEXT & Cách đọc phiên âm Hiragana/Romaji \\
+\hline
+\texttt{example\_sentence} & TEXT & Câu ví dụ minh họa bằng tiếng Nhật \\
+\hline
+\texttt{image\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id) \\
+\hline
+\texttt{image\_url} & TEXT & Đường dẫn ảnh minh họa dự phòng \\
+\hline
+\texttt{audio\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id) \\
+\hline
+\texttt{audio\_url} & TEXT & Đường dẫn tệp phát âm từ vựng dự phòng \\
+\hline
+\texttt{tags} & TEXT[] & Nhãn phân loại thẻ từ vựng \\
+\hline
+\texttt{order\_index} & INT & Thứ tự hiển thị thẻ trong bộ sưu tập \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng Flashcard}
+\label{tab:schema_flashcard}
+\end{table}
+
+\subsubsection*{7. Bảng Quiz (Bài kiểm tra trắc nghiệm ngắn)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{quiz\_id} & SERIAL & PRIMARY KEY, mã định danh bài kiểm tra \\
+\hline
+\texttt{lesson\_id} & INT & Khóa ngoại REFERENCES \texttt{"Lesson"}(lesson\_id), bài kiểm tra thuộc bài học \\
+\hline
+\texttt{course\_id} & INT & Khóa ngoại REFERENCES \texttt{"Course"}(course\_id), bài kiểm tra thuộc khóa học \\
+\hline
+\texttt{title} & VARCHAR(255) & NOT NULL, tiêu đề bài kiểm tra \\
+\hline
+\texttt{description} & TEXT & Mô tả yêu cầu bài kiểm tra \\
+\hline
+\texttt{quiz\_type} & VARCHAR(30) & Kiểu kiểm tra (lesson\_quiz, practice\_test, final\_test) \\
+\hline
+\texttt{passing\_score} & NUMERIC(5,2) & Tỷ lệ điểm tối thiểu để đạt bài thi (phần trăm) \\
+\hline
+\texttt{total\_marks} & NUMERIC(5,2) & Tổng số điểm của bài kiểm tra \\
+\hline
+\texttt{time\_limit\_minutes} & INT & Giới hạn thời gian làm bài (phút) \\
+\hline
+\texttt{created\_by} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{created\_at} & TIMESTAMP & Thời điểm tạo bài kiểm tra \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng Quiz}
+\label{tab:schema_quiz}
+\end{table}
+
+\subsubsection*{8. Bảng ReadingPassage (Đoạn văn đọc hiểu JLPT)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{passage\_id} & SERIAL & PRIMARY KEY, mã định danh đoạn văn đọc hiểu \\
+\hline
+\texttt{title} & VARCHAR(255) & Tiêu đề đoạn văn đọc hiểu \\
+\hline
+\texttt{jlpt\_level} & VARCHAR(10) & Cấp độ thi JLPT tương ứng (N1-N5) \\
+\hline
+\texttt{passage\_text} & TEXT & Nội dung đoạn văn tiếng Nhật \\
+\hline
+\texttt{image\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id) \\
+\hline
+\texttt{image\_url} & TEXT & Đường dẫn ảnh minh họa đoạn văn dự phòng \\
+\hline
+\texttt{created\_by} & INT & Khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{created\_at} & TIMESTAMP & Thời điểm tạo đoạn văn đọc hiểu \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng ReadingPassage}
+\label{tab:schema_readingpassage}
+\end{table}
+
+\subsubsection*{9. Bảng Question (Ngân hàng câu hỏi trắc nghiệm)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{question\_id} & SERIAL & PRIMARY KEY, mã định danh câu hỏi \\
+\hline
+\texttt{question\_text} & TEXT & NOT NULL, nội dung câu hỏi \\
+\hline
+\texttt{question\_type} & VARCHAR(30) & Kiểu câu hỏi (single\_choice, multiple\_choice, true\_false, fill\_in\_blank) \\
+\hline
+\texttt{difficulty\_level} & VARCHAR(20) & Độ khó (easy, medium, hard, expert) \\
+\hline
+\texttt{explanation} & TEXT & Lời giải thích đáp án \\
+\hline
+\texttt{points} & NUMERIC(5,2) & Số điểm tối đa cho câu hỏi \\
+\hline
+\texttt{jlpt\_level} & VARCHAR(10) & Cấp độ thi thử JLPT (N1-N5) \\
+\hline
+\texttt{section\_type} & VARCHAR(30) & Phân môn thi (vocabulary, grammar, reading, listening) \\
+\hline
+\texttt{reading\_passage\_id} & INT & Khóa ngoại REFERENCES \texttt{"ReadingPassage"}(passage\_id), liên kết đọc hiểu \\
+\hline
+\texttt{image\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id) \\
+\hline
+\texttt{image\_url} & TEXT & Đường dẫn ảnh câu hỏi dự phòng \\
+\hline
+\texttt{audio\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id) \\
+\hline
+\texttt{audio\_url} & TEXT & Đường dẫn tệp âm thanh nghe hiểu dự phòng \\
+\hline
+\texttt{created\_by} & INT & Khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng Question}
+\label{tab:schema_question}
+\end{table}
+
+\subsubsection*{10. Bảng Option (Các phương án lựa chọn trả lời)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{option\_id} & SERIAL & PRIMARY KEY, mã định danh phương án \\
+\hline
+\texttt{question\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Question"}(question\_id) ON DELETE CASCADE \\
+\hline
+\texttt{option\_text} & TEXT & NOT NULL, nội dung phương án lựa chọn \\
+\hline
+\texttt{is\_correct} & BOOLEAN & NOT NULL, xác định đây có phải đáp án đúng hay không \\
+\hline
+\texttt{explanation} & TEXT & Giải thích cụ thể cho phương án này \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng Option}
+\label{tab:schema_option}
+\end{table}
+
+\subsubsection*{11. Bảng QuizQuestion (Bảng trung gian câu hỏi Quiz)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{quiz\_question\_id} & SERIAL & PRIMARY KEY, mã liên kết câu hỏi quiz \\
+\hline
+\texttt{quiz\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Quiz"}(quiz\_id) ON DELETE CASCADE \\
+\hline
+\texttt{question\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Question"}(question\_id) ON DELETE CASCADE \\
+\hline
+\texttt{order\_index} & INT & Thứ tự hiển thị câu hỏi trong bài quiz \\
+\hline
+\texttt{marks} & NUMERIC(5,2) & Điểm số quy định cho câu hỏi trong bài quiz này \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng QuizQuestion}
+\label{tab:schema_quizquestion}
+\end{table}
+
+\subsubsection*{12. Bảng QuizAttempt (Lượt làm bài trắc nghiệm / Đề thi thử)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{attempt\_id} & SERIAL & PRIMARY KEY, mã định danh lượt làm bài \\
+\hline
+\texttt{user\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{quiz\_id} & INT & Khóa ngoại REFERENCES \texttt{"Quiz"}(quiz\_id) \\
+\hline
+\texttt{jlpt\_exam\_id} & INT & Khóa ngoại REFERENCES \texttt{"JLPTExam"}(exam\_id) \\
+\hline
+\texttt{started\_at} & TIMESTAMP & Thời điểm bắt đầu nhấn làm bài \\
+\hline
+\texttt{submitted\_at} & TIMESTAMP & Thời điểm nộp bài \\
+\hline
+\texttt{score} & NUMERIC(5,2) & Điểm số thực tế đạt được \\
+\hline
+\texttt{total\_marks} & NUMERIC(5,2) & Tổng điểm tối đa của đề thi \\
+\hline
+\texttt{status} & VARCHAR(20) & Trạng thái làm bài (in\_progress, submitted, graded) \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng QuizAttempt}
+\label{tab:schema_quizattempt}
+\end{table}
+
+\subsubsection*{13. Bảng UserAnswer (Đáp án học viên chọn thực tế)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{user\_answer\_id} & SERIAL & PRIMARY KEY, mã định danh câu trả lời \\
+\hline
+\texttt{attempt\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"QuizAttempt"}(attempt\_id) ON DELETE CASCADE \\
+\hline
+\texttt{question\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Question"}(question\_id) \\
+\hline
+\texttt{jlpt\_section\_id} & INT & Khóa ngoại REFERENCES \texttt{"JLPTSection"}(section\_id) ON DELETE SET NULL \\
+\hline
+\texttt{option\_id} & INT & Khóa ngoại REFERENCES \texttt{"Option"}(option\_id), phương án được chọn \\
+\hline
+\texttt{answer\_text} & TEXT & Văn bản trả lời (dành cho câu hỏi điền từ) \\
+\hline
+\texttt{is\_correct} & BOOLEAN & Ghi nhận kết quả trả lời Đúng hay Sai \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng UserAnswer}
+\label{tab:schema_useranswer}
+\end{table}
+
+\subsubsection*{14. Bảng JLPTExam (Cấu trúc đề thi thử JLPT)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{exam\_id} & SERIAL & PRIMARY KEY, mã định danh đề thi thử JLPT \\
+\hline
+\texttt{title} & VARCHAR(255) & NOT NULL, tiêu đề đề thi (ví dụ: Đề thi thử N3 năm 2024) \\
+\hline
+\texttt{jlpt\_level} & VARCHAR(10) & Cấp độ thi thử JLPT (N1-N5) \\
+\hline
+\texttt{year} & INT & Năm tổ chức đề gốc (nếu có) \\
+\hline
+\texttt{duration\_minutes} & INT & Tổng thời gian làm bài thi (phút) \\
+\hline
+\texttt{created\_by} & INT & Khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{created\_at} & TIMESTAMP & Thời điểm tạo đề thi \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng JLPTExam}
+\label{tab:schema_jlptexam}
+\end{table}
+
+\subsubsection*{15. Bảng JLPTSection (Phân môn cấu thành đề thi JLPT)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{section\_id} & SERIAL & PRIMARY KEY, mã định danh phân môn \\
+\hline
+\texttt{exam\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"JLPTExam"}(exam\_id) ON DELETE CASCADE \\
+\hline
+\texttt{title} & VARCHAR(100) & Tiêu đề phân môn (ví dụ: Chữ hán - Từ vựng, Nghe hiểu) \\
+\hline
+\texttt{section\_type} & VARCHAR(30) & Loại phân môn (vocabulary, grammar, reading, listening) \\
+\hline
+\texttt{section\_order} & INT & Thứ tự phân môn trong cấu trúc đề thi JLPT \\
+\hline
+\texttt{duration\_minutes} & INT & Thời gian làm bài quy định của riêng phân môn (phút) \\
+\hline
+\texttt{audio\_asset\_id} & INT & Khóa ngoại REFERENCES \texttt{"CloudinaryAsset"}(asset\_id), chứa âm thanh nghe hiểu \\
+\hline
+\texttt{audio\_url} & TEXT & Đường dẫn âm thanh nghe hiểu dự phòng \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng JLPTSection}
+\label{tab:schema_jlptsection}
+\end{table}
+
+\subsubsection*{16. Bảng JLPTSectionQuestion (Bảng ánh xạ câu hỏi vào Phân môn JLPT)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{id} & SERIAL & PRIMARY KEY, mã liên kết câu hỏi JLPT \\
+\hline
+\texttt{section\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"JLPTSection"}(section\_id) ON DELETE CASCADE \\
+\hline
+\texttt{question\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Question"}(question\_id) \\
+\hline
+\texttt{order\_index} & INT & Thứ tự hiển thị câu hỏi trong phân môn đề thi JLPT \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng JLPTSectionQuestion}
+\label{tab:schema_jlptsectionquestion}
+\end{table}
+
+\subsubsection*{17. Bảng Purchase (Đơn mua khóa học)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{purchase\_id} & SERIAL & PRIMARY KEY, mã định danh đơn mua khóa học \\
+\hline
+\texttt{user\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{course\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Course"}(course\_id) \\
+\hline
+\texttt{purchase\_date} & TIMESTAMP & Thời điểm tạo đơn mua hàng \\
+\hline
+\texttt{price\_paid} & NUMERIC(10,2) & NOT NULL, giá trị số tiền thực trả \\
+\hline
+\texttt{status} & VARCHAR(20) & Trạng thái đơn hàng (pending, completed, canceled) \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng Purchase}
+\label{tab:schema_purchase}
+\end{table}
+
+\subsubsection*{18. Bảng PaymentTransaction (Giao dịch cổng PayOS)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{payment\_transaction\_id} & SERIAL & PRIMARY KEY, mã định danh giao dịch thanh toán \\
+\hline
+\texttt{purchase\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Purchase"}(purchase\_id) ON DELETE CASCADE \\
+\hline
+\texttt{provider} & VARCHAR(30) & NOT NULL, đơn vị cổng thanh toán (payos) \\
+\hline
+\texttt{provider\_order\_id} & VARCHAR(100) & UNIQUE, NOT NULL, mã đơn hàng gửi từ phía PayOS \\
+\hline
+\texttt{order\_code} & BIGINT & UNIQUE, mã đơn hàng định dạng số đại diện thanh toán \\
+\hline
+\texttt{provider\_payment\_link\_id} & VARCHAR(120) & Mã link liên kết cổng PayOS \\
+\hline
+\texttt{amount} & NUMERIC(12,2) & NOT NULL, số tiền cần thanh toán \\
+\hline
+\texttt{currency} & VARCHAR(10) & Đơn vị tiền tệ (VND) \\
+\hline
+\texttt{payment\_content} & VARCHAR(100) & NOT NULL, nội dung ghi chú chuyển khoản \\
+\hline
+\texttt{qr\_image\_url} & TEXT & NOT NULL, đường dẫn ảnh QR Code động sinh ra \\
+\hline
+\texttt{checkout\_url} & TEXT & Đường dẫn trang thanh toán PayOS \\
+\hline
+\texttt{status} & VARCHAR(20) & Trạng thái thanh toán (pending, paid, failed, canceled, expired) \\
+\hline
+\texttt{paid\_at} & TIMESTAMP & Thời điểm chuyển khoản thành công \\
+\hline
+\texttt{expired\_at} & TIMESTAMP & Thời điểm hết hạn của link giao dịch QR \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng PaymentTransaction}
+\label{tab:schema_paymenttransaction}
+\end{table}
+
+\subsubsection*{19. Bảng CourseEnrollment (Ghi danh học tập khóa học)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{enrollment\_id} & SERIAL & PRIMARY KEY, mã định danh ghi danh \\
+\hline
+\texttt{user\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{course\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Course"}(course\_id) \\
+\hline
+\texttt{enrollment\_date} & TIMESTAMP & Thời điểm ghi danh mở quyền học liệu \\
+\hline
+\texttt{status} & VARCHAR(20) & Trạng thái tham gia (active, completed, dropped) \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng CourseEnrollment}
+\label{tab:schema_courseenrollment}
+\end{table}
+
+\subsubsection*{20. Bảng Certificate (Chứng chỉ hoàn thành khóa học)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{certificate\_id} & SERIAL & PRIMARY KEY, mã định danh chứng chỉ \\
+\hline
+\texttt{certificate\_code} & VARCHAR(80) & UNIQUE, NOT NULL, mã số chứng chỉ \\
+\hline
+\texttt{user\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"User"}(user\_id) ON DELETE CASCADE \\
+\hline
+\texttt{course\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Course"}(course\_id) ON DELETE CASCADE \\
+\hline
+\texttt{enrollment\_id} & INT & Khóa ngoại REFERENCES \texttt{"CourseEnrollment"}(enrollment\_id) ON DELETE SET NULL \\
+\hline
+\texttt{issued\_at} & TIMESTAMP & NOT NULL, ngày cấp chứng chỉ hệ thống \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng Certificate}
+\label{tab:schema_certificate}
+\end{table}
+
+\subsubsection*{21. Bảng CourseRating (Đánh giá khóa học)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{rating\_id} & SERIAL & PRIMARY KEY, mã định danh đánh giá \\
+\hline
+\texttt{course\_id} & INT & NOT NULL, liên kết khóa học \\
+\hline
+\texttt{user\_id} & INT & NOT NULL, liên kết học viên \\
+\hline
+\texttt{rating} & NUMERIC(2,1) & Điểm đánh giá chất lượng (1.0 đến 5.0) \\
+\hline
+\texttt{review} & TEXT & Nội dung bình luận nhận xét chi tiết \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng CourseRating}
+\label{tab:schema_courserating}
+\end{table}
+
+\subsubsection*{22. Bảng UserLessonProgress (Tiến độ hoàn thành bài học)}
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{3.2cm}|p{7.1cm}|}
+\hline
+\textbf{Tên trường (Attribute)} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc / Ý nghĩa} \\
+\hline
+\texttt{user\_lesson\_progress\_id} & SERIAL & PRIMARY KEY, mã định danh tiến độ bài học \\
+\hline
+\texttt{user\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"User"}(user\_id) \\
+\hline
+\texttt{lesson\_id} & INT & NOT NULL, khóa ngoại REFERENCES \texttt{"Lesson"}(lesson\_id) \\
+\hline
+\texttt{started\_at} & TIMESTAMP & Thời điểm bắt đầu học bài \\
+\hline
+\texttt{completed\_at} & TIMESTAMP & Thời điểm hoàn thành bài học \\
+\hline
+\texttt{video\_watched\_percent} & NUMERIC(5,2) & Phần trăm thời lượng video bài học đã xem thực tế \\
+\hline
+\texttt{completed} & BOOLEAN & Trạng thái hoàn thành bài học (TRUE/FALSE) \\
+\hline
+\texttt{status} & VARCHAR(20) & Trạng thái chi tiết (not\_started, in\_progress, completed) \\
+\hline
+\end{tabular}
+\caption{Cấu trúc bảng UserLessonProgress}
+\label{tab:schema_userlessonprogress}
+\end{table}
+
+\subsection{Các liên kết và mối quan hệ giữa các bảng}
+
+Các bảng trong cơ sở dữ liệu quan hệ của JPMaster được liên kết chặt chẽ thông qua các ràng buộc khóa ngoại (Foreign Keys) nhằm đảm bảo tính toàn vẹn dữ liệu:
+\begin{itemize}
+    \item \textbf{Mối quan hệ 1-Nhiều (1-N) giữa User và các thực thể khác}: Một \texttt{User} có thể tạo ra nhiều \texttt{FlashcardCollection}, thực hiện nhiều giao dịch mua hàng (\texttt{Purchase}), thực hiện nhiều lượt làm bài (\texttt{QuizAttempt}), sở hữu nhiều chứng chỉ (\texttt{Certificate}), và có tiến trình học tập riêng biệt trên nhiều bài học (\texttt{UserLessonProgress}).
+    \item \textbf{Mối quan hệ Khóa học và Bài học}: Bảng \texttt{Course} liên kết với bảng \texttt{Lesson} qua mối quan hệ 1-N (một khóa học chứa nhiều bài học) thông qua khóa ngoại \texttt{course\_id}.
+    \item \textbf{Mối quan hệ Học tập và Ghi danh}: Học viên sau khi thanh toán thành công (\texttt{Purchase}) sẽ được ghi danh vào bảng \texttt{CourseEnrollment}. Bảng này đóng vai trò trung gian ánh xạ quan hệ Nhiều-Nhiều (N-N) giữa \texttt{User} và \texttt{Course}.
+    \item \textbf{Mối quan hệ Kiểm tra và Câu hỏi}: 
+        \begin{itemize}
+            \item Bảng \texttt{Quiz} liên kết với bảng \texttt{Lesson} qua khóa ngoại \texttt{lesson\_id}.
+            \item Bảng \texttt{Question} lưu trữ ngân hàng câu hỏi dùng chung. Bảng trung gian \texttt{QuizQuestion} kết nối Nhiều-Nhiều giữa \texttt{Quiz} và \texttt{Question}.
+            \item Mỗi câu hỏi (\texttt{Question}) có nhiều phương án lựa chọn (\texttt{Option}) qua quan hệ 1-N liên kết bằng khóa ngoại \texttt{question\_id}.
+        \end{itemize}
+    \item \textbf{Mối quan hệ Thi thử JLPT}:
+        \begin{itemize}
+            \item Một đề thi thử \texttt{JLPTExam} được phân chia thành nhiều phân môn \texttt{JLPTSection} qua khóa ngoại \texttt{exam\_id}.
+            \item Bảng trung gian \texttt{JLPTSectionQuestion} kết nối Nhiều-Nhiều giữa \texttt{JLPTSection} và câu hỏi \texttt{Question}.
+        \end{itemize}
+    \item \textbf{Mối quan hệ Giao dịch và Thanh toán}:
+        \begin{itemize}
+            \item Khi học viên tạo đơn đăng ký mua khóa học, một bản ghi \texttt{Purchase} được tạo.
+            \item Giao dịch thanh toán chi tiết \texttt{PaymentTransaction} kết nối 1-1 với \texttt{Purchase} qua khóa ngoại \texttt{purchase\_id}.
+        \end{itemize}
+    \item \textbf{Mối quan hệ Tài nguyên đám mây (CloudinaryAsset)}: Bảng \texttt{CloudinaryAsset} đóng vai trò lưu trữ đường dẫn tập trung cho tất cả tài nguyên ảnh đại diện của \texttt{User}, ảnh bìa \texttt{Course}, video bài học \texttt{Lesson}, ảnh câu hỏi \texttt{Question}, và file nghe \texttt{JLPTSection} thông qua các trường khóa ngoại \texttt{cover\_asset\_id}, \texttt{video\_asset\_id}, \texttt{audio\_asset\_id}, v.v.
+\end{itemize}
+
+\end{document}

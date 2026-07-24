@@ -1,0 +1,180 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này trình bày các giải pháp kỹ thuật cốt lõi và các đóng góp kỹ thuật đáng lưu ý nhất được em nghiên cứu, thiết kế và cài đặt thực tế trong quá trình xây dựng hệ thống JPMaster. Các giải pháp này tập trung giải quyết ba vấn đề lớn có độ phức tạp nghiệp vụ và kỹ thuật cao trong các hệ thống học tập trực tuyến hiện nay: tích hợp cổng thanh toán bất đồng bộ bảo mật, cá nhân hóa trải nghiệm học tập bằng cách nhúng ngữ cảnh bài giảng trực tiếp vào mô hình ngôn ngữ lớn (LLM), và cấu trúc hóa đề thi thử JLPT phức tạp cùng thuật toán chấm điểm tự động đa mục tiêu. Đây là những đóng góp quan trọng giúp JPMaster đạt được sự ổn định, tính bảo mật cao và tạo ra giá trị thực tiễn vượt trội so với các ứng dụng học tập thông thường.
+
+\section{Giải pháp thanh toán bất đồng bộ bảo mật qua PayOS Webhook}
+
+\subsection{Giới thiệu bài toán và thách thức}
+Trong các hệ thống e-learning thương mại, việc mua khóa học có phí yêu cầu xử lý giao dịch tài chính thời gian thực. Hệ thống phải đảm bảo rằng ngay khi học viên chuyển khoản thành công, quyền truy cập bài học phải được kích hoạt tức thời. Tuy nhiên, việc tích hợp thanh toán trực tuyến đối mặt với nhiều rủi ro bảo mật và vận hành lớn:
+\begin{itemize}
+    \item \textbf{Tấn công giả mạo (Signature Tampering)}: Kẻ xấu có thể chặn bắt gói tin hoặc giả lập dữ liệu thanh toán gửi từ cổng thanh toán về backend của hệ thống để mở khóa học mà không thực trả tiền.
+    \item \textbf{Xử lý trùng lặp giao dịch (Double-Spend / Replay Attacks)}: Gói tin xác nhận thanh toán (webhook) có thể bị gửi lặp lại nhiều lần do mạng chập chờn hoặc do kẻ tấn công gửi lại gói tin cũ nhằm gây nhiễu loạn luồng dữ liệu hệ thống.
+    \item \textbf{Độ trễ và mất mát gói tin}: Cổng thanh toán có thể gặp sự cố mạng hoặc phản hồi webhook chậm, dẫn đến việc người dùng đã trả tiền nhưng tài khoản vẫn ở trạng thái chưa thanh toán.
+    \item \textbf{Rác dữ liệu từ giao dịch hết hạn}: Người dùng tạo yêu cầu thanh toán nhưng không chuyển khoản. Nếu hệ thống không dọn dẹp các yêu cầu treo này, cơ sở dữ liệu sẽ bị tràn ngập bản ghi rác và khóa ngoại bị giữ liên kết không cần thiết.
+\end{itemize}
+
+\subsection{Giải pháp kỹ thuật thiết kế trong JPMaster}
+Em đã thiết kế và triển khai một giải pháp xử lý thanh toán bất đồng bộ kết hợp máy trạng thái (state machine) và cơ chế khóa bảo mật chữ ký số. Kiến trúc giải pháp gồm các thành phần cốt lõi sau:
+
+\subsubsection{Thiết kế máy trạng thái giao dịch song song}
+Hệ thống quản lý trạng thái thanh toán thông qua hai thực thể độc lập nhưng liên kết chặt chẽ với nhau là \texttt{"Purchase"} và \texttt{"PaymentTransaction"}.
+\begin{itemize}
+    \item Bảng \texttt{"Purchase"} đại diện cho đơn đặt hàng khóa học của người dùng, có các trạng thái: \texttt{pending} (đang chờ), \texttt{completed} (hoàn thành), và \texttt{canceled} (đã hủy).
+    \item Bảng \texttt{"PaymentTransaction"} đại diện cho các giao dịch thực tế tương tác với PayOS, gồm các trạng thái: \texttt{pending}, \texttt{paid}, \texttt{failed}, \texttt{canceled}, và \texttt{expired}.
+\end{itemize}
+Cơ chế tách biệt này giúp một đơn hàng \texttt{"Purchase"} có thể liên kết với nhiều lượt giao dịch \texttt{"PaymentTransaction"} khác nhau. Nếu người dùng tạo mã QR thanh toán nhưng không chuyển khoản trong thời gian quy định, giao dịch đó sẽ chuyển sang \texttt{expired}, nhưng đơn hàng vẫn có thể tạo lại mã QR mới thay vì phải tạo lại toàn bộ giỏ hàng từ đầu.
+
+\subsubsection{Xác thực Webhook bằng chữ ký số HMAC-SHA256}
+Để ngăn chặn hoàn toàn tấn công giả mạo dữ liệu webhook, backend JPMaster thực hiện xác thực tính toàn vẹn của dữ liệu bằng thuật toán mã hóa khóa công khai HMAC-SHA256. Dữ liệu nhận từ webhook của PayOS bao gồm phần thân dữ liệu \texttt{data} và một mã băm chữ ký \texttt{signature}. Quy trình kiểm tra được thực thi tại middleware bảo mật:
+\begin{equation}
+    Signature_{calc} = \text{HMAC-SHA256}(Body_{sorted}, SecretKey)
+\end{equation}
+Trong đó, $Body_{sorted}$ là chuỗi dữ liệu nhận được sau khi đã sắp xếp các thuộc tính theo thứ tự bảng chữ cái alphabet, và $SecretKey$ là khóa bí mật được cấp duy nhất giữa hệ thống JPMaster và cổng PayOS. Backend chỉ xử lý và mở khóa học khi và chỉ khi:
+\begin{equation}
+    Signature_{calc} \equiv Signature_{received}
+\end{equation}
+Nếu hai chữ ký không trùng khớp, hệ thống lập tức từ chối yêu cầu và ghi log cảnh báo xâm nhập bảo mật.
+
+\subsubsection{Cơ chế chống trùng lặp (Idempotency Locking)}
+Khi nhận được webhook hợp lệ, để tránh xử lý trùng lặp (ví dụ trường hợp PayOS gửi lại webhook lần 2 do mất gói tin ACK), backend thực hiện một giao dịch cơ sở dữ liệu (database transaction) cô lập mức độ cao. Tiến trình thực hiện kiểm tra trạng thái giao dịch hiện tại trong bảng \texttt{"PaymentTransaction"}:
+\begin{verbatim}
+SELECT status FROM "PaymentTransaction" 
+WHERE order_code = $1 FOR UPDATE;
+\end{verbatim}
+Lệnh \texttt{FOR UPDATE} thực hiện khóa dòng (row-level lock) trong PostgreSQL. Nếu trạng thái giao dịch đã là \texttt{paid}, hệ thống sẽ lập tức trả về mã phản hồi thành công `200 OK` cho PayOS mà không thực hiện lại luồng ghi danh khóa học. Nếu trạng thái là \texttt{pending}, hệ thống mới tiến hành cập nhật trạng thái giao dịch thành \texttt{paid}, đổi trạng thái \texttt{"Purchase"} thành \texttt{completed}, và ghi nhận bản ghi mới vào bảng \texttt{"CourseEnrollment"} để chính thức mở quyền học tập cho học viên.
+
+\subsubsection{Tiến trình quét dọn tự động (Sweeper Job)}
+Để giải quyết các giao dịch bị bỏ quên, backend cài đặt một tiến trình chạy nền sử dụng cơ chế hẹn giờ quét định kỳ mỗi 60 giây. Tiến trình này tìm kiếm các giao dịch có trạng thái \texttt{pending} đã quá thời gian thanh toán quy định (\texttt{expired\_at}):
+\begin{verbatim}
+UPDATE "PaymentTransaction" SET status = 'expired'
+WHERE status = 'pending' AND expired_at < NOW();
+\end{verbatim}
+Đồng thời, hệ thống tự động cập nhật trạng thái đơn hàng \texttt{"Purchase"} tương ứng về \texttt{canceled} để trả lại quyền đăng ký mới cho người dùng.
+
+\subsection{Kết quả đạt được}
+Giải pháp tích hợp thanh toán bất đồng bộ mang lại kết quả tối ưu:
+\begin{itemize}
+    \item Loại bỏ hoàn toàn nguy cơ giả mạo hóa đơn nhờ cơ chế mã hóa chữ ký số HMAC-SHA256.
+    \item Đảm bảo tính nhất quán dữ liệu 100\% dưới các tình huống lỗi mạng hoặc lặp gói tin nhờ cơ chế idempotency và khóa dòng PostgreSQL.
+    \item Hệ thống vận hành trơn tru tự động, tự giải phóng các giao dịch rác, tiết kiệm dung lượng lưu trữ cơ sở dữ liệu và giúp trải nghiệm của học viên diễn ra nhanh chóng, thuận tiện.
+\end{itemize}
+
+\section{Giải pháp cá nhân hóa học tập với Trợ lý AI kết hợp ngữ cảnh bài học}
+
+\subsection{Giới thiệu bài toán và thách thức}
+Trợ lý AI đang trở thành một công cụ đắc lực hỗ trợ học tập trực tuyến. Tuy nhiên, việc tích hợp các mô hình ngôn ngữ lớn (như OpenAI GPT hay Google Gemini) vào hệ thống học tập một cách ngây thơ thường gặp các rào cản lớn:
+\begin{itemize}
+    \item \textbf{Sự mơ hồ về ngữ cảnh (Context-Drift)}: AI không biết người học đang xem bài giảng nào. Khi học viên hỏi một từ vựng đa nghĩa hoặc cấu trúc ngữ pháp phức tạp, AI thường đưa ra giải thích chung chung hoặc dịch sai sắc thái nghĩa cụ thể của giáo trình đang học.
+    \item \textbf{Giới hạn Token và Chi phí}: Việc gửi kèm toàn bộ tài liệu khóa học hoặc toàn bộ danh sách từ vựng lên API trong mỗi câu hỏi là không khả thi do giới hạn kích thước ngữ cảnh (context window) của mô hình và chi phí API cực kỳ đắt đỏ.
+    \item \textbf{Thiếu tính cá nhân hóa và lưu giữ}: Phản hồi của AI thường trôi đi sau khi kết thúc phiên chat. Học viên không thể lưu giữ lại các kiến thức bổ ích mà AI vừa giải thích để ôn tập sau này.
+\end{itemize}
+
+\subsection{Giải pháp kỹ thuật thiết kế trong JPMaster}
+JPMaster giải quyết triệt để các thách thức này bằng cách thiết kế một cấu trúc dịch vụ ngữ cảnh AI động (\texttt{AiService}) kết hợp Prompt Engineering.
+
+\subsubsection{Cấu trúc nhúng ngữ cảnh động (Context Injection Architecture)}
+Thay vì bắt người học tự mô tả từ vựng hoặc bài học, hệ thống tự động trích xuất bối cảnh học tập hiện tại dựa trên hành động của người dùng trên giao diện.
+\begin{itemize}
+    \item Khi học viên hỏi AI từ màn hình học bài (\texttt{Lesson}): Frontend tự động gửi kèm \texttt{lessonTitle}, nội dung chính của bài giảng (\texttt{lessonContent}) và đoạn văn bản mà học viên bôi đen/đánh dấu (\texttt{selectedText}).
+    \item Khi học viên hỏi AI từ màn hình Flashcard: Hệ thống gửi thông tin từ vựng (\texttt{word}), cách đọc Kanji (\texttt{reading}), nghĩa dịch tiếng Việt (\texttt{meaning}) và câu ví dụ trong thẻ (\texttt{exampleSentence}).
+\end{itemize}
+Gói ngữ cảnh được nén gọn và gửi kèm qua API backend dưới cấu trúc JSON chuẩn hóa:
+\begin{verbatim}
+{
+  "mode": "explain",
+  "word": "taberu",
+  "reading": "taberu",
+  "meaning": "an",
+  "exampleSentence": "gohan wo taberu."
+}
+\end{verbatim}
+
+\subsubsection{Kỹ thuật thiết kế Prompts tối ưu hóa (Prompt Engineering)}
+Tại backend, \texttt{AiService} đóng vai trò là lớp biên dịch ngữ cảnh. Nó sử dụng các khuôn mẫu prompt (Prompt Templates) đã được tinh chỉnh để định hình hành vi phản hồi của Google Gemini AI:
+\begin{verbatim}
+Bạn là một trợ lý AI dạy tiếng Nhật bản xứ
+chuyên nghiệp của JPMaster. Hãy giải thích
+từ vựng/ngữ pháp dựa trên ngữ cảnh sau:
+- Từ vựng: {word} ({reading})
+- Nghĩa trong bài: {meaning}
+- Câu ví dụ: {exampleSentence}
+Yêu cầu: Hãy phân tích cấu trúc ngữ pháp của
+câu ví dụ, cung cấp cách phát âm và đề xuất 
+2 câu ví dụ thực tế tương đương kèm dịch nghĩa.
+\end{verbatim}
+Việc định vị rõ vai trò và giới hạn phạm vi thông tin giúp mô hình AI tập trung tối đa vào bối cảnh thực tế của bài học, loại bỏ các phản hồi lan man không cần thiết.
+
+
+
+\subsection{Kết quả đạt được}
+Giải pháp cá nhân hóa trợ lý AI mang lại nhiều lợi ích thiết thực:
+\begin{itemize}
+    \item Trợ lý AI cung cấp các câu trả lời chính xác, bám sát nội dung bài học thực tế của JPMaster với độ chính xác cao.
+    \item Tiết kiệm hơn 70\% lượng token gửi đi nhờ cơ chế lọc ngữ cảnh động tại nguồn, từ đó tăng tốc độ phản hồi của API và giảm thiểu chi phí vận hành.
+    \item Nâng cao trải nghiệm tự học của học viên bằng cách kết nối liền mạch giữa việc hỏi đáp và học tập cùng trợ lý AI.
+\end{itemize}
+
+\section{Giải pháp cấu trúc đề thi và tính điểm tự động theo phần của kỳ thi JLPT}
+
+\subsection{Giới thiệu bài toán và thách thức}
+Kỳ thi đánh giá năng lực tiếng Nhật (JLPT) có cấu trúc đề thi và phương thức tính điểm vô cùng phức tạp, khác biệt hoàn toàn so với các bài kiểm tra trắc nghiệm thông thường:
+\begin{itemize}
+    \item \textbf{Cấu trúc đề thi đa phân môn}: Một đề thi thử JLPT phải được chia làm nhiều phần thi độc lập (Language Knowledge - Từ vựng/Ngữ pháp, Reading - Đọc hiểu, Listening - Nghe hiểu). Mỗi phần thi có thời gian làm bài riêng biệt. Phần thi Nghe đòi hỏi phát tệp âm thanh nghe hiểu đồng bộ với toàn bộ câu hỏi của phần thi đó.
+    \item \textbf{Thuật toán tính điểm liệt (Passing Thresholds)}: Điểm thi JLPT không chỉ tính tổng điểm để xét đỗ/trượt. Mỗi phần thi có một mức điểm tối thiểu (điểm sàn) bắt buộc phải vượt qua. Đối với cấp độ N3, tổng điểm đỗ phải từ $95/180$ trở lên, đồng thời cả 3 phần thi đều phải đạt tối thiểu từ $19/60$ điểm. Nếu học viên đạt tổng điểm $110/180$ nhưng phần Đọc hiểu chỉ đạt $15/60$ thì kết quả chung cuộc vẫn bị đánh giá là Trượt (Fail) do dính điểm liệt.
+    \item \textbf{Khả năng phục hồi trạng thái làm bài}: Đề thi JLPT kéo dài từ 100 đến 170 phút. Nếu học viên gặp sự cố sập nguồn máy tính hoặc vô tình đóng trình duyệt, hệ thống phải tự động khôi phục nguyên trạng thái bài làm cùng bộ đếm thời gian đang chạy dở.
+\end{itemize}
+
+\subsection{Giải pháp kỹ thuật thiết kế trong JPMaster}
+Em đã giải quyết trọn vẹn bài toán này thông qua việc thiết kế một cấu trúc cơ sở dữ liệu quan hệ chặt chẽ và thuật toán chấm điểm đa mục tiêu ở backend.
+
+\subsubsection{Thiết kế cơ sở dữ liệu phân cấp đề thi}
+Để biểu diễn chính xác cấu trúc đề thi JLPT thực tế, cơ sở dữ liệu của JPMaster tổ chức cấu trúc liên kết 4 tầng:
+\begin{equation}
+    \text{JLPTExam} \longrightarrow \text{JLPTSection} \longrightarrow \text{JLPTSectionQuestion} \longrightarrow \text{Question}
+\end{equation}
+Trong đó:
+\begin{itemize}
+    \item \texttt{"JLPTExam"}: Lưu thông tin tổng quan của đề thi (mã đề, năm thi, cấp độ N5-N1, tổng thời gian).
+    \item \texttt{"JLPTSection"}: Phân chia đề thi thành các phần tương ứng (\textit{từ vựng, ngữ pháp, đọc hiểu, nghe hiểu}), quản lý đường dẫn âm thanh (\texttt{audio\_url}) và thời gian làm bài riêng.
+    \item \texttt{"JLPTSectionQuestion"}: Bảng liên kết trung gian ánh xạ các câu hỏi từ ngân hàng câu hỏi dùng chung vào phần thi tương ứng theo thứ tự hiển thị (\texttt{order\_index}).
+\end{itemize}
+
+\subsubsection{Thuật toán chấm điểm phân mục và kiểm tra điểm liệt}
+Khi học viên nộp bài thi thử, backend kích hoạt thuật toán chấm điểm tự động. Thuật toán hoạt động theo các bước logic sau:
+\begin{enumerate}
+    \item Lấy danh sách toàn bộ đáp án của học viên chọn lưu trong bảng \texttt{"UserAnswer"} liên kết với lượt làm bài \texttt{"QuizAttempt"}.
+    \item Phân nhóm các câu trả lời theo từng phần thi (\texttt{section\_type}).
+    \item So sánh phương án trả lời của học viên (\texttt{option\_id}) với đáp án đúng (\texttt{is\_correct = true}) trong bảng \texttt{"Option"}.
+    \item Tính toán điểm số đạt được cho từng phần thi quy đổi về thang điểm 60 theo công thức:
+    \begin{equation}
+        S_{\text{section}} = \left( \frac{N_{\text{correct}}}{N_{\text{total}}} \right) \times 60
+    \end{equation}
+    Trong đó $N_{\text{correct}}$ là số câu trả lời đúng của phần thi, và $N_{\text{total}}$ là tổng số câu hỏi của phần thi đó.
+    \item Tính tổng điểm thi thử JLPT đạt được:
+    \begin{equation}
+        S_{\text{total}} = \sum_{i=1}^{k} S_{\text{section}_{i}}
+    \end{equation}
+    Với kỳ thi JLPT N3-N1, $k = 3$ phần thi độc lập.
+    \item Kiểm tra điều kiện đỗ dựa trên điểm sàn của từng phần thi $\theta_{\text{section}}$ và tổng điểm sàn $\theta_{\text{total}}$ được cấu hình động theo cấp độ thi:
+    \begin{equation}
+        Result = \begin{cases} 
+          \text{Pass} & \text{nếu } S_{\text{total}} \ge \theta_{\text{total}} \text{ và } \forall i, S_{\text{section}_{i}} \ge \theta_{\text{section}_{i}} \\
+          \text{Fail} & \text{ngược lại}
+        \end{cases}
+    \end{equation}
+\end{enumerate}
+Đối với N3, các giá trị ngưỡng được thiết lập là $\theta_{\text{section}} = 19$ và $\theta_{\text{total}} = 95$. Kết quả tính toán chi tiết này được lưu trữ lại trong bảng dữ liệu để hiển thị biểu đồ phân tích năng lực trực quan cho học viên.
+
+\subsubsection{Cơ chế lưu trữ trạng thái làm bài thời gian thực}
+Để tăng tính bền bỉ cho ứng dụng, mỗi khi học viên chọn một đáp án trên giao diện, frontend lập tức gửi yêu cầu lưu trữ bất đồng bộ xuống API backend qua route \texttt{/api/jlpt-exams/save-answer}. Backend ghi nhận trực tiếp vào bảng \texttt{"UserAnswer"}. Nếu học viên gặp sự cố mạng hoặc tắt trình duyệt, khi truy cập lại đề thi, hệ thống kiểm tra sự tồn tại của bản ghi \texttt{"QuizAttempt"} ở trạng thái \texttt{in\_progress}, tự động tải lại toàn bộ các câu trả lời đã lưu và khôi phục thời gian làm bài còn lại bằng cách so sánh thời gian hiện tại với thời điểm bắt đầu thi (\texttt{started\_at}).
+
+\subsection{Kết quả đạt được}
+Giải pháp xây dựng module thi thử JLPT đem lại kết quả vượt mong đợi:
+\begin{itemize}
+    \item Giả lập chính xác 100\% quy chế thi và thuật toán chấm điểm của kỳ thi năng lực tiếng Nhật quốc tế.
+    \item Đảm bảo an toàn dữ liệu bài thi cho học viên trước các sự cố mất kết nối đột ngột nhờ cơ chế ghi nhận đáp án thời gian thực.
+    \item Cung cấp cho học viên báo cáo phân tích năng lực chi tiết theo từng kỹ năng, giúp học viên nhận biết rõ điểm yếu (ví dụ dính điểm liệt phần Đọc hay phần Nghe) để kịp thời ôn luyện.
+\end{itemize}
+
+\end{document}

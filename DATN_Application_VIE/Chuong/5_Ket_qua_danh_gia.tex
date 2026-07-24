@@ -1,0 +1,69 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này tổng hợp các kết quả thực tế đạt được của hệ thống JPMaster và tự đánh giá những điểm hạn chế cùng hướng phát triển tương lai.
+
+\section{Kết quả đạt được của hệ thống}
+\label{section:5.1}
+
+Hệ thống JPMaster đã hoàn thành đầy đủ các mục tiêu thiết kế và yêu cầu kỹ thuật đề ra, cụ thể:
+\begin{itemize}
+    \item \textbf{Về mặt kỹ thuật}: Phát triển thành công ứng dụng đơn trang (SPA - Single Page Application) bằng React và TypeScript ở phía frontend, kết hợp với backend Express/TypeScript dạng Modular Monolith và cơ sở dữ liệu PostgreSQL ổn định.
+    \item \textbf{Về mặt chức năng}: Hoàn thiện luồng học tập khép kín của học viên gồm: ghi danh khóa học, tự động hóa thanh toán qua cổng PayOS (QR code động), theo dõi tiến trình học chi tiết (video bài học, làm quiz), ôn tập từ vựng qua thẻ flashcards, thi thử JLPT (Japanese Language Proficiency Test - Kỳ thi Năng lực Nhật ngữ) phân môn có tính điểm sàn/điểm liệt, và nhận hỗ trợ ngữ pháp/từ vựng từ trợ lý ảo Google Gemini AI (Artificial Intelligence - Trí tuệ nhân tạo) theo thời gian thực.
+    \item \textbf{Về mặt trải nghiệm người dùng}: Giao diện Responsive hoạt động ổn định trên cả máy tính và thiết bị di động, hỗ trợ cả hai chế độ giao diện Sáng/Tối (Light/Dark Mode). Chức năng Popup JP Dictionary và nút Support đa năng giúp tra cứu nhanh tại chỗ, nâng cao tính tiện dụng cho người học.
+\end{itemize}
+
+Một số hình ảnh minh họa cho giao diện vận hành thực tế của ứng dụng JPMaster được trình bày tại Hình~\ref{fig:ui_screenshots}.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Hinhve/Noi_dung_bai_hoc.png}
+        \caption{Giao diện học bài và tra cứu từ vựng tại chỗ}
+        \label{fig:ui_lesson}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Hinhve/flashcards_ai.png}
+        \caption{Giao diện ôn tập Flashcard tích hợp trợ lý AI}
+        \label{fig:ui_flashcard_ai}
+    \end{subfigure}
+    \vskip 0.4cm
+    \begin{subfigure}[b]{0.65\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Hinhve/Thanh_toan.png}
+        \caption{Giao diện thanh toán QR code động qua cổng PayOS}
+        \label{fig:ui_payment}
+    \end{subfigure}
+    \caption{Một số giao diện chức năng chính của hệ thống JPMaster}
+    \label{fig:ui_screenshots}
+\end{figure}
+
+\section{Hạn chế và điểm cần cải thiện}
+\label{section:5.2}
+
+Mặc dù hệ thống JPMaster bước đầu đã vận hành ổn định và đáp ứng được các luồng nghiệp vụ cốt lõi, hệ thống vẫn tồn tại một số điểm hạn chế nhất định cần được cải thiện để nâng cao trải nghiệm và cá nhân hóa quá trình học tập:
+\begin{itemize}
+    \item \textbf{Chưa hỗ trợ tính năng cá nhân hóa mục tiêu học tập (Goals \& Analytics)}: Người học chưa thể tự thiết lập các mục tiêu học tập cá nhân (như số phút học mỗi ngày, số từ vựng cần ôn tập) và hệ thống chưa cung cấp biểu đồ phân tích chi tiết về hiệu suất học tập/thời gian tự học thực tế của người dùng.
+    \item \textbf{Chưa tích hợp phân hệ ghi chép học tập (Lesson Notes)}: Thiếu tính năng cho phép học viên lưu lại các ghi chú cá nhân trực tiếp tại từng mốc thời gian (timestamp) của video bài giảng để dễ dàng ôn tập sau này.
+    \item \textbf{Thiếu phân hệ tương tác cộng đồng (Blog \& Forum)}: Chưa có không gian để giáo viên và học viên viết bài chia sẻ kinh nghiệm ôn thi JLPT, mẹo học Kanji hoặc thảo luận các chủ đề học thuật ngoài chương trình.
+    \item \textbf{Chưa áp dụng cơ chế trò chơi hóa (Gamification)}: Thiếu các chức năng tạo động lực học tập liên tục cho học viên như chuỗi ngày học tập (streaks), bảng xếp hạng học viên hoặc hệ thống huy chương/thành tích (Achievements \& Badges).
+    \item \textbf{Hạn chế về luyện kỹ năng giao tiếp (Kaiwa)}: Hệ thống mới chỉ tập trung vào các kỹ năng nghe, đọc, từ vựng và ngữ pháp, chưa có công cụ hỗ trợ người học tự luyện nói tiếng Nhật và sửa lỗi phát âm.
+\end{itemize}
+
+\section{Định hướng phát triển tương lai}
+\label{section:5.3}
+
+Để khắc phục triệt để các hạn chế nêu trên và đưa JPMaster trở thành một hệ sinh thái hỗ trợ học tiếng Nhật toàn diện, định hướng phát triển trong thời gian tới tập trung vào các nội dung trọng tâm sau:
+\begin{itemize}
+    \item \textbf{Xây dựng phân hệ cá nhân hóa học tập (Goals \& Analytics)}: Phát triển tính năng thiết lập chỉ tiêu học tập hàng ngày/hàng tuần (ví dụ: học ít nhất 30 phút mỗi ngày, hoàn thành 2 bài học, xem 10 thẻ flashcard). Đồng thời, tích hợp dashboard phân tích trực quan kết quả học tập để gợi ý lộ trình tự học tối ưu cho học viên.
+    \item \textbf{Phát triển tính năng ghi chú thông minh (Lesson Notes)}: Triển khai công cụ cho phép ghi chép nhanh đi kèm với trình phát video bài giảng. Ghi chú của học viên sẽ tự động gắn liền với mốc thời gian của video, giúp học viên chỉ cần nhấp vào ghi chú là có thể xem lại ngay phân đoạn bài giảng tương ứng.
+    \item \textbf{Tích hợp diễn đàn học tập và Blog chia sẻ}: Xây dựng hệ thống blog nội bộ cho phép giáo viên viết các bài hướng dẫn chuyên sâu và học viên có thể chia sẻ nhật ký học tập, tạo dựng một cộng đồng học tập trực tuyến năng động.
+    \item \textbf{Áp dụng cơ chế trò chơi hóa (Gamification)}: Thiết lập các phần thưởng số, trao tặng huy chương thành tích khi hoàn thành các cột mốc học tập quan trọng và xây dựng hệ thống theo dõi chuỗi ngày học (streak) để thúc đẩy thói quen tự học hàng ngày.
+    \item \textbf{Nghiên cứu ứng dụng Voice AI hỗ trợ luyện Kaiwa}: Tích hợp công nghệ nhận dạng giọng nói (Speech-to-Text) kết hợp với các mô hình ngôn ngữ lớn để ghi âm giọng nói của học viên, phân tích lỗi phát âm (như ngữ điệu, biến âm, trường âm) và đưa ra các đánh giá, gợi ý sửa đổi chi tiết theo thời gian thực.
+    \item \textbf{Tối ưu hóa hiệu năng và đa nền tảng}: Nghiên cứu triển khai hệ thống bộ nhớ đệm (Redis Caching) ở backend để giảm tải cơ sở dữ liệu PostgreSQL, đồng thời phát triển phiên bản di động đa nền tảng bằng React Native giúp người học dễ dàng truy cập ôn tập mọi lúc mọi nơi.
+\end{itemize}
+
+\end{document}

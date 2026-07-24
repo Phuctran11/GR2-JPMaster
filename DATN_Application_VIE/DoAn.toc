@@ -1,0 +1,35 @@
+\ttl@change@i {\@ne }{chapter}{0.0cm}{\bfseries \vspace {0.3cm}}{{\bfseries {\scshape } CHƯƠNG \thecontentslabel .\ }}{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {chapter}{}{}{}\relax 
+\ttl@change@i {\@ne }{section}{0.0cm}{\vspace {0.3cm}}{\thecontentslabel \ }{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {section}{}{}{}\relax 
+\ttl@change@i {\@ne }{subsection}{1.0cm}{\vspace {0.3cm}}{\thecontentslabel \ }{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {subsection}{}{}{}\relax 
+\thispagestyle {empty}
+\contentsline {chapter}{\numberline {1}GIỚI THIỆU ĐỀ TÀI}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}PHÂN TÍCH YÊU CẦU HỆ THỐNG}{2}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Khảo sát hiện trạng}{2}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Yêu cầu chức năng và Đặc tả Use Case}{4}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Các phân hệ chức năng của hệ thống}{5}{subsection.2.2.1}%
+\contentsline {section}{\numberline {2.3}Quy trình nghiệp vụ chi tiết}{10}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Quy trình đăng ký và thanh toán khóa học}{10}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Quy trình học bài và theo dõi tiến độ}{11}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Quy trình ôn tập flashcard và hỗ trợ AI}{12}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Quy trình làm bài thi thử JLPT}{12}{subsection.2.3.4}%
+\contentsline {section}{\numberline {2.4}Yêu cầu phi chức năng}{13}{section.2.4}%
+\contentsline {chapter}{\numberline {3}CÔNG NGHỆ SỬ DỤNG}{15}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Công nghệ phía frontend}{15}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Công nghệ phía backend}{15}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Cơ sở dữ liệu}{16}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Tích hợp dịch vụ ngoài}{16}{section.3.4}%
+\contentsline {chapter}{\numberline {4}XÂY DỰNG VÀ TRIỂN KHAI HỆ THỐNG}{18}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Kiến trúc hệ thống}{18}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Phân lớp và phân gói hệ thống}{19}{subsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {a}Cấu trúc phân gói phía Frontend (React \& TypeScript)}{19}{subsubsection.4.1.1.1}%
+\contentsline {subsubsection}{\numberline {b}Cấu trúc phân lớp phía Backend (Express \& TypeScript)}{20}{subsubsection.4.1.1.2}%
+\contentsline {section}{\numberline {4.2}Thiết kế cơ sở dữ liệu}{21}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Các liên kết và mối quan hệ giữa các bảng}{32}{subsection.4.2.1}%
+\contentsline {chapter}{\numberline {5}KẾT QUẢ VÀ ĐÁNH GIÁ}{34}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Kết quả đạt được của hệ thống}{34}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Hạn chế và điểm cần cải thiện}{35}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Định hướng phát triển tương lai}{36}{section.5.3}%
+\contentsfinish 

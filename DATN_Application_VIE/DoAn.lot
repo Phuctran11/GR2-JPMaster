@@ -1,0 +1,33 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces So sánh các hệ thống tham chiếu và JPMaster}}{3}{table.caption.5}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Đặc tả Use Case Đăng ký và thanh toán khóa học}}{8}{table.caption.7}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Đặc tả Use Case Ôn tập Flashcard hỗ trợ AI}}{9}{table.caption.8}%
+\contentsline {table}{\numberline {2.4}{\ignorespaces Đặc tả Use Case Thi thử JLPT}}{10}{table.caption.9}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Cấu trúc bảng User}}{22}{table.caption.10}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Cấu trúc bảng CloudinaryAsset}}{23}{table.caption.11}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Cấu trúc bảng Course}}{23}{table.caption.12}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Cấu trúc bảng Lesson}}{24}{table.caption.13}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Cấu trúc bảng FlashcardCollection}}{24}{table.caption.14}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Cấu trúc bảng Flashcard}}{25}{table.caption.15}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Cấu trúc bảng Quiz}}{25}{table.caption.16}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Cấu trúc bảng ReadingPassage}}{26}{table.caption.17}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces Cấu trúc bảng Question}}{26}{table.caption.18}%
+\contentsline {table}{\numberline {4.10}{\ignorespaces Cấu trúc bảng Option}}{27}{table.caption.19}%
+\contentsline {table}{\numberline {4.11}{\ignorespaces Cấu trúc bảng QuizQuestion}}{27}{table.caption.20}%
+\contentsline {table}{\numberline {4.12}{\ignorespaces Cấu trúc bảng QuizAttempt}}{27}{table.caption.21}%
+\contentsline {table}{\numberline {4.13}{\ignorespaces Cấu trúc bảng UserAnswer}}{28}{table.caption.22}%
+\contentsline {table}{\numberline {4.14}{\ignorespaces Cấu trúc bảng JLPTExam}}{28}{table.caption.23}%
+\contentsline {table}{\numberline {4.15}{\ignorespaces Cấu trúc bảng JLPTSection}}{29}{table.caption.24}%
+\contentsline {table}{\numberline {4.16}{\ignorespaces Cấu trúc bảng JLPTSectionQuestion}}{29}{table.caption.25}%
+\contentsline {table}{\numberline {4.17}{\ignorespaces Cấu trúc bảng Purchase}}{30}{table.caption.26}%
+\contentsline {table}{\numberline {4.18}{\ignorespaces Cấu trúc bảng PaymentTransaction}}{30}{table.caption.27}%
+\contentsline {table}{\numberline {4.19}{\ignorespaces Cấu trúc bảng CourseEnrollment}}{31}{table.caption.28}%
+\contentsline {table}{\numberline {4.20}{\ignorespaces Cấu trúc bảng Certificate}}{31}{table.caption.29}%
+\contentsline {table}{\numberline {4.21}{\ignorespaces Cấu trúc bảng CourseRating}}{31}{table.caption.30}%
+\contentsline {table}{\numberline {4.22}{\ignorespaces Cấu trúc bảng UserLessonProgress}}{32}{table.caption.31}%
+\addvspace {10\p@ }
+\contentsfinish 
+\contentsfinish 

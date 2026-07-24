@@ -1,0 +1,224 @@
+<mxfile host="app.diagrams.net" agent="JPMaster" version="24.7.17" type="device">
+  <diagram id="seq-payment" name="5-Sequence-Thanh-toan">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Biểu đồ trình tự — Đăng ký và thanh toán khóa học" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="350" y="10" width="500" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="a1" value="Người học" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="60" width="40" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" value="Frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="220" y="70" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" value="Backend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="420" y="70" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" value="PayOS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="70" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a5" value="PostgreSQL" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="820" y="60" width="80" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="l1" style="endArrow=none;dashed=1;html=1;strokeColor=#999999;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="80" y="130" as="sourcePoint"/><mxPoint x="80" y="780" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="l2" style="endArrow=none;dashed=1;html=1;strokeColor=#999999;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="270" y="110" as="sourcePoint"/><mxPoint x="270" y="780" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="l3" style="endArrow=none;dashed=1;html=1;strokeColor=#999999;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="110" as="sourcePoint"/><mxPoint x="470" y="780" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="l4" style="endArrow=none;dashed=1;html=1;strokeColor=#999999;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="670" y="110" as="sourcePoint"/><mxPoint x="670" y="780" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="l5" style="endArrow=none;dashed=1;html=1;strokeColor=#999999;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="860" y="120" as="sourcePoint"/><mxPoint x="860" y="780" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="alt" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=40;height=20;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=4;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="140" width="820" height="620" as="geometry"/>
+        </mxCell>
+        <mxCell id="free" value="[Khóa học miễn phí — price = 0]" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="120" y="160" width="280" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="m1" value="1. Chọn Đăng ký miễn phí" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="80" y="190" as="sourcePoint"/><mxPoint x="270" y="190" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="2. POST /api/enrollments/enroll" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="270" y="220" as="sourcePoint"/><mxPoint x="470" y="220" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="3. INSERT CourseEnrollment" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="250" as="sourcePoint"/><mxPoint x="860" y="250" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="4. Mở quyền học ngay" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="280" as="sourcePoint"/><mxPoint x="270" y="280" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="div" value="" style="line;strokeWidth=1;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="310" width="800" height="10" as="geometry"/>
+        </mxCell>
+        <mxCell id="paid" value="[Khóa học có phí — price &gt; 0]" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="120" y="330" width="280" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="m5" value="5. Chọn Mua khóa học" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="80" y="360" as="sourcePoint"/><mxPoint x="270" y="360" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="6. POST /api/payments/courses/:id/payos" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="270" y="390" as="sourcePoint"/><mxPoint x="470" y="390" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="7. Kiểm tra user, course, chưa enroll" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="420" as="sourcePoint"/><mxPoint x="860" y="420" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="8. Tạo payment link" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="450" as="sourcePoint"/><mxPoint x="670" y="450" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="9. Trả checkout URL" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="480" as="sourcePoint"/><mxPoint x="270" y="480" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="10. Redirect sang PayOS" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="270" y="510" as="sourcePoint"/><mxPoint x="80" y="510" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="11. Thanh toán thành công" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="80" y="550" as="sourcePoint"/><mxPoint x="670" y="550" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="12. POST /api/payments/webhooks/payos" style="endArrow=classic;html=1;strokeColor=#9673A6;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="670" y="580" as="sourcePoint"/><mxPoint x="470" y="580" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m13" value="13. UPDATE PaymentTransaction, Purchase" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="610" as="sourcePoint"/><mxPoint x="860" y="610" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m14" value="14. INSERT CourseEnrollment" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="640" as="sourcePoint"/><mxPoint x="860" y="640" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m15" value="15. Confirm / poll status PAID → mở quyền học" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="470" y="680" as="sourcePoint"/><mxPoint x="80" y="680" as="targetPoint"/></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="seq-learning" name="6-Sequence-Hoc-bai">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Biểu đồ trình tự — Học bài và cập nhật tiến độ" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="320" y="10" width="500" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="a1" value="Người học" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="60" width="40" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" value="Frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="240" y="70" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" value="Backend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="480" y="70" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" value="PostgreSQL" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="720" y="60" width="80" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="m1" value="1. Mở bài học" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="80" y="160" as="sourcePoint"/><mxPoint x="290" y="160" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="2. GET lesson + kiểm tra enrollment" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="290" y="190" as="sourcePoint"/><mxPoint x="530" y="190" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="3. SELECT lesson, progress, media URL" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="530" y="220" as="sourcePoint"/><mxPoint x="760" y="220" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="4. Trả nội dung bài học" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="530" y="250" as="sourcePoint"/><mxPoint x="80" y="250" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="5. PUT .../lessons/:id/start" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="290" y="290" as="sourcePoint"/><mxPoint x="530" y="290" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="6. UPDATE UserLessonProgress (started)" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="530" y="320" as="sourcePoint"/><mxPoint x="760" y="320" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="opt" value="opt [Bài học có mini quiz]" style="shape=umlFrame;whiteSpace=wrap;html=1;width=60;height=20;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=4;" vertex="1" parent="1">
+          <mxGeometry x="120" y="350" width="700" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="m7" value="7. POST /api/quizzes/:id/start" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="290" y="390" as="sourcePoint"/><mxPoint x="530" y="390" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m8" value="8. POST /api/quizzes/:id/submit → gradeAttempt()" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="290" y="420" as="sourcePoint"/><mxPoint x="530" y="420" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="9. Trả score, passed" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="530" y="450" as="sourcePoint"/><mxPoint x="290" y="450" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="10. PUT .../lessons/:id/complete" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="290" y="560" as="sourcePoint"/><mxPoint x="530" y="560" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m11" value="11. UPDATE UserLessonProgress + course progress %" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="530" y="590" as="sourcePoint"/><mxPoint x="760" y="590" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m12" value="12. Refresh thanh tiến độ trên UI" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="530" y="630" as="sourcePoint"/><mxPoint x="80" y="630" as="targetPoint"/></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="seq-ai" name="7-Sequence-Flashcard-AI">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Biểu đồ trình tự — Flashcard và hỗ trợ AI" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="350" y="10" width="500" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="a1" value="Người học" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="40" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" value="Frontend" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="70" width="90" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" value="Backend" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="400" y="70" width="90" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" value="Gemini API" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="600" y="70" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a5" value="PostgreSQL" style="shape=cylinder3;fillColor=#f8cecc;strokeColor=#b85450;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;" vertex="1" parent="1">
+          <mxGeometry x="800" y="60" width="80" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="m1" value="1. Chọn collection, lật flashcard" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="60" y="160" as="sourcePoint"/><mxPoint x="245" y="160" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m2" value="2. Mở AI assistant, chọn mode (explain/paragraph/dialogue/ask)" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="60" y="190" as="sourcePoint"/><mxPoint x="245" y="190" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m3" value="3. POST /api/ai/flashcard {word, meaning, mode, question}" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="245" y="230" as="sourcePoint"/><mxPoint x="445" y="230" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m4" value="4. AiPromptsService.buildFlashcardPrompt()" style="endArrow=classic;html=1;strokeColor=#82B366;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="465" y="260" as="sourcePoint"/><mxPoint x="505" y="260" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m5" value="5. GeminiClientService.generateContent()" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="445" y="300" as="sourcePoint"/><mxPoint x="650" y="300" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m6" value="6. Text response" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="650" y="330" as="sourcePoint"/><mxPoint x="445" y="330" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m7" value="7. JSON response → hiển thị trong AI panel" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="445" y="370" as="sourcePoint"/><mxPoint x="60" y="370" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="opt" value="opt [Người học lưu ghi chú]" style="shape=umlFrame;whiteSpace=wrap;html=1;width=60;height=20;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=4;" vertex="1" parent="1">
+          <mxGeometry x="100" y="410" width="780" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="m8" value="8. Bấm Lưu ghi chú" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="60" y="450" as="sourcePoint"/><mxPoint x="245" y="450" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m9" value="9. POST /api/lesson-notes" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="245" y="480" as="sourcePoint"/><mxPoint x="445" y="480" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="m10" value="10. INSERT LessonNote" style="endArrow=classic;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="445" y="510" as="sourcePoint"/><mxPoint x="840" y="510" as="targetPoint"/></mxGeometry>
+        </mxCell>
+        <mxCell id="note" value="AI luôn gắn ngữ cảnh flashcard/lesson — không phải chatbot độc lập" style="text;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=center;" vertex="1" parent="1">
+          <mxGeometry x="200" y="560" width="500" height="35" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

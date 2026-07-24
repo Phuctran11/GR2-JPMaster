@@ -1,0 +1,19 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+
+
+Trong những năm gần đây, giáo dục trực tuyến (E-learning) đã phát triển mạnh mẽ. Đối với đào tạo ngoại ngữ, đặc biệt là tiếng Nhật, nhu cầu đạt được các chứng chỉ năng lực Nhật ngữ JLPT (Japanese Language Proficiency Test) ngày càng gia tăng phục vụ cho công việc và học tập. Tuy nhiên, người học tiếng Nhật hiện nay đang gặp khó khăn do trải nghiệm bị phân tán giữa nhiều ứng dụng rời rạc: xem bài giảng trên một hệ thống quản lý học tập (LMS - Learning Management System) riêng, ôn tập từ vựng bằng flashcard trên ứng dụng khác, thi thử JLPT trên một website độc lập và sử dụng các chatbot AI (Trí tuệ nhân tạo) bên ngoài để hỏi đáp. Sự phân tán này dẫn đến việc gián đoạn trải nghiệm học tập và khó theo dõi tiến độ cá nhân một cách đồng bộ.
+
+Để giải quyết hạn chế trên, nghiên cứu này hướng đến xây dựng hệ thống \textbf{JPMaster} - nền tảng giáo dục trực tuyến tích hợp toàn diện (All-in-One). JPMaster kết hợp các học liệu LMS truyền thống với các công cụ học tập thông minh:
+\begin{itemize}
+    \item \textbf{Học tập trực quan}: Bài giảng video đi kèm tài liệu lý thuyết và bài tập kiểm tra ngắn (quiz).
+    \item \textbf{Ôn tập thẻ học thông minh (Flashcard)}: Hỗ trợ người dùng tự tạo và học từ vựng trực tiếp theo lộ trình bài học.
+    \item \textbf{Luyện thi thử JLPT}: Cung cấp các đề thi thử năng lực tiếng Nhật được chia nhỏ theo các phần thi thực tế với cơ chế tính điểm sàn và điểm liệt để giả lập chính xác kỳ thi thật.
+    \item \textbf{Trợ lý AI hỗ trợ theo ngữ cảnh}: Tích hợp Google Gemini AI giúp giải thích ngữ pháp, từ vựng trực tiếp dựa trên bài học hoặc flashcard cụ thể của học viên thay vì phản hồi chung chung.
+    \item \textbf{Thanh toán tự động}: Tích hợp cổng PayOS để xử lý và ghi danh học viên tự động bằng mã QR (Quick Response) code.
+\end{itemize}
+
+Nghiên cứu được triển khai dưới dạng ứng dụng web, sử dụng mô hình client-server với React ở phía frontend và Express/TypeScript ở backend, kết nối cơ sở dữ liệu PostgreSQL và tích hợp các dịch vụ đám mây (Gemini AI, PayOS, Cloudinary). Mục tiêu cốt lõi của đề tài là xây dựng một sản phẩm hoàn chỉnh, tối ưu hóa trải nghiệm tự học liền mạch của học viên và hỗ trợ quản trị học liệu hiệu quả cho giáo viên.
+
+\end{document}

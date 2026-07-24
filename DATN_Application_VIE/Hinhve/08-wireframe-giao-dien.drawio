@@ -1,0 +1,94 @@
+<mxfile host="app.diagrams.net" agent="JPMaster" version="24.7.17" type="device">
+  <diagram id="ui-home" name="10-Wireframe-Trang-chu">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="frame" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="820" height="560" as="geometry"/>
+        </mxCell>
+        <mxCell id="nav" value="LOGO | Trang chủ | Khóa học | Blog | Test | Flashcard | [Đăng nhập]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="820" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="hero" value="HERO SECTION&#xa;Học tiếng Nhật cùng JPMaster&#xa;[Bắt đầu ngay] [Khám phá khóa học]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=center;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="820" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="stats" value="Thống kê: X khóa học | Y bài học | Z học viên" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="235" width="820" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="cards" value="Khóa học nổi bật" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="50" y="290" width="200" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="c1" value="Course Card 1&#xa;Thumbnail&#xa;Title | Level&#xa;[Xem chi tiết]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;align=center;" vertex="1" parent="1">
+          <mxGeometry x="50" y="320" width="240" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="c2" value="Course Card 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;align=center;" vertex="1" parent="1">
+          <mxGeometry x="320" y="320" width="240" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="c3" value="Course Card 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;align=center;" vertex="1" parent="1">
+          <mxGeometry x="590" y="320" width="240" height="140" as="geometry"/>
+        </mxCell>
+        <mxCell id="footer" value="Footer — Liên hệ | Mạng xã hội | Copyright" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="540" width="820" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="note" value="Wireframe thiết kế giao diện — §4.2.1 (không phải sản phẩm cuối)" style="text;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="610" width="500" height="25" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="ui-course" name="11-Wireframe-Khoa-hoc">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="left" value="Thông tin khóa học&#xa;&#xa;[Thumbnail]&#xa;Tiêu đề khóa học&#xa;Mô tả ngắn&#xa;Giảng viên | Cấp độ&#xa;Giá: XXX VNĐ&#xa;&#xa;[Đăng ký / Mua khóa học]&#xa;[Tiếp tục học]&#xa;&#xa;Progress bar: ████░░ 60%" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=12;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="320" height="480" as="geometry"/>
+        </mxCell>
+        <mxCell id="right" value="Chương trình học&#xa;&#xa;☑ Bài 1 — Giới thiệu&#xa;☑ Bài 2 — Bảng chữ cái&#xa;▶ Bài 3 — Chào hỏi (đang học)&#xa;○ Bài 4 — Số đếm&#xa;○ Bài 5 — Quiz cuối khóa&#xa;&#xa;Icon: ✓ hoàn thành | ▶ đang học | ○ chưa học" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;align=left;spacingLeft=12;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="400" y="60" width="460" height="480" as="geometry"/>
+        </mxCell>
+        <mxCell id="title" value="Wireframe — Trang chi tiết khóa học" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="280" y="20" width="350" height="25" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="ui-lesson" name="12-Wireframe-Hoc-bai">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="650" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Wireframe — Trang học bài + Quiz" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="300" y="15" width="350" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="content" value="Nội dung bài học (70%)&#xa;&#xa;[Video / Media player]&#xa;&#xa;Nội dung text bài học...&#xa;Kanji, ví dụ, giải thích&#xa;&#xa;Mini Quiz:&#xa;Câu hỏi 1: ...&#xa;○ A  ○ B  ○ C  ○ D&#xa;[Nộp bài]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;align=left;spacingLeft=12;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="55" width="620" height="520" as="geometry"/>
+        </mxCell>
+        <mxCell id="sidebar" value="Sidebar (30%)&#xa;&#xa;Tiến độ bài: 75%&#xa;███████░░░&#xa;&#xa;Danh sách bài&#xa;☑ Bài 1&#xa;▶ Bài 2&#xa;&#xa;[AI Assistant]&#xa;[Ghi chú]&#xa;[Flashcard]&#xa;&#xa;[Đánh dấu hoàn thành]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="690" y="55" width="250" height="520" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="ui-flashcard" name="13-Wireframe-Flashcard-AI">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="650" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Wireframe — Flashcard + AI Assistant" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="300" y="15" width="400" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="card" value="FLASHCARD&#xa;&#xa;食べる (taberu)&#xa;to eat&#xa;&#xa;[Lật thẻ]  [Đã nhớ]  [Chưa nhớ]&#xa;&#xa;Tiến độ: 5/20 thẻ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=center;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="480" height="280" as="geometry"/>
+        </mxCell>
+        <mxCell id="ai" value="AI ASSISTANT (drawer bên phải)&#xa;&#xa;Mode: [explain ▼]&#xa;Ngữ cảnh: từ 食べる&#xa;─────────────────&#xa;AI: Usage and examples...&#xa;─────────────────&#xa;[Hỏi thêm...        ] [Gửi]&#xa;[Lưu ghi chú]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="600" y="80" width="340" height="400" as="geometry"/>
+        </mxCell>
+        <mxCell id="list" value="Danh sách thẻ trong collection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="390" width="480" height="90" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
